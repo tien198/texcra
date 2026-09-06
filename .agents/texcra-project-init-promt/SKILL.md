@@ -1,9 +1,9 @@
 ---
 name: project-init-promt
-description: Design Texcra frontends in Pencil MCP or implement an existing Pencil design in Next.js or TanStack Start. Use for Texcra UI design, design-to-code, localized-copy transcription, font synchronization, or theme-token alignment.
+description: Design frontends in Pencil MCP or implement an existing Pencil design in Next.js or TanStack Start. Use for UI design, design-to-code, localized-copy transcription, translation (i18n), font synchronization, or theme-token alignment.
 ---
 
-# Texcra Frontend Workflow
+# Frontend Workflow
 
 Use Pencil MCP as the source of truth for design frames, content, styles, and assets. Follow the user's requested scope and preserve unrelated or uncommitted work.
 
