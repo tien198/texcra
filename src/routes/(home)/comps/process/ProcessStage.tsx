@@ -1,4 +1,4 @@
-import styles from './process.module.css'
+import { clsx } from 'clsx'
 
 type ProcessStageProps = {
   number: string
@@ -15,14 +15,40 @@ export function ProcessStage({
   outcome,
 }: ProcessStageProps) {
   return (
-    <li className={styles.stage}>
-      <span className={styles.number}>{number}</span>
-      <h3>{title}</h3>
-      <p>
-        <span className={styles.desktopCopy}>{description}</span>
-        <span className={styles.mobileCopy}>{mobileDescription}</span>
+    <li
+      className={clsx(
+        'flex flex-col items-start gap-[15px] md:gap-[22px] border-t border-[#b5bec2] pt-[24px]'
+      )}
+    >
+      <span
+        className={clsx(
+          'text-[#465157] font-heading font-[200] text-[12px] tracking-[1.8px]'
+        )}
+      >
+        {number}
+      </span>
+      <h3
+        className={clsx(
+          'font-heading font-[200] text-[26px] tracking-[2.2px]'
+        )}
+      >
+        {title}
+      </h3>
+      <p
+        className={clsx(
+          'text-[#465157] text-[15px] md:text-[16px] leading-[1.7]'
+        )}
+      >
+        <span className="hidden md:inline">{description}</span>
+        <span className="inline md:hidden">{mobileDescription}</span>
       </p>
-      <span className={styles.outcome}>{outcome}</span>
+      <span
+        className={clsx(
+          'text-[#465157] font-heading font-[200] text-[9px] leading-[1.5] tracking-[2.2px]'
+        )}
+      >
+        {outcome}
+      </span>
     </li>
   )
 }

@@ -1,4 +1,4 @@
-import styles from './contact.module.css'
+import { clsx } from 'clsx'
 
 type ContactFieldProps = {
   name: string
@@ -15,9 +15,16 @@ export function ContactField({
   autoComplete,
 }: ContactFieldProps) {
   return (
-    <label className={styles.field}>
-      <span>{label}</span>
+    <label
+      className={clsx(
+        'flex flex-col gap-[16px] border-b border-[#aec2d050] pb-[14px] min-w-0'
+      )}
+    >
+      <span className={clsx('text-[13px]')}>{label}</span>
       <input
+        className={clsx(
+          'w-full min-w-0 p-0 border-0 rounded-none bg-transparent text-[#f7f7f5] text-[16px] leading-[1.4] placeholder:text-[#8ca0b0] placeholder:opacity-100'
+        )}
         name={name}
         type={type}
         placeholder={placeholder}

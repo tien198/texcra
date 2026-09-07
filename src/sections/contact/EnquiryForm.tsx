@@ -4,7 +4,7 @@ import type { FormEvent } from 'react'
 import { m } from '#/paraglide/messages.js'
 import { ContactField } from './ContactField'
 import { ProjectTypeSelector } from './ProjectTypeSelector'
-import styles from './contact.module.css'
+import { clsx } from 'clsx'
 
 export type ProjectEnquiry = {
   name: string
@@ -61,13 +61,26 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
 
   return (
     <form
-      className={styles.form}
+      className={clsx(
+        'flex flex-col gap-[22px] min-w-0 p-[24px] md:p-[32px] border border-[#ddebeb66] border-t-[#f1f7f680] rounded-[6px] bg-[linear-gradient(135deg,#ffffff1f,#bde7f20d_34%,#ffffff08_68%,#8eb7c814)] backdrop-blur-[24px] shadow-[0_18px_48px_-12px_#000b1266]'
+      )}
       onSubmit={handleSubmit}
       aria-labelledby="enquiry-title"
       aria-busy={status === 'submitting'}
     >
-      <h3 id="enquiry-title">{m.contact_form_title()}</h3>
-      <div className={styles.details}>
+      <h3
+        id="enquiry-title"
+        className={clsx(
+          'font-heading font-[200] text-[23px] md:text-[24px] tracking-[1.2px] md:tracking-[2.2px]'
+        )}
+      >
+        {m.contact_form_title()}
+      </h3>
+      <div
+        className={clsx(
+          'grid grid-cols-1 lg:grid-cols-2 gap-[22px] md:gap-[24px]'
+        )}
+      >
         <ContactField
           name="name"
           label={m.contact_name_label()}
@@ -83,9 +96,12 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
         />
       </div>
       <ProjectTypeSelector />
-      <label className={styles.brief}>
-        <span>{m.contact_brief_label()}</span>
+      <label className={clsx('flex flex-col gap-[14px]')}>
+        <span className={clsx('text-[13px]')}>{m.contact_brief_label()}</span>
         <textarea
+          className={clsx(
+            'resize-y w-full h-[96px] min-h-[96px] p-[18px] border border-[#aec2d050] rounded-none bg-[#06182818] text-[#f7f7f5] text-[15px] leading-[1.65] placeholder:text-[#8ca0b0] placeholder:opacity-100'
+          )}
           name="brief"
           placeholder={m.contact_brief_placeholder()}
           required
@@ -95,7 +111,9 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
       </label>
       <button
         type="submit"
-        className={styles.submit}
+        className={clsx(
+          'flex items-center justify-between gap-[32px] self-stretch md:self-start min-h-[55px] px-[24px] py-[18px] border-0 rounded-[2px] bg-[#bddfff] hover:bg-[#d5eaff] disabled:opacity-65 disabled:cursor-wait text-[#17242b] text-[13px] font-[600] cursor-pointer'
+        )}
         disabled={status === 'submitting'}
       >
         {status === 'submitting'
@@ -105,7 +123,11 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
             : m.contact_submit()}
         <ArrowUpRight size={18} strokeWidth={1.5} aria-hidden="true" />
       </button>
-      <p className={styles.feedback} role="status" aria-live="polite">
+      <p
+        className={clsx('empty:hidden text-[#d8e7f1] text-[13px] leading-[1.65]')}
+        role="status"
+        aria-live="polite"
+      >
         {feedback}
       </p>
     </form>
