@@ -1,0 +1,285 @@
+.interface {
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
+  padding: 3.4rem 3.8rem 2.4rem;
+  pointer-events: none;
+}
+
+.frame {
+  position: absolute;
+  inset: 1.45rem;
+  border: 1px solid rgba(246, 248, 247, 0.88);
+  border-radius: 1.35rem;
+  box-shadow: inset 0 0 0 1px rgba(16, 43, 64, 0.18);
+}
+
+.frameNotch {
+  position: absolute;
+  left: 1.55rem;
+  width: 1rem;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.frameNotchTop {
+  top: 7.8rem;
+}
+
+.frameNotchBottom {
+  bottom: 1.65rem;
+}
+
+.masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+.masthead p,
+.heroCopy p,
+.footerData p {
+  margin: 0;
+}
+
+.wordmark {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(1rem, 1.45vw, 1.35rem);
+  font-weight: 300;
+  letter-spacing: 0.52em;
+}
+
+.brandLine,
+.observation {
+  margin-top: 0.55rem !important;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  letter-spacing: 0.045em;
+}
+
+.observation {
+  margin-top: 0 !important;
+  text-align: right;
+}
+
+.heroCopy {
+  position: absolute;
+  top: 20.2%;
+  left: 4.45%;
+  text-transform: uppercase;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+
+.heroRule {
+  position: absolute;
+  top: -2.85rem;
+  left: -1.35rem;
+  width: 1px;
+  height: 7.6rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.heroRule::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -0.42rem;
+  width: 0.85rem;
+  height: 1px;
+  background: inherit;
+}
+
+.eyebrow {
+  display: none;
+}
+
+.heroCopy h1 {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(2.65rem, 4.15vw, 5rem);
+  font-weight: 200;
+  line-height: 1.04;
+  letter-spacing: 0.17em;
+}
+
+.tagline {
+  margin-top: 1rem !important;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(0.64rem, 0.86vw, 0.82rem);
+  letter-spacing: 0.045em;
+}
+
+.continuityPanel {
+  position: absolute;
+  right: 5.2%;
+  bottom: 10.7%;
+  display: flex;
+  width: min(18.5rem, 28vw);
+  min-width: 15.5rem;
+  padding: 1rem 1.25rem 0.92rem;
+  border: 1px solid rgba(9, 36, 59, 0.22);
+  border-radius: 0.65rem;
+  flex-direction: column;
+  color: #08253d;
+  background: linear-gradient(135deg, rgba(220, 229, 235, 0.46), rgba(129, 151, 169, 0.28));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 18px 55px rgba(6, 22, 36, 0.1);
+  font-family: 'Courier New', monospace;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.panelHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.signal {
+  width: 0.38rem;
+  height: 0.38rem;
+  border: 1px solid #e7f7ff;
+  border-radius: 50%;
+  background: #bce7ff;
+  box-shadow: 0 0 12px 3px rgba(151, 216, 255, 0.8);
+}
+
+.metric {
+  margin-top: 0.35rem;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.metric small {
+  margin-left: 0.28rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+}
+
+.panelDivider {
+  height: 1px;
+  margin: 0.55rem 0 0.62rem;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.panelMeta {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.footerData {
+  position: absolute;
+  right: 4%;
+  bottom: 3.8rem;
+  left: 3.8rem;
+  display: flex;
+  align-items: center;
+  color: #092743;
+  font-family: 'Courier New', monospace;
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sequence {
+  display: flex;
+  margin-left: auto;
+  gap: clamp(4rem, 13vw, 13rem);
+}
+
+.sequence span::before {
+  content: '';
+  display: inline-block;
+  width: 1.25rem;
+  height: 1px;
+  margin-right: 0.45rem;
+  vertical-align: middle;
+  background: currentColor;
+}
+
+.interactionHint {
+  position: absolute;
+  right: 3.9rem;
+  bottom: 1.8rem;
+  margin: 0;
+  color: rgba(7, 37, 62, 0.68);
+  font-family: 'Courier New', monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+  .interface {
+    padding: 2rem 1.7rem;
+  }
+
+  .frame {
+    inset: 0.72rem;
+    border-radius: 0.85rem;
+  }
+
+  .brandLine {
+    max-width: 11rem;
+  }
+
+  .observation {
+    font-size: 0.52rem;
+  }
+
+  .heroCopy {
+    top: 18%;
+    left: 2rem;
+  }
+
+  .heroRule {
+    display: none;
+  }
+
+  .heroCopy h1 {
+    font-size: clamp(2.15rem, 11vw, 3.5rem);
+  }
+
+  .continuityPanel {
+    right: 1.7rem;
+    bottom: 11%;
+    width: 15.5rem;
+  }
+
+  .footerData {
+    right: 1.7rem;
+    bottom: 2rem;
+    left: 1.7rem;
+  }
+
+  .footerData p {
+    display: none;
+  }
+
+  .sequence {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .sequence span:nth-child(even) {
+    display: none;
+  }
+
+  .interactionHint {
+    display: none;
+  }
+}
