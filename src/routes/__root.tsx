@@ -5,7 +5,9 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { getLocale } from '#/paraglide/runtime'
 import { m } from '#/paraglide/messages.js'
 
-import appCss from '../styles.css?url'
+import appCss from '../globals.css?url'
+import { SiteHeader } from '#/sections/header/SiteHeader'
+import { SiteFooter } from '#/sections/footer/SiteFooter'
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
@@ -46,7 +48,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <SiteHeader />
         {children}
+        <SiteFooter />
+
         <TanStackDevtools
           config={{
             position: 'bottom-right',

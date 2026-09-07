@@ -97,5 +97,11 @@
   "home_process_discover_description_mobile": "Align on goals, audience, and success.",
   "home_process_design_description_mobile": "Shape structure, language, and interaction.",
   "home_process_engineer_description_mobile": "Build for precision, performance, and scale.",
-  "home_process_refine_description_mobile": "Resolve friction and prepare to launch."
+  "home_process_refine_description_mobile": "Resolve friction and prepare to launch.",
+  "contact_delivery_unavailable": "Enquiry sending is not available yet. Your details are still here; please try again later.",
+  "contact_delivery_error": "Your enquiry could not be sent. Your details are saved in this form. Please try again.",
+  "contact_required_error": "Please enter your name, email, and a project brief.",
+  "contact_delivery_success": "Thank you. Your enquiry has been sent.",
+  "contact_submitting": "Sending…",
+  "contact_retry": "Try again"
 }

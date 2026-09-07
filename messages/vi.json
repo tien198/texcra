@@ -97,5 +97,11 @@
   "home_process_discover_description_mobile": "Thống nhất mục tiêu, đối tượng khách hàng và tiêu chí thành công.",
   "home_process_design_description_mobile": "Định hình cấu trúc, ngôn ngữ và tương tác.",
   "home_process_engineer_description_mobile": "Xây dựng với độ chính xác, hiệu năng và khả năng mở rộng.",
-  "home_process_refine_description_mobile": "Tháo gỡ vướng mắc và chuẩn bị ra mắt."
+  "home_process_refine_description_mobile": "Tháo gỡ vướng mắc và chuẩn bị ra mắt.",
+  "contact_delivery_unavailable": "Hiện chưa thể gửi yêu cầu. Nội dung của bạn vẫn được giữ trong biểu mẫu; vui lòng thử lại sau.",
+  "contact_delivery_error": "Không thể gửi yêu cầu. Nội dung của bạn vẫn được giữ trong biểu mẫu. Vui lòng thử lại.",
+  "contact_required_error": "Vui lòng nhập họ tên, email và nội dung dự án.",
+  "contact_delivery_success": "Cảm ơn bạn. Yêu cầu của bạn đã được gửi.",
+  "contact_submitting": "Đang gửi…",
+  "contact_retry": "Thử lại"
 }
