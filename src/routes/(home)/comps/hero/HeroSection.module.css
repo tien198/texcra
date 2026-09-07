@@ -1,0 +1,25 @@
+.experience {
+  --ink: #edf5fb;
+  --navy: #061a2b;
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 68% 42%, rgba(57, 112, 157, 0.2), transparent 28%),
+    linear-gradient(180deg, #031628 0%, #08253c 47%, #496176 70%, #d7d8d9 100%);
+}
+
+.experience::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, transparent 10%, #000 48%, transparent 92%);
+}

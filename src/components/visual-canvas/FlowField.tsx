@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import type { RefObject } from 'react'
 import * as THREE from 'three'
 
@@ -158,14 +158,16 @@ function FlowStrand({
   )
 }
 
-export function FlowField() {
+export function FlowField({
+  hasInteracted,
+}: {
+  hasInteracted: RefObject<boolean>
+}) {
   const group = useRef<THREE.Group>(null)
-  const rawPointer = useRef(new THREE.Vector2())
   const interaction = useRef<FlowInteraction>({
     point: new THREE.Vector2(1.35, -0.16),
     strength: 0,
   })
-  const hasInteracted = useRef(false)
   const interactionPlane = useRef(new THREE.Plane())
   const pointerRay = useRef(new THREE.Raycaster())
   const planeNormal = useRef(new THREE.Vector3())
@@ -177,20 +179,7 @@ export function FlowField() {
   const centerOffset = useRef(new THREE.Vector2())
   const strands = useMemo(() => makeStrands(), [])
 
-  useEffect(() => {
-    const trackPointer = (event: PointerEvent) => {
-      rawPointer.current.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1,
-      )
-      hasInteracted.current = true
-    }
-
-    window.addEventListener('pointermove', trackPointer, { passive: true })
-    return () => window.removeEventListener('pointermove', trackPointer)
-  }, [])
-
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera, pointer }, delta) => {
     if (!group.current) return
     const frameDelta = Math.min(delta, 1 / 30)
 
@@ -203,7 +192,7 @@ export function FlowField() {
       planeOrigin.current,
     )
 
-    pointerRay.current.setFromCamera(rawPointer.current, camera)
+    pointerRay.current.setFromCamera(pointer, camera)
     const hit = pointerRay.current.ray.intersectPlane(
       interactionPlane.current,
       worldIntersection.current,
@@ -212,7 +201,10 @@ export function FlowField() {
     if (hit && hasInteracted.current) {
       localIntersection.current.copy(hit)
       group.current.worldToLocal(localIntersection.current)
-      boundedTarget.current.set(localIntersection.current.x, localIntersection.current.y)
+      boundedTarget.current.set(
+        localIntersection.current.x,
+        localIntersection.current.y,
+      )
       centerOffset.current.set(
         boundedTarget.current.x - 1.35,
         boundedTarget.current.y + 0.16,
