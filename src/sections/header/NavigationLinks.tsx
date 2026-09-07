@@ -1,5 +1,5 @@
 import { m } from '#/paraglide/messages.js'
-import { ProjectLink } from '../../comps/shared/ProjectLink'
+import { ProjectLink } from '../../routes/(home)/comps/shared/ProjectLink'
 import styles from './header.module.css'
 
 export function NavigationLinks() {
