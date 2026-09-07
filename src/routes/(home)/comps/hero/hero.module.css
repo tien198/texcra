@@ -1,7 +1,7 @@
 .hero {
   position: relative;
   isolation: isolate;
-  min-height: 900px;
+  height: 100dvh;
   overflow: clip;
   background: #061828;
   color: #f7f7f5;
@@ -9,11 +9,10 @@
 
 .artwork {
   position: absolute;
-  z-index: -2;
   top: 0;
-  left: calc(50% - 910px);
-  width: 1645px;
-  height: 1029px;
+  /* left: calc(50% - 910px); */
+  width: 100dvw;
+  height: 100dvh;
   pointer-events: none;
 }
 
@@ -41,6 +40,7 @@
 
 .content {
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
