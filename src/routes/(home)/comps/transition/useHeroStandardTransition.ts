@@ -31,6 +31,7 @@ export function useHeroStandardTransition() {
         transition.dataset.motion = 'true'
         const heroContent = hero.querySelector('[data-hero-content]')
         const content = standard.querySelector('[data-standard-content]')
+        const atmosphere = standard.querySelector('[data-atmosphere]')
         const sceneTransition = sceneTransitionRef.current
         let targetClip = ''
 
@@ -100,6 +101,23 @@ export function useHeroStandardTransition() {
             { opacity: 1, y: 0, duration: 0.7 },
             0.15,
           )
+
+        // The sticky stage releases when the transition's bottom meets the viewport.
+        gsap.fromTo(
+          atmosphere,
+          { scaleY: 2 },
+          {
+            scaleY: 0.25,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: transition,
+              start: 'bottom bottom',
+              end: 'bottom center',
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          },
+        )
 
         const scrollToStandard = () => {
           const trigger = timeline.scrollTrigger

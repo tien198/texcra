@@ -1,11 +1,26 @@
-.header::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0;
+.header {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+/* White source colors invert the backdrop beneath the wordmark, links and icons. */
+.header :is(a, button, span) {
+  color: inherit;
+}
+
+.backdrop {
+  /* Keep the blur outside the blended header so it doesn't blend with itself. */
   pointer-events: none;
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
   mask-image: linear-gradient(to bottom, #000 0%, transparent 90%);
+}
+
+@media (width < 48rem) {
+  /* The expanded menu uses its own solid surface instead of page blending. */
+  .header:has(button[aria-expanded='true']) {
+    background: #061828;
+    mix-blend-mode: normal;
+  }
 }

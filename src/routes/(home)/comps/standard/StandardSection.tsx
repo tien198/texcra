@@ -10,8 +10,8 @@ export function StandardSection() {
       className={clsx(
         'relative isolate flex items-center min-h-[760px] md:min-h-[1379px] px-6 py-16 md:py-[96px] md:pb-[80px] md:px-[5%] text-[#17242b]',
         'bg-[radial-gradient(ellipse_100%_130%_at_50%_-30%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
-        '[--atmosphere-height:380px] [--atmosphere-opacity:0.72] [--join-height:180px]',
-        'md:[--atmosphere-height:680px] md:[--atmosphere-opacity:0.88] md:[--join-height:300px]',
+        '[--atmosphere-height:380px] [--join-height:180px]',
+        'md:[--atmosphere-height:680px] md:[--join-height:300px]',
       )}
       aria-labelledby="standard-heading"
     >
