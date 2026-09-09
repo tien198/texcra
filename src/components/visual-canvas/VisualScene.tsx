@@ -1,5 +1,5 @@
 import { Environment, Lightformer } from '@react-three/drei'
-import { Canvas, events, useThree } from '@react-three/fiber'
+import { Canvas, events, useFrame, useThree } from '@react-three/fiber'
 import type { CanvasProps } from '@react-three/fiber'
 import { useCallback, useRef } from 'react'
 import type { RefObject } from 'react'
@@ -14,6 +14,13 @@ import styles from './VisualScene.module.css'
 import { ChromeRing } from './ChromeRing'
 import { FlowField } from './FlowField'
 import { TechnicalGrid } from './TechnicalGrid'
+
+export interface VisualSceneTransition {
+  progress: number
+  /** Normalized canvas coordinates, measured from the top-left corner. */
+  targetX: number
+  targetY: number
+}
 
 function StudioEnvironment() {
   return (
@@ -54,11 +61,46 @@ function StudioEnvironment() {
 
 function SceneContent({
   hasInteracted,
+  sceneTransitionRef,
 }: {
   hasInteracted: RefObject<boolean>
+  sceneTransitionRef?: RefObject<VisualSceneTransition>
 }) {
   const { viewport } = useThree()
   const compact = viewport.width < 8
+  const composition = useRef<THREE.Group>(null)
+  const ringCenter = useRef<THREE.Group>(null)
+  const target = useRef(new THREE.Vector3())
+
+  useFrame(({ camera }) => {
+    const group = composition.current
+    const center = ringCenter.current
+    const transition = sceneTransitionRef?.current
+    if (!group || !center || !group.parent) return
+    if (!transition || transition.progress === 0) {
+      group.position.set(0, 0, 0)
+      return
+    }
+
+    // Project the ring's resting center, including the responsive parent transform.
+    // Preserve its depth when converting the clip center back into world space.
+    const point = target.current.copy(center.position)
+    group.parent.localToWorld(point)
+    point.project(camera)
+    point.x = THREE.MathUtils.lerp(
+      point.x,
+      transition.targetX * 2 - 1,
+      transition.progress,
+    )
+    point.y = THREE.MathUtils.lerp(
+      point.y,
+      1 - transition.targetY * 2,
+      transition.progress,
+    )
+    point.unproject(camera)
+    group.parent.worldToLocal(point)
+    group.position.copy(point).sub(center.position)
+  }, -1)
 
   return (
     <>
@@ -69,8 +111,10 @@ function SceneContent({
         position={compact ? [0.65, -0.45, 0] : [0.45, -0.06, 0]}
       >
         <TechnicalGrid />
-        <FlowField hasInteracted={hasInteracted} />
-        <ChromeRing />
+        <group ref={composition}>
+          <FlowField hasInteracted={hasInteracted} />
+          <ChromeRing centerRef={ringCenter} />
+        </group>
       </group>
       <StudioEnvironment />
       <EffectComposer multisampling={0}>
@@ -89,8 +133,10 @@ function SceneContent({
 
 export function VisualScene({
   eventSource,
+  sceneTransitionRef,
 }: {
   eventSource: HTMLElement | null
+  sceneTransitionRef?: RefObject<VisualSceneTransition>
 }) {
   const hasInteracted = useRef(false)
   const sceneEvents = useCallback<NonNullable<CanvasProps['events']>>(
@@ -131,7 +177,10 @@ export function VisualScene({
             outputColorSpace: THREE.SRGBColorSpace,
           }}
         >
-          <SceneContent hasInteracted={hasInteracted} />
+          <SceneContent
+            hasInteracted={hasInteracted}
+            sceneTransitionRef={sceneTransitionRef}
+          />
         </Canvas>
       )}
     </div>

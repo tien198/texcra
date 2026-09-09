@@ -4,7 +4,7 @@ import { useHeroStandardTransition } from './useHeroStandardTransition'
 import styles from './HeroStandardTransition.module.css'
 
 export function HeroStandardTransition() {
-  const { transitionRef, stageRef, heroRef, standardRef } =
+  const { transitionRef, stageRef, heroRef, standardRef, sceneTransitionRef } =
     useHeroStandardTransition()
 
   return (
@@ -16,7 +16,7 @@ export function HeroStandardTransition() {
     >
       <div ref={stageRef} className={styles.stage}>
         <div ref={heroRef} className={styles.hero}>
-          <HeroSection />
+          <HeroSection sceneTransitionRef={sceneTransitionRef} />
         </div>
         <div ref={standardRef} className={styles.standard}>
           <StandardSection />

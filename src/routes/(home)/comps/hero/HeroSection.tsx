@@ -1,11 +1,17 @@
 import { clsx } from 'clsx'
 import { useState } from 'react'
+import type { RefObject } from 'react'
+import type { VisualSceneTransition } from '#/components/visual-canvas/VisualScene'
 import { VisualScene } from '#/components/visual-canvas/VisualScene'
 import { CapabilityRail } from './CapabilityRail'
 import { HeroNarrative } from './HeroNarrative'
 import styles from './HeroSection.module.css'
 
-export function HeroSection() {
+export function HeroSection({
+  sceneTransitionRef,
+}: {
+  sceneTransitionRef?: RefObject<VisualSceneTransition>
+}) {
   const [eventSource, setEventSource] = useState<HTMLElement | null>(null)
 
   return (
@@ -14,7 +20,10 @@ export function HeroSection() {
       className={styles.experience}
       aria-labelledby="hero-heading"
     >
-      <VisualScene eventSource={eventSource} />
+      <VisualScene
+        eventSource={eventSource}
+        sceneTransitionRef={sceneTransitionRef}
+      />
       <div
         className={clsx(
           'absolute z-[-1] inset-0 top-[101px] pointer-events-none',
@@ -25,6 +34,7 @@ export function HeroSection() {
         aria-hidden="true"
       />
       <div
+        data-hero-content
         className={clsx(
           'relative z-[1] flex flex-col justify-between min-h-[663px] md:min-h-[800px] max-w-[1600px] mx-auto ',
           'px-6 py-8 pb-10 ',

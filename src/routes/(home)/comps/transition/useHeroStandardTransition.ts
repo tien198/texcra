@@ -1,12 +1,18 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { VisualSceneTransition } from '#/components/visual-canvas/VisualScene'
 
 export function useHeroStandardTransition() {
   const transitionRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const standardRef = useRef<HTMLDivElement>(null)
+  const sceneTransitionRef = useRef<VisualSceneTransition>({
+    progress: 0,
+    targetX: 0.5,
+    targetY: 0.5,
+  })
 
   useEffect(() => {
     const transition = transitionRef.current
@@ -23,16 +29,12 @@ export function useHeroStandardTransition() {
       '(prefers-reduced-motion: no-preference) and (min-height: 600px)',
       () => {
         transition.dataset.motion = 'true'
+        const heroContent = hero.querySelector('[data-hero-content]')
         const content = standard.querySelector('[data-standard-content]')
+        const sceneTransition = sceneTransitionRef.current
+        let targetClip = ''
 
         const measure = () => {
-          // Let all of a tall Hero scroll into view before the stage sticks.
-          const offset = Math.min(0, window.innerHeight - stage.offsetHeight)
-          transition.style.setProperty('--stage-top', `${offset}px`)
-        }
-        measure()
-
-        const targetClip = () => {
           const width = stage.clientWidth
           const height = stage.clientHeight
           const visibleHeight = Math.min(height, window.innerHeight)
@@ -45,8 +47,17 @@ export function useHeroStandardTransition() {
           const right = width - targetWidth - left
           const bottom = (visibleHeight - targetHeight) / 2
           const top = height - visibleHeight + bottom
-          return `inset(${top}px ${right}px ${bottom}px ${left}px round 28px)`
+          targetClip = `inset(${top}px ${right}px ${bottom}px ${left}px round 28px)`
+
+          // Share the same target in canvas coordinates (0–1, from top-left).
+          sceneTransition.targetX = (left + targetWidth / 2) / width
+          sceneTransition.targetY = (top + targetHeight / 2) / height
+
+          // Let all of a tall Hero scroll into view before the stage sticks.
+          const offset = Math.min(0, window.innerHeight - stage.offsetHeight)
+          transition.style.setProperty('--stage-top', `${offset}px`)
         }
+        measure()
 
         const updateInteraction = ({ progress }: ScrollTrigger) => {
           // Clipped links must not remain in the keyboard tab order.
@@ -73,9 +84,16 @@ export function useHeroStandardTransition() {
           .fromTo(
             hero,
             { clipPath: 'inset(0px 0px 0px 0px round 0px)' },
-            { clipPath: targetClip, duration: 1 },
+            { clipPath: () => targetClip, duration: 1 },
             0,
           )
+          .fromTo(
+            sceneTransition,
+            { progress: 0 },
+            { progress: 1, duration: 1 },
+            0,
+          )
+          .fromTo(heroContent, { opacity: 1 }, { opacity: 0, duration: 0.7 }, 0)
           .fromTo(
             content,
             { opacity: 0, y: 60 },
@@ -124,6 +142,7 @@ export function useHeroStandardTransition() {
           window.removeEventListener('hashchange', onHashChange)
           hero.inert = false
           standard.inert = false
+          sceneTransition.progress = 0
           delete transition.dataset.motion
           transition.style.removeProperty('--stage-top')
         }
@@ -134,5 +153,5 @@ export function useHeroStandardTransition() {
     return () => media.revert()
   }, [])
 
-  return { transitionRef, stageRef, heroRef, standardRef }
+  return { transitionRef, stageRef, heroRef, standardRef, sceneTransitionRef }
 }

@@ -1,6 +1,7 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
+import type { RefObject } from 'react'
 import * as THREE from 'three'
 
 const BASE_ROTATION_X = 0.08
@@ -17,7 +18,11 @@ function isInteractiveTarget(target: EventTarget | null) {
   )
 }
 
-export function ChromeRing() {
+export function ChromeRing({
+  centerRef,
+}: {
+  centerRef?: RefObject<THREE.Group | null>
+}) {
   const events = useThree((state) => state.events)
   const ring = useRef<THREE.Group>(null)
   const drag = useRef(new THREE.Vector2())
@@ -151,7 +156,7 @@ export function ChromeRing() {
   }
 
   return (
-    <group position={[1.35, -0.16, 0.18]}>
+    <group ref={centerRef} position={[1.35, -0.16, 0.18]}>
       <group
         ref={ring}
         rotation={[BASE_ROTATION_X, BASE_ROTATION_Y, BASE_ROTATION_Z]}
