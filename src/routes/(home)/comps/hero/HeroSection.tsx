@@ -11,7 +11,6 @@ export function HeroSection() {
   return (
     <section
       ref={setEventSource}
-      id="top"
       className={styles.experience}
       aria-labelledby="hero-heading"
     >

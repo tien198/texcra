@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { m } from '#/paraglide/messages.js'
 import { getLocale } from '#/paraglide/runtime'
-import { HeroSection } from '#/routes/(home)/comps/hero/HeroSection'
-import { StandardSection } from '#/routes/(home)/comps/standard/StandardSection'
+import { HeroStandardTransition } from '#/routes/(home)/comps/transition/HeroStandardTransition'
 import { ExpertiseSection } from '#/routes/(home)/comps/expertise/ExpertiseSection'
 import { ApproachSection } from '#/routes/(home)/comps/approach/ApproachSection'
 import { ProcessSection } from '#/routes/(home)/comps/process/ProcessSection'
@@ -29,8 +28,7 @@ function Home() {
         {getLocale() === 'vi' ? 'Đến nội dung chính' : 'Skip to content'}
       </a>
       <main id="main-content">
-        <HeroSection />
-        <StandardSection />
+        <HeroStandardTransition />
         <ExpertiseSection />
         <ApproachSection />
         <ProcessSection />

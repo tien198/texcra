@@ -1,0 +1,47 @@
+.transition {
+  position: relative;
+  background: #f7f7f5;
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-height: 600px) {
+  .transition[data-motion='true']::after {
+    /* Keep the scroll runway inside the sticky containing block's content box.
+       Padding adds scroll distance but makes the stage leave the viewport. */
+    content: '';
+    display: block;
+    height: 200svh;
+  }
+
+  .transition[data-motion='true'] .stage {
+    position: sticky;
+    top: var(--stage-top, 0px);
+    display: grid;
+    isolation: isolate;
+  }
+
+  .transition[data-motion='true'] .hero,
+  .transition[data-motion='true'] .standard {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+
+  .transition[data-motion='true'] .hero {
+    z-index: 2;
+    will-change: clip-path;
+  }
+
+  .transition[data-motion='true'] .hero > section {
+    height: 100%;
+  }
+
+  .transition[data-motion='true'] .standard {
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .transition[data-motion='true'] .standard > section {
+    width: 100%;
+    min-height: 100svh;
+  }
+}
