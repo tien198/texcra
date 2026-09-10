@@ -1,18 +1,22 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { Atmosphere } from '../shared/Atmosphere'
+import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
 import { ProcessIntro } from './ProcessIntro'
 import { ProcessStage } from './ProcessStage'
+import { useProcessAtmosphere } from './hooks/useProcessAtmosphere'
 
 export function ProcessSection() {
+  const sectionRef = useProcessAtmosphere()
+
   return (
     <section
+      ref={sectionRef}
       id="process"
       className={clsx(
-        'relative isolate min-h-[1318px] md:min-h-[1691px] px-[24px] md:px-[5%] pt-[64px] md:pt-[404px] pb-[64px] md:pb-[160px] text-[#17242b]',
+        'relative isolate overflow-clip min-h-[150vh] px-[24px] md:px-[5%] pt-[64px] md:pt-[404px] pb-[64px] md:pb-[160px] text-[#17242b]',
         'bg-[radial-gradient(ellipse_100%_130%_at_50%_-30%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
-        '[--atmosphere-height:420px] [--atmosphere-opacity:0.82] [--join-height:190px]',
-        'md:[--atmosphere-height:680px] md:[--atmosphere-opacity:0.88] md:[--join-height:300px]'
+        '[--atmosphere-height:150vh] [--join-height:190px]',
+        'md:[--join-height:300px]',
       )}
       aria-labelledby="process-heading"
     >
@@ -21,7 +25,7 @@ export function ProcessSection() {
         <ProcessIntro />
         <ol
           className={clsx(
-            'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[28px] md:gap-[40px] lg:gap-[32px] mt-[36px] md:mt-[56px] min-h-[917px] md:min-h-0 p-0 list-none'
+            'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[28px] md:gap-[40px] lg:gap-[32px] mt-[36px] md:mt-[56px] min-h-[917px] md:min-h-0 p-0 list-none',
           )}
         >
           <ProcessStage

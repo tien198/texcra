@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { m } from '#/paraglide/messages.js'
 import { getLocale } from '#/paraglide/runtime'
-import { HeroStandardTransition } from '#/routes/(home)/comps/transition/HeroStandardTransition'
+import { HeroStandardTransition } from '#/routes/(home)/comps/hero-transition/HeroStandardTransition'
 import { ExpertiseSection } from '#/routes/(home)/comps/expertise/ExpertiseSection'
 import { ApproachSection } from '#/routes/(home)/comps/approach/ApproachSection'
 import { ProcessSection } from '#/routes/(home)/comps/process/ProcessSection'

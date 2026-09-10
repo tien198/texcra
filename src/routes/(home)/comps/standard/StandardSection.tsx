@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { Atmosphere } from '../shared/Atmosphere'
+import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
 import { StandardStatement } from './StandardStatement'
 
 export function StandardSection() {

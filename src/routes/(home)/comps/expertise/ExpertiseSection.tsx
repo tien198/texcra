@@ -1,54 +1,20 @@
 import { clsx } from 'clsx'
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { m } from '#/paraglide/messages.js'
-import { Atmosphere } from '../shared/Atmosphere'
+import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
 import { ExpertiseIntro } from './ExpertiseIntro'
 import { ServiceRow } from './ServiceRow'
+import { useExpertiseAtmosphere } from './hooks/useExpertiseAtmosphere'
 
 export function ExpertiseSection() {
-  const sectionRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    const section = sectionRef.current
-    const atmosphere = section?.querySelector('[data-atmosphere]')
-    if (!section || !atmosphere) return
-
-    gsap.registerPlugin(ScrollTrigger)
-    const media = gsap.matchMedia()
-
-    media.add(
-      '(prefers-reduced-motion: no-preference)',
-      () => {
-        gsap.fromTo(
-          atmosphere,
-          { scaleY: 1 },
-          {
-            scaleY: 6,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: section,
-              start: 'top bottom',
-              end: 'bottom bottom',
-              scrub: true,
-            },
-          },
-        )
-      },
-      section,
-    )
-
-    return () => media.revert()
-  }, [])
+  const sectionRef = useExpertiseAtmosphere()
 
   return (
     <section
       ref={sectionRef}
       id="expertise"
       className={clsx(
-        'relative isolate overflow-clip flex flex-col items-center min-h-[1204px] md:min-h-[1241px] pt-[0] md:pt-[20px] px-[24px] md:px-[5%] pb-[64px] md:pb-[96px] text-[#17242b]',
-        'bg-[radial-gradient(ellipse_100%_130%_at_50%_130%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
+        'relative isolate overflow-clip flex flex-col items-center min-h-[1204px] md:min-h-[1241px] md:pt-[420px] px-[24px] md:px-[5%] pb-[64px] md:pb-24 text-[#17242b]',
+        // 'bg-[radial-gradient(ellipse_100%_130%_at_50%_130%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
       )}
       aria-labelledby="expertise-heading"
     >

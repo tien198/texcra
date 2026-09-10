@@ -1,6 +1,6 @@
 .footer {
-  height: 290px;
-  padding: 40px 5% 0;
+  height: 436px;
+  padding: 40px 24px 0;
   overflow: hidden;
   background: #000;
   color: #bac9d5;
@@ -11,16 +11,27 @@
 }
 .top {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  gap: 32px;
+  align-items: flex-start;
+  gap: 24px;
   font-size: 14px;
 }
+.top > p {
+  font-size: 13px;
+}
 .navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 12px 32px;
+  font-size: 13px;
+}
+.navigation a {
   display: flex;
   align-items: center;
-  gap: 32px;
-  font-size: 13px;
+  min-height: 32px;
+  font-size: 12px;
 }
 .navigation a:hover {
   color: #fff;
@@ -29,58 +40,58 @@
 }
 .legal {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 32px;
-  margin-top: 28px;
+  gap: 16px;
+  margin-top: 32px;
   color: #8ca0b0;
   font:
-    200 10px 'IBM Plex Sans Condensed',
+    200 8px 'IBM Plex Sans Condensed',
     sans-serif;
-  letter-spacing: 2.4px;
+  letter-spacing: 1.6px;
 }
 .wordmark {
-  margin-top: 28px;
+  margin-top: 40px;
   color: #d7e0e1;
   font:
-    500 clamp(120px, 22.222vw, 355px) / 0.76 'IBM Plex Sans Condensed',
+    500 25vw / 0.76 'IBM Plex Sans Condensed',
     sans-serif;
-  letter-spacing: clamp(8px, 1.528vw, 24px);
+  letter-spacing: 1.1vw;
   opacity: 0.94;
 }
-@media (max-width: 767px) {
+@media (min-width: 768px) {
   .footer {
-    height: 436px;
-    padding: 40px 24px 0;
+    height: 410px;
+    padding: 120px 5% 0;
   }
   .top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 24px;
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
   }
   .top > p {
-    font-size: 13px;
+    font-size: inherit;
   }
   .navigation {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 32px;
+    display: flex;
+    gap: 32px;
   }
   .navigation a {
-    display: flex;
-    align-items: center;
-    min-height: 32px;
-    font-size: 12px;
+    display: inline;
+    align-items: normal;
+    min-height: 0;
+    font-size: inherit;
   }
   .legal {
-    flex-direction: column;
-    gap: 16px;
-    margin-top: 32px;
-    font-size: 8px;
-    letter-spacing: 1.6px;
+    flex-direction: row;
+    gap: 32px;
+    margin-top: 28px;
+    font-size: 10px;
+    letter-spacing: 2.4px;
   }
   .wordmark {
-    margin-top: 40px;
-    font-size: 25vw;
-    letter-spacing: 1.1vw;
+    margin-top: 28px;
+    font-size: clamp(120px, 22.222vw, 355px);
+    letter-spacing: clamp(8px, 1.528vw, 24px);
   }
 }

@@ -1,0 +1,7 @@
+.section {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(to top, #000000 0%, #f7f7f5 100%),
+    radial-gradient(ellipse at bottom, #000000 0%, #f7f7f5 100%);
+}
