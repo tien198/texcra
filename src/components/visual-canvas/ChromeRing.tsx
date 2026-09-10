@@ -20,8 +20,13 @@ function isInteractiveTarget(target: EventTarget | null) {
 
 export function ChromeRing({
   centerRef,
+  position = [1.35, -0.16, 0.18],
+  maxTilt = MAX_TILT,
 }: {
   centerRef?: RefObject<THREE.Group | null>
+  position?: [number, number, number]
+  /** Maximum interactive tilt in radians. */
+  maxTilt?: number
 }) {
   const events = useThree((state) => state.events)
   const ring = useRef<THREE.Group>(null)
@@ -84,12 +89,12 @@ export function ChromeRing({
     if (!ring.current) return
     const frameDelta = Math.min(delta, 1 / 30)
     targetTilt.current.set(
-      -pointer.y * MAX_TILT + drag.current.y,
-      pointer.x * MAX_TILT + drag.current.x,
+      -pointer.y * maxTilt + drag.current.y,
+      pointer.x * maxTilt + drag.current.x,
     )
 
-    if (targetTilt.current.lengthSq() > MAX_TILT * MAX_TILT) {
-      targetTilt.current.setLength(MAX_TILT)
+    if (targetTilt.current.lengthSq() > maxTilt * maxTilt) {
+      targetTilt.current.setLength(maxTilt)
     }
 
     ring.current.rotation.x = THREE.MathUtils.damp(
@@ -156,7 +161,7 @@ export function ChromeRing({
   }
 
   return (
-    <group ref={centerRef} position={[1.35, -0.16, 0.18]}>
+    <group ref={centerRef} position={position}>
       <group
         ref={ring}
         rotation={[BASE_ROTATION_X, BASE_ROTATION_Y, BASE_ROTATION_Z]}

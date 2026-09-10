@@ -1,8 +1,10 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { Environment, Lightformer } from '@react-three/drei'
 import { Canvas, events } from '@react-three/fiber'
+import { Bloom, EffectComposer, SMAA } from '@react-three/postprocessing'
+import * as THREE from 'three'
 import { ChromeRing } from '#/components/visual-canvas/ChromeRing'
+import { StudioLighting } from '#/components/visual-canvas/StudioLighting'
 import type { CanvasProps } from '@react-three/fiber'
 
 const ringEvents: NonNullable<CanvasProps['events']> = (store) => ({
@@ -28,53 +30,46 @@ export function ContinuumStudy({
   return (
     <figure
       className={clsx(
-        'relative w-full max-w-[500px] md:max-w-none aspect-square overflow-hidden',
+        'relative w-full min-w-0 max-w-[540px] justify-self-start',
       )}
     >
-      {eventSource && (
-        <Canvas
-          eventSource={eventSource}
-          events={ringEvents}
-          camera={{ position: [0, 0, 10], fov: 36, near: 0.1, far: 100 }}
-          dpr={[1, 1.5]}
-          gl={{ alpha: true, antialias: true }}
-        >
-          <ambientLight intensity={0.28} color="#c6def5" />
-          <directionalLight
-            position={[4, 5, 7]}
-            intensity={2.2}
-            color="#f5fbff"
-          />
-          <ChromeRing />
-          <Environment resolution={256}>
-            <Lightformer
-              intensity={4.5}
-              color="#e9f4ff"
-              position={[-4, 3, 2]}
-              rotation={[0, Math.PI / 2, 0]}
-              scale={[7, 1.1, 1]}
-            />
-            <Lightformer
-              intensity={7}
-              color="#ffffff"
-              position={[4, 1, 3]}
-              rotation={[0, -Math.PI / 2, 0]}
-              scale={[4, 0.35, 1]}
-            />
-          </Environment>
-        </Canvas>
-      )}
-
-      <div
-        className={clsx(
-          'absolute inset-[62.9%_0_0]',
-          'bg-[linear-gradient(to_bottom,#06182800,#061828_60%)]',
-        )}
-        aria-hidden="true"
-      />
+      <div className="relative aspect-square w-full" aria-hidden="true">
+        <div className="pointer-events-none absolute inset-0">
+          {eventSource && (
+            <Canvas
+              eventSource={eventSource}
+              events={ringEvents}
+              camera={{ position: [0, 0, 10], fov: 28, near: 0.1, far: 100 }}
+              dpr={[1, 1.75]}
+              gl={{
+                alpha: true,
+                antialias: true,
+                powerPreference: 'high-performance',
+                toneMapping: THREE.ACESFilmicToneMapping,
+                outputColorSpace: THREE.SRGBColorSpace,
+              }}
+            >
+              <StudioLighting />
+              <ChromeRing
+                position={[0, 0, 0]}
+                maxTilt={THREE.MathUtils.degToRad(8)}
+              />
+              <EffectComposer multisampling={0}>
+                <Bloom
+                  intensity={0.7}
+                  luminanceThreshold={0.68}
+                  luminanceSmoothing={0.5}
+                  mipmapBlur
+                />
+                <SMAA />
+              </EffectComposer>
+            </Canvas>
+          )}
+        </div>
+      </div>
       <figcaption
         className={clsx(
-          'absolute top-[90%] left-0 right-0 flex justify-between gap-[16px] pt-[14px] md:pt-[18px] border-t border-[#aec2d050]',
+          'relative mt-2 flex justify-between gap-[16px] pt-[14px] md:pt-[18px] border-t border-[#aec2d050]',
           'text-[#bac9d5] font-heading font-[200] text-[7px] md:text-[8px] lg:text-[9px] tracking-[1.4px] md:tracking-[1px] lg:tracking-[2.2px]',
         )}
       >

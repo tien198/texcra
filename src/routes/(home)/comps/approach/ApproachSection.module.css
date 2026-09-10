@@ -1,0 +1,32 @@
+.sectionGlow {
+  --glow-x: 27%;
+  --glow-y: 50%;
+
+  background:
+    radial-gradient(
+      ellipse 38% 48% at var(--glow-x) var(--glow-y),
+      rgb(141 204 255 / 16%),
+      rgb(57 142 209 / 8%) 48%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 100% 90% at var(--glow-x) var(--glow-y),
+      rgb(57 142 209 / 24%),
+      rgb(57 142 209 / 12%) 55%,
+      transparent 95%
+    );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 16%,
+    #000 84%,
+    transparent
+  );
+}
+
+@media (max-width: 767px) {
+  .sectionGlow {
+    --glow-x: 50%;
+    --glow-y: 78%;
+  }
+}
