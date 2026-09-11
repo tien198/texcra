@@ -22,19 +22,21 @@ export function ProcessStage({
     >
       <span
         className={clsx(
-          'text-[#465157] font-heading font-[200] text-[18px] tracking-[1.8px]',
+          'text-muted font-ibm-plex-sans-condensed font-[200] text-[18px] tracking-[1.8px]',
         )}
       >
         {number}
       </span>
       <h3
-        className={clsx('font-heading font-[200] text-[39px] tracking-[2.2px]')}
+        className={clsx(
+          'font-ibm-plex-sans-condensed font-[200] text-[39px] tracking-[2.2px]',
+        )}
       >
         {title}
       </h3>
       <p
         className={clsx(
-          'text-[#465157] text-[22.5px] md:text-[24px] leading-[1.7]',
+          'text-muted text-[22.5px] md:text-[24px] leading-[1.7]',
         )}
       >
         <span className="hidden md:inline">{description}</span>
@@ -42,7 +44,7 @@ export function ProcessStage({
       </p>
       <span
         className={clsx(
-          'text-[#465157] font-heading font-[200] text-[13.5px] leading-[1.5] tracking-[2.2px]',
+          'text-muted font-ibm-plex-sans-condensed font-[200] text-[13.5px] leading-[1.5] tracking-[2.2px]',
         )}
       >
         {outcome}

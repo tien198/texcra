@@ -13,7 +13,7 @@ export function ProcessSection() {
       ref={sectionRef}
       id="process"
       className={clsx(
-        'relative isolate overflow-clip min-h-[150vh] px-[24px] md:px-[5%] pt-[64px] md:pt-[404px] pb-[64px] md:pb-[160px] text-[#17242b]',
+        'relative isolate overflow-clip min-h-[150vh] px-[24px] md:px-[5%] pt-[64px] md:pt-[404px] pb-[64px] md:pb-[160px] text-primary',
         'bg-[radial-gradient(ellipse_100%_130%_at_50%_-30%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
         '[--atmosphere-height:150vh] [--join-height:190px]',
         'md:[--join-height:300px]',

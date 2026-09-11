@@ -8,7 +8,7 @@ export function StandardSection() {
     <section
       id="standard"
       className={clsx(
-        'relative isolate flex items-center min-h-[760px] md:min-h-[1379px] px-6 py-16 md:py-[96px] md:pb-[80px] md:px-[5%] text-[#17242b]',
+        'relative isolate flex items-center min-h-[760px] md:min-h-[1379px] px-6 py-16 md:py-[96px] md:pb-[80px] md:px-[5%] text-primary',
         'bg-[radial-gradient(ellipse_100%_130%_at_50%_-30%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
         '[--atmosphere-height:380px] [--join-height:180px]',
         'md:[--atmosphere-height:680px] md:[--join-height:300px]',
@@ -24,7 +24,7 @@ export function StandardSection() {
       >
         <p
           className={clsx(
-            'text-[#4b555a] font-heading font-[200] text-[10px] tracking-[2.4px]',
+            'text-[#4b555a] font-ibm-plex-sans-condensed font-[200] text-[10px] tracking-[2.4px]',
           )}
         >
           {m.home_standard_eyebrow()}

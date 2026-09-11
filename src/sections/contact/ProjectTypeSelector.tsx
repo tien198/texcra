@@ -29,8 +29,8 @@ export function ProjectTypeSelector() {
             <span
               className={clsx(
                 'block min-h-[44px] px-[10px] md:px-[18px] py-[12px] border border-[#aec2d033] text-[#bac9d5] text-[12px] md:text-[13px]',
-                'peer-checked:border-[#bddfff88] peer-checked:text-[#bddfff] peer-checked:bg-[#bddfff0d]',
-                'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[#bddfff] peer-focus-visible:outline-offset-[4px]'
+                'peer-checked:border-[#bddfff88] peer-checked:text-secondary peer-checked:bg-[#bddfff0d]',
+                'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[#bddfff] peer-focus-visible:outline-offset-[4px]',
               )}
             >
               {option.label}

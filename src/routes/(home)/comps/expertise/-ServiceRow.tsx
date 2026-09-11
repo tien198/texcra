@@ -26,14 +26,14 @@ export function ServiceRow({
     >
       <span
         className={clsx(
-          '  font-heading font-[200] text-[12px] tracking-[1.8px] pt-[6px] md:pt-0',
+          '  font-ibm-plex-sans-condensed font-[200] text-[12px] tracking-[1.8px] pt-[6px] md:pt-0',
         )}
       >
         {number}
       </span>
       <h3
         className={clsx(
-          'font-heading font-[200] text-[25px] md:text-[30px] tracking-[1.5px] md:tracking-[2.8px]',
+          'font-ibm-plex-sans-condensed font-[200] text-[25px] md:text-[30px] tracking-[1.5px] md:tracking-[2.8px]',
         )}
       >
         {title}
@@ -48,7 +48,7 @@ export function ServiceRow({
         </p>
         <span
           className={clsx(
-            '  font-heading font-[200] text-[9px] md:text-[10px] leading-[1.6] tracking-[1.7px] md:tracking-[2.4px]',
+            '  font-ibm-plex-sans-condensed font-[200] text-[9px] md:text-[10px] leading-[1.6] tracking-[1.7px] md:tracking-[2.4px]',
           )}
         >
           {scope}

@@ -70,7 +70,7 @@ export function ContinuumStudy({
       <figcaption
         className={clsx(
           'relative mt-2 flex justify-between gap-[16px] pt-[14px] md:pt-[18px] border-t border-[#aec2d050]',
-          'text-[#bac9d5] font-heading font-[200] text-[7px] md:text-[8px] lg:text-[9px] tracking-[1.4px] md:tracking-[1px] lg:tracking-[2.2px]',
+          'text-[#bac9d5] font-ibm-plex-sans-condensed font-[200] text-[7px] md:text-[8px] lg:text-[9px] tracking-[1.4px] md:tracking-[1px] lg:tracking-[2.2px]',
         )}
       >
         <span>{m.home_artwork_principles()}</span>

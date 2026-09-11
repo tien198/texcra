@@ -12,7 +12,7 @@ export function ApproachSection() {
       ref={setEventSource}
       id="approach"
       className={clsx(
-        'relative isolate overflow-clip flex items-center min-h-0 md:min-h-[1357px] px-6 py-16 md:py-[100px] md:px-[5%] bg-[#061828] text-[#f7f7f5]',
+        'relative isolate overflow-clip flex items-center min-h-0 md:min-h-[1357px] px-6 py-16 md:py-[100px] md:px-[5%] bg-[#061828] text-ivory',
         // Postprocessing can write viewport-sized inline dimensions to the canvas.
         // Keep this section's canvas fitted to its square artwork container.
         '[&_canvas]:h-full! [&_canvas]:w-full!',

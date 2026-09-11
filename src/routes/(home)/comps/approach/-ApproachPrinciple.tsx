@@ -12,12 +12,12 @@ export function ApproachPrinciple({
   return (
     <div
       className={clsx(
-        'flex gap-[16px] md:gap-[22px] pt-[20px] border-t border-[#aec2d033]'
+        'flex gap-[16px] md:gap-[22px] pt-[20px] border-t border-[#aec2d033]',
       )}
     >
       <span
         className={clsx(
-          'text-[#bddfff] font-heading font-[200] text-[10px] tracking-[2.4px]'
+          'text-secondary font-ibm-plex-sans-condensed font-[200] text-[10px] tracking-[2.4px]',
         )}
       >
         {number}
@@ -25,14 +25,14 @@ export function ApproachPrinciple({
       <div className="flex-1 min-w-0">
         <h3
           className={clsx(
-            'font-heading font-[200] text-[19px] tracking-[1.6px]'
+            'font-ibm-plex-sans-condensed font-[200] text-[19px] tracking-[1.6px]',
           )}
         >
           {title}
         </h3>
         <p
           className={clsx(
-            'mt-[7px] text-[#bac9d5] text-[14px] md:text-[15px] leading-[1.65]'
+            'mt-[7px] text-[#bac9d5] text-[14px] md:text-[15px] leading-[1.65]',
           )}
         >
           {description}

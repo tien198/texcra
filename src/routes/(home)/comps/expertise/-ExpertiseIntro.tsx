@@ -12,14 +12,14 @@ export function ExpertiseIntro() {
       <h2
         id="expertise-heading"
         className={clsx(
-          'font-heading font-[200] text-[36px] md:text-[54px] leading-[1.16] tracking-[2.2px] md:tracking-[3.2px] whitespace-pre-line',
+          'font-ibm-plex-sans-condensed font-[200] text-[36px] md:text-[54px] leading-[1.16] tracking-[2.2px] md:tracking-[3.2px] whitespace-pre-line',
         )}
       >
         {m.home_expertise_title()}
       </h2>
       <p
         className={clsx(
-          'w-auto md:w-[376px] text-[#465157] text-[15px] md:text-[16px] leading-[1.65] whitespace-pre-line',
+          'w-auto md:w-[376px] text-muted text-[15px] md:text-[16px] leading-[1.65] whitespace-pre-line',
         )}
       >
         <span className="hidden md:inline">

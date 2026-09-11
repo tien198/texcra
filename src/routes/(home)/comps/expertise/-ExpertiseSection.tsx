@@ -13,7 +13,7 @@ export function ExpertiseSection() {
       ref={sectionRef}
       id="expertise"
       className={clsx(
-        'relative isolate overflow-clip flex flex-col items-center min-h-[1204px] md:min-h-[1241px] md:pt-[420px] px-[24px] md:px-[5%] pb-[64px] md:pb-24 text-[#17242b]',
+        'relative isolate overflow-clip flex flex-col items-center min-h-[1204px] md:min-h-[1241px] md:pt-[420px] px-[24px] md:px-[5%] pb-[64px] md:pb-24 text-primary',
         // 'bg-[radial-gradient(ellipse_100%_130%_at_50%_130%,#c4d5e7_45%,#fdfbf7_85%,#f7f7f5)]',
       )}
       aria-labelledby="expertise-heading"

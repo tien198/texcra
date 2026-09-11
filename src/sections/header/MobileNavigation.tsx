@@ -23,7 +23,7 @@ export function MobileNavigation() {
         ref={toggleRef}
         type="button"
         className={clsx(
-          'grid place-items-center w-[44px] h-[44px] p-0 border-0 bg-transparent text-[#f7f7f5] cursor-pointer'
+          'grid place-items-center w-[44px] h-[44px] p-0 border-0 bg-transparent text-ivory cursor-pointer',
         )}
         aria-expanded={isOpen}
         aria-controls="mobile-navigation"
@@ -48,7 +48,7 @@ export function MobileNavigation() {
         id="mobile-navigation"
         className={clsx(
           'absolute inset-[87px_0_auto] flex flex-col items-start gap-3 p-6',
-          'border-b border-[#bac9d54d] bg-[#061828] shadow-[0_16px_24px_#020e1b40]'
+          'border-b border-[#bac9d54d] bg-[#061828] shadow-[0_16px_24px_#020e1b40]',
         )}
         aria-label={isVietnamese ? 'Điều hướng chính' : 'Main navigation'}
         hidden={!isOpen}

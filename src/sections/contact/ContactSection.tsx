@@ -14,7 +14,7 @@ export function ContactSection() {
       id="contact"
       className={clsx(
         styles.section,
-        'flex items-start md:items-end min-h-[1117px] md:min-h-[976px] px-[24px] md:px-[5%] pt-[220px] md:pt-[72px] pb-[56px] md:pb-[72px] text-[#f7f7f5]',
+        'flex items-start md:items-end min-h-[1117px] md:min-h-[976px] px-[24px] md:px-[5%] pt-[220px] md:pt-[72px] pb-[56px] md:pb-[72px] text-ivory',
         '[--atmosphere-height:550px]',
       )}
       aria-labelledby="contact-heading"

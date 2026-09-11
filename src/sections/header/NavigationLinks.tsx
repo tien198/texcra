@@ -6,7 +6,7 @@ export function NavigationLinks() {
   const navLinkClass = clsx(
     'inline-flex items-center w-full md:w-auto min-h-[44px]',
     // 'text-[#d3dce2] hover:text-white',
-    'font-sans text-[16px] md:text-[12px] tracking-[0.2px]',
+    'font-manrope text-[16px] md:text-[12px] tracking-[0.2px]',
     'hover:underline hover:underline-offset-[5px]',
   )
 
