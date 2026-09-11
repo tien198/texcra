@@ -3,8 +3,8 @@ import { useState } from 'react'
 import type { RefObject } from 'react'
 import type { VisualSceneTransition } from '#/components/visual-canvas/VisualScene'
 import { VisualScene } from '#/components/visual-canvas/VisualScene'
-import { CapabilityRail } from './CapabilityRail'
-import { HeroNarrative } from './HeroNarrative'
+import { CapabilityRail } from './-CapabilityRail'
+import { HeroNarrative } from './-HeroNarrative'
 import styles from './HeroSection.module.css'
 
 export function HeroSection({

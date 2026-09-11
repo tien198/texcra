@@ -1,6 +1,6 @@
-import { HeroSection } from '../hero/HeroSection'
-import { StandardSection } from '../standard/StandardSection'
-import { useHeroStandardTransition } from './useHeroStandardTransition'
+import { HeroSection } from '../hero/-HeroSection'
+import { StandardSection } from '../standard/-StandardSection'
+import { useHeroStandardTransition } from './-useHeroStandardTransition'
 import styles from './HeroStandardTransition.module.css'
 
 export function HeroStandardTransition() {

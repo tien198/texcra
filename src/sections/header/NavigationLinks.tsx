@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { ProjectLink } from '../../routes/(home)/comps/shared/ProjectLink'
+import { ProjectLink } from '../../routes/(home)/comps/shared/-ProjectLink'
 
 export function NavigationLinks() {
   const navLinkClass = clsx(

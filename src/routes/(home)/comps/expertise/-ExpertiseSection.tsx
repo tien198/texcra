@@ -1,9 +1,9 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
-import { ExpertiseIntro } from './ExpertiseIntro'
-import { ServiceRow } from './ServiceRow'
-import { useExpertiseAtmosphere } from './hooks/useExpertiseAtmosphere'
+import { ExpertiseIntro } from './-ExpertiseIntro'
+import { ServiceRow } from './-ServiceRow'
+import { useExpertiseAtmosphere } from './hooks/-useExpertiseAtmosphere'
 
 export function ExpertiseSection() {
   const sectionRef = useExpertiseAtmosphere()

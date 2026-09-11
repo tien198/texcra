@@ -1,9 +1,9 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
-import { ProcessIntro } from './ProcessIntro'
-import { ProcessStage } from './ProcessStage'
-import { useProcessAtmosphere } from './hooks/useProcessAtmosphere'
+import { ProcessIntro } from './-ProcessIntro'
+import { ProcessStage } from './-ProcessStage'
+import { useProcessAtmosphere } from './hooks/-useProcessAtmosphere'
 
 export function ProcessSection() {
   const sectionRef = useProcessAtmosphere()

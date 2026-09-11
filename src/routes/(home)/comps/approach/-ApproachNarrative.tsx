@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { ApproachPrinciple } from './ApproachPrinciple'
+import { ApproachPrinciple } from './-ApproachPrinciple'
 
 export function ApproachNarrative() {
   return (

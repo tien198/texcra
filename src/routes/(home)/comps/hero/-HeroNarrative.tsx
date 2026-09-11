@@ -1,6 +1,6 @@
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { ProjectLink } from '../shared/ProjectLink'
+import { ProjectLink } from '../shared/-ProjectLink'
 
 export function HeroNarrative() {
   return (

@@ -1,5 +1,5 @@
 import { getLocale } from '#/paraglide/runtime'
-import { BrandWordmark } from '../../routes/(home)/comps/shared/BrandWordmark'
+import { BrandWordmark } from '../../routes/(home)/comps/shared/-BrandWordmark'
 import { MobileNavigation } from './MobileNavigation'
 import { NavigationLinks } from './NavigationLinks'
 import { clsx } from 'clsx'

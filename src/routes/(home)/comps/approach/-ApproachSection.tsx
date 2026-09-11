@@ -1,8 +1,8 @@
 import { clsx } from 'clsx'
 import { useState } from 'react'
 import styles from './ApproachSection.module.css'
-import { ApproachNarrative } from './ApproachNarrative'
-import { ContinuumStudy } from './ContinuumStudy'
+import { ApproachNarrative } from './-ApproachNarrative'
+import { ContinuumStudy } from './-ContinuumStudy'
 
 export function ApproachSection() {
   const [eventSource, setEventSource] = useState<HTMLElement | null>(null)
