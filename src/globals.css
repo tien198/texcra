@@ -105,10 +105,10 @@ body {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* custom */
-  --primary: #17242b;
-  --secondary: #bddfff;
-  --muted: #465157;
-  --ivory: #f7f7f5;
+  --primary: oklch(0.251594 0.022343 232.321);
+  --secondary: oklch(0.889537 0.057052 246.863);
+  --muted: oklch(0.427502 0.017187 231.611);
+  --ivory: oklch(0.975582 0.002643 106.448);
 }
 
 .dark {
