@@ -1,7 +1,11 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 
 export function CapabilityRail() {
+  const locale = useLocale()
+
   return (
     <div
       className={clsx(
@@ -10,19 +14,19 @@ export function CapabilityRail() {
       )}
     >
       <a className={clsx('hidden md:block py-2')} href="#expertise">
-        {m.home_hero_web_capability()}
+        <MessageUI locale={locale} message={m.home_hero_web_capability} />
       </a>
       <a className={clsx('hidden md:block py-2')} href="#expertise">
-        {m.home_hero_software_capability()}
+        <MessageUI locale={locale} message={m.home_hero_software_capability} />
       </a>
       <a className={clsx('hidden md:block py-2')} href="#standard">
-        {m.home_hero_scroll_hint()}
+        <MessageUI locale={locale} message={m.home_hero_scroll_hint} />
       </a>
       <span className={clsx('block md:hidden')}>
-        {m.home_hero_capabilities_mobile()}
+        <MessageUI locale={locale} message={m.home_hero_capabilities_mobile} />
       </span>
       <a className={clsx('block md:hidden py-2')} href="#standard">
-        {m.home_hero_scroll_hint_mobile()}
+        <MessageUI locale={locale} message={m.home_hero_scroll_hint_mobile} />
       </a>
     </div>
   )

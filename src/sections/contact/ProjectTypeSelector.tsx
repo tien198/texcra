@@ -1,16 +1,35 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 
 export function ProjectTypeSelector() {
+  const locale = useLocale()
+
   const options = [
-    { value: 'website', label: m.contact_project_type_website() },
-    { value: 'software', label: m.contact_project_type_software() },
-    { value: 'discuss', label: m.contact_project_type_discuss() },
+    {
+      value: 'website',
+      label: (
+        <MessageUI locale={locale} message={m.contact_project_type_website} />
+      ),
+    },
+    {
+      value: 'software',
+      label: (
+        <MessageUI locale={locale} message={m.contact_project_type_software} />
+      ),
+    },
+    {
+      value: 'discuss',
+      label: (
+        <MessageUI locale={locale} message={m.contact_project_type_discuss} />
+      ),
+    },
   ]
   return (
     <fieldset className={clsx('border-0 p-0 m-0 min-w-0')}>
       <legend className={clsx('text-[13px] p-0 mb-[14px]')}>
-        {m.contact_project_type_label()}
+        <MessageUI locale={locale} message={m.contact_project_type_label} />
       </legend>
       <div className={clsx('flex flex-wrap gap-[8px] md:gap-[12px]')}>
         {options.map((option) => (

@@ -1,7 +1,11 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 
 export function ExpertiseIntro() {
+  const locale = useLocale()
+
   return (
     <div
       className={clsx(
@@ -15,7 +19,7 @@ export function ExpertiseIntro() {
           'font-ibm-plex-sans-condensed font-[200] text-[36px] md:text-[54px] leading-[1.16] tracking-[2.2px] md:tracking-[3.2px] whitespace-pre-line',
         )}
       >
-        {m.home_expertise_title()}
+        <MessageUI locale={locale} message={m.home_expertise_title} />
       </h2>
       <p
         className={clsx(
@@ -23,10 +27,13 @@ export function ExpertiseIntro() {
         )}
       >
         <span className="hidden md:inline">
-          {m.home_expertise_description()}
+          <MessageUI locale={locale} message={m.home_expertise_description} />
         </span>
         <span className="inline md:hidden">
-          {m.home_expertise_description_mobile()}
+          <MessageUI
+            locale={locale}
+            message={m.home_expertise_description_mobile}
+          />
         </span>
       </p>
     </div>

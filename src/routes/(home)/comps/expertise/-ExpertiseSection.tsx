@@ -1,3 +1,5 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
@@ -6,6 +8,8 @@ import { ServiceRow } from './-ServiceRow'
 import { useExpertiseAtmosphere } from './hooks/-useExpertiseAtmosphere'
 
 export function ExpertiseSection() {
+  const locale = useLocale()
+
   const sectionRef = useExpertiseAtmosphere()
 
   return (
@@ -30,21 +34,66 @@ export function ExpertiseSection() {
         >
           <ServiceRow
             number="01"
-            title={m.home_service_design_title()}
-            description={m.home_service_design_description()}
-            scope={m.home_service_design_scope()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_design_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_design_description}
+              />
+            }
+            scope={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_design_scope}
+              />
+            }
           />
           <ServiceRow
             number="02"
-            title={m.home_service_development_title()}
-            description={m.home_service_development_description()}
-            scope={m.home_service_development_scope()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_development_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_development_description}
+              />
+            }
+            scope={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_development_scope}
+              />
+            }
           />
           <ServiceRow
             number="03"
-            title={m.home_service_engineering_title()}
-            description={m.home_service_engineering_description()}
-            scope={m.home_service_engineering_scope()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_engineering_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_engineering_description}
+              />
+            }
+            scope={
+              <MessageUI
+                locale={locale}
+                message={m.home_service_engineering_scope}
+              />
+            }
             light
           />
         </div>

@@ -1,11 +1,12 @@
+import type { ReactNode } from 'react'
 import { clsx } from 'clsx'
 
 type ProcessStageProps = {
   number: string
-  title: string
-  description: string
-  mobileDescription: string
-  outcome: string
+  title: ReactNode
+  description: ReactNode
+  mobileDescription: ReactNode
+  outcome: ReactNode
 }
 export function ProcessStage({
   number,

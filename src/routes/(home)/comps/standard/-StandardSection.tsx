@@ -1,9 +1,13 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
 import { StandardStatement } from './-StandardStatement'
 
 export function StandardSection() {
+  const locale = useLocale()
+
   return (
     <section
       id="standard"
@@ -27,7 +31,7 @@ export function StandardSection() {
             'text-[#4b555a] font-ibm-plex-sans-condensed font-[200] text-[10px] tracking-[2.4px]',
           )}
         >
-          {m.home_standard_eyebrow()}
+          <MessageUI locale={locale} message={m.home_standard_eyebrow} />
         </p>
         <StandardStatement />
       </div>

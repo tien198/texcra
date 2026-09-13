@@ -1,3 +1,5 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Atmosphere } from '../../../../components/atmosphere/Atmosphere'
@@ -6,6 +8,8 @@ import { ProcessStage } from './-ProcessStage'
 import { useProcessAtmosphere } from './hooks/-useProcessAtmosphere'
 
 export function ProcessSection() {
+  const locale = useLocale()
+
   const sectionRef = useProcessAtmosphere()
 
   return (
@@ -30,31 +34,111 @@ export function ProcessSection() {
         >
           <ProcessStage
             number="01"
-            title={m.home_process_discover_title()}
-            description={m.home_process_discover_description()}
-            mobileDescription={m.home_process_discover_description_mobile()}
-            outcome={m.home_process_discover_outcome()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_discover_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_discover_description}
+              />
+            }
+            mobileDescription={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_discover_description_mobile}
+              />
+            }
+            outcome={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_discover_outcome}
+              />
+            }
           />
           <ProcessStage
             number="02"
-            title={m.home_process_design_title()}
-            description={m.home_process_design_description()}
-            mobileDescription={m.home_process_design_description_mobile()}
-            outcome={m.home_process_design_outcome()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_design_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_design_description}
+              />
+            }
+            mobileDescription={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_design_description_mobile}
+              />
+            }
+            outcome={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_design_outcome}
+              />
+            }
           />
           <ProcessStage
             number="03"
-            title={m.home_process_engineer_title()}
-            description={m.home_process_engineer_description()}
-            mobileDescription={m.home_process_engineer_description_mobile()}
-            outcome={m.home_process_engineer_outcome()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_engineer_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_engineer_description}
+              />
+            }
+            mobileDescription={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_engineer_description_mobile}
+              />
+            }
+            outcome={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_engineer_outcome}
+              />
+            }
           />
           <ProcessStage
             number="04"
-            title={m.home_process_refine_title()}
-            description={m.home_process_refine_description()}
-            mobileDescription={m.home_process_refine_description_mobile()}
-            outcome={m.home_process_refine_outcome()}
+            title={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_refine_title}
+              />
+            }
+            description={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_refine_description}
+              />
+            }
+            mobileDescription={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_refine_description_mobile}
+              />
+            }
+            outcome={
+              <MessageUI
+                locale={locale}
+                message={m.home_process_refine_outcome}
+              />
+            }
           />
         </ol>
       </div>

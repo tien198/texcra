@@ -1,3 +1,5 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import type { FormEvent } from 'react'
@@ -15,6 +17,8 @@ export type ProjectEnquiry = {
 type EnquiryFormProps = { onSend?: (enquiry: ProjectEnquiry) => Promise<void> }
 
 export function EnquiryForm({ onSend }: EnquiryFormProps) {
+  const locale = useLocale()
+
   const [status, setStatus] = useState<
     'idle' | 'submitting' | 'success' | 'error' | 'unavailable' | 'invalid'
   >('idle')
@@ -49,15 +53,17 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
   }
 
   const feedback =
-    status === 'unavailable'
-      ? m.contact_delivery_unavailable()
-      : status === 'error'
-        ? m.contact_delivery_error()
-        : status === 'invalid'
-          ? m.contact_required_error()
-          : status === 'success'
-            ? m.contact_delivery_success()
-            : ''
+    status === 'unavailable' ? (
+      <MessageUI locale={locale} message={m.contact_delivery_unavailable} />
+    ) : status === 'error' ? (
+      <MessageUI locale={locale} message={m.contact_delivery_error} />
+    ) : status === 'invalid' ? (
+      <MessageUI locale={locale} message={m.contact_required_error} />
+    ) : status === 'success' ? (
+      <MessageUI locale={locale} message={m.contact_delivery_success} />
+    ) : (
+      ''
+    )
 
   return (
     <form
@@ -74,7 +80,7 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
           'font-ibm-plex-sans-condensed font-[200] text-[23px] md:text-[24px] tracking-[1.2px] md:tracking-[2.2px]',
         )}
       >
-        {m.contact_form_title()}
+        <MessageUI locale={locale} message={m.contact_form_title} />
       </h3>
       <div
         className={clsx(
@@ -83,27 +89,29 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
       >
         <ContactField
           name="name"
-          label={m.contact_name_label()}
-          placeholder={m.contact_name_placeholder()}
+          label={<MessageUI locale={locale} message={m.contact_name_label} />}
+          placeholder={m.contact_name_placeholder({}, { locale })}
           autoComplete="name"
         />
         <ContactField
           name="email"
-          label={m.contact_email_label()}
-          placeholder={m.contact_email_placeholder()}
+          label={<MessageUI locale={locale} message={m.contact_email_label} />}
+          placeholder={m.contact_email_placeholder({}, { locale })}
           type="email"
           autoComplete="email"
         />
       </div>
       <ProjectTypeSelector />
       <label className={clsx('flex flex-col gap-[14px]')}>
-        <span className={clsx('text-[13px]')}>{m.contact_brief_label()}</span>
+        <span className={clsx('text-[13px]')}>
+          <MessageUI locale={locale} message={m.contact_brief_label} />
+        </span>
         <textarea
           className={clsx(
             'resize-y w-full h-[96px] min-h-[96px] p-[18px] border border-[#aec2d050] rounded-none bg-[#06182818] text-ivory text-[15px] leading-[1.65] placeholder:text-[#8ca0b0] placeholder:opacity-100',
           )}
           name="brief"
-          placeholder={m.contact_brief_placeholder()}
+          placeholder={m.contact_brief_placeholder({}, { locale })}
           required
           maxLength={10000}
           rows={3}
@@ -116,11 +124,13 @@ export function EnquiryForm({ onSend }: EnquiryFormProps) {
         )}
         disabled={status === 'submitting'}
       >
-        {status === 'submitting'
-          ? m.contact_submitting()
-          : status === 'error'
-            ? m.contact_retry()
-            : m.contact_submit()}
+        {status === 'submitting' ? (
+          <MessageUI locale={locale} message={m.contact_submitting} />
+        ) : status === 'error' ? (
+          <MessageUI locale={locale} message={m.contact_retry} />
+        ) : (
+          <MessageUI locale={locale} message={m.contact_submit} />
+        )}
         <ArrowUpRight size={18} strokeWidth={1.5} aria-hidden="true" />
       </button>
       <p

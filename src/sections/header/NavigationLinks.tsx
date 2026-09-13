@@ -1,8 +1,12 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { ProjectLink } from '../../routes/(home)/comps/shared/-ProjectLink'
 
 export function NavigationLinks() {
+  const locale = useLocale()
+
   const navLinkClass = clsx(
     'inline-flex items-center w-full md:w-auto min-h-[44px]',
     // 'text-[#d3dce2] hover:text-white',
@@ -13,13 +17,13 @@ export function NavigationLinks() {
   return (
     <>
       <a className={navLinkClass} href="#expertise">
-        {m.nav_expertise()}
+        <MessageUI locale={locale} message={m.nav_expertise} />
       </a>
       <a className={navLinkClass} href="#approach">
-        {m.nav_approach()}
+        <MessageUI locale={locale} message={m.nav_approach} />
       </a>
       <a className={navLinkClass} href="#process">
-        {m.nav_process()}
+        <MessageUI locale={locale} message={m.nav_process} />
       </a>
       <ProjectLink variant="text" />
     </>

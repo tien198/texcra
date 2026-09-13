@@ -1,7 +1,11 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 
 export function StandardStatement() {
+  const locale = useLocale()
+
   return (
     <div className={clsx('grid gap-6')}>
       <h2
@@ -10,21 +14,24 @@ export function StandardStatement() {
           'font-ibm-plex-sans-condensed font-[200] text-[36px] md:text-[54px] leading-[1.16] tracking-[2.2px] md:tracking-[3.2px] whitespace-pre-line',
         )}
       >
-        {m.home_standard_title()}
+        <MessageUI locale={locale} message={m.home_standard_title} />
       </h2>
       <p
         className={clsx(
           'hidden md:block text-muted text-[18px] leading-[1.75] whitespace-pre-line',
         )}
       >
-        {m.home_standard_description()}
+        <MessageUI locale={locale} message={m.home_standard_description} />
       </p>
       <p
         className={clsx(
           'block md:hidden text-muted text-[16px] leading-[1.75] whitespace-pre-line',
         )}
       >
-        {m.home_standard_description_mobile()}
+        <MessageUI
+          locale={locale}
+          message={m.home_standard_description_mobile}
+        />
       </p>
     </div>
   )

@@ -1,7 +1,11 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 
 export function ProcessIntro() {
+  const locale = useLocale()
+
   return (
     <div
       className={clsx(
@@ -14,7 +18,7 @@ export function ProcessIntro() {
           'text-[#f3f2ed] md:text-inherit font-ibm-plex-sans-condensed font-[200] text-[9px] md:text-[10px] tracking-[2.2px] md:tracking-[2.4px]',
         )}
       >
-        {m.home_process_eyebrow()}
+        <MessageUI locale={locale} message={m.home_process_eyebrow} />
       </p>
       <div className={clsx('w-full md:w-[65%] lg:w-[569px]')}>
         <h2
@@ -23,9 +27,11 @@ export function ProcessIntro() {
             'text-[#f3f2ed] md:text-inherit font-ibm-plex-sans-condensed font-[200] text-[34px] md:text-[48px] leading-[1.2] tracking-[2.2px] md:tracking-[3.2px] whitespace-pre-line',
           )}
         >
-          <span className="hidden md:inline">{m.home_process_title()}</span>
+          <span className="hidden md:inline">
+            <MessageUI locale={locale} message={m.home_process_title} />
+          </span>
           <span className="inline md:hidden">
-            {m.home_process_title_mobile()}
+            <MessageUI locale={locale} message={m.home_process_title_mobile} />
           </span>
         </h2>
         <p
@@ -34,10 +40,13 @@ export function ProcessIntro() {
           )}
         >
           <span className="hidden md:inline">
-            {m.home_process_description()}
+            <MessageUI locale={locale} message={m.home_process_description} />
           </span>
           <span className="inline md:hidden">
-            {m.home_process_description_mobile()}
+            <MessageUI
+              locale={locale}
+              message={m.home_process_description_mobile}
+            />
           </span>
         </p>
       </div>

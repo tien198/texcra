@@ -1,8 +1,12 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { ProjectLink } from '../shared/-ProjectLink'
 
 export function HeroNarrative() {
+  const locale = useLocale()
+
   return (
     <div
       className={clsx(
@@ -14,7 +18,7 @@ export function HeroNarrative() {
           'font-ibm-plex-sans-condensed font-[200] text-secondary text-[9px] md:text-[10px] tracking-[2.2px] md:tracking-[2.4px]',
         )}
       >
-        {m.home_hero_eyebrow()}
+        <MessageUI locale={locale} message={m.home_hero_eyebrow} />
       </p>
       <h1
         id="hero-heading"
@@ -22,17 +26,23 @@ export function HeroNarrative() {
           'font-ibm-plex-sans-condensed font-[200] text-[42px] md:text-[44px] tracking-[2.8px] md:tracking-[4.2px] leading-[1.06] md:leading-[1.28] whitespace-pre-line break-words md:break-normal',
         )}
       >
-        <span className="hidden md:block">{m.home_hero_title()}</span>
-        <span className="block md:hidden">{m.home_hero_title_mobile()}</span>
+        <span className="hidden md:block">
+          <MessageUI locale={locale} message={m.home_hero_title} />
+        </span>
+        <span className="block md:hidden">
+          <MessageUI locale={locale} message={m.home_hero_title_mobile} />
+        </span>
       </h1>
       <p
         className={clsx(
           'max-w-[280px] md:max-w-[560px] text-[#c6d1d9] font-manrope text-[16px] md:text-[14px] leading-[1.6] md:leading-[1.7] whitespace-pre-line',
         )}
       >
-        <span className="hidden md:block">{m.home_hero_description()}</span>
+        <span className="hidden md:block">
+          <MessageUI locale={locale} message={m.home_hero_description} />
+        </span>
         <span className="block md:hidden">
-          {m.home_hero_description_mobile()}
+          <MessageUI locale={locale} message={m.home_hero_description_mobile} />
         </span>
       </p>
       <div className={clsx('flex items-center gap-[30px] md:pt-[6px]')}>
@@ -43,7 +53,7 @@ export function HeroNarrative() {
           )}
           href="#expertise"
         >
-          {m.home_hero_expertise_link()}
+          <MessageUI locale={locale} message={m.home_hero_expertise_link} />
         </a>
       </div>
     </div>

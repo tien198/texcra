@@ -1,11 +1,13 @@
+import { useId } from 'react'
+import type { ReactNode } from 'react'
 import { clsx } from 'clsx'
 import { ArrowUpRight } from 'lucide-react'
 
 type ServiceRowProps = {
   number: string
-  title: string
-  description: string
-  scope: string
+  title: ReactNode
+  description: ReactNode
+  scope: ReactNode
   light?: boolean
 }
 export function ServiceRow({
@@ -14,6 +16,8 @@ export function ServiceRow({
   description,
   scope,
 }: ServiceRowProps) {
+  const titleId = useId()
+
   return (
     <a
       className={clsx(
@@ -22,7 +26,7 @@ export function ServiceRow({
         'mix-blend-difference duration-1',
       )}
       href="#contact"
-      aria-label={title}
+      aria-labelledby={titleId}
     >
       <span
         className={clsx(
@@ -32,6 +36,7 @@ export function ServiceRow({
         {number}
       </span>
       <h3
+        id={titleId}
         className={clsx(
           'font-ibm-plex-sans-condensed font-[200] text-[25px] md:text-[30px] tracking-[1.5px] md:tracking-[2.8px]',
         )}

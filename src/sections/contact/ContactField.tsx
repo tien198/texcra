@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react'
 import { clsx } from 'clsx'
 
 type ContactFieldProps = {
   name: string
-  label: string
+  label: ReactNode
   placeholder: string
   type?: 'text' | 'email'
   autoComplete: string

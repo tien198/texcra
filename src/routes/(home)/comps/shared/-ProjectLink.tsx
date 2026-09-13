@@ -1,3 +1,5 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { ArrowUpRight } from 'lucide-react'
 import { m } from '#/paraglide/messages.js'
@@ -7,6 +9,8 @@ export function ProjectLink({
 }: {
   variant?: 'glass' | 'text'
 }) {
+  const locale = useLocale()
+
   const baseClasses = clsx(
     'inline-flex items-center w-fit min-h-[48px] font-manrope font-[300] tracking-[1.2px]',
     'transition-colors duration-[180ms] ease-out',
@@ -33,7 +37,9 @@ export function ProjectLink({
       className={variant === 'glass' ? glassClasses : textClasses}
       href="#contact"
     >
-      <span>{m.action_start_project()}</span>
+      <span>
+        <MessageUI locale={locale} message={m.action_start_project} />
+      </span>
       <ArrowUpRight size={18} strokeWidth={1.5} aria-hidden="true" />
     </a>
   )

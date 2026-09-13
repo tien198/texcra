@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { clsx } from 'clsx'
 
 export function ApproachPrinciple({
@@ -6,8 +7,8 @@ export function ApproachPrinciple({
   description,
 }: {
   number: string
-  title: string
-  description: string
+  title: ReactNode
+  description: ReactNode
 }) {
   return (
     <div

@@ -1,3 +1,5 @@
+import { MessageUI } from '#/lib/paraglide-message/message-ui'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Canvas, events } from '@react-three/fiber'
@@ -27,6 +29,8 @@ export function ContinuumStudy({
 }: {
   eventSource: HTMLElement | null
 }) {
+  const locale = useLocale()
+
   return (
     <figure
       className={clsx(
@@ -73,8 +77,12 @@ export function ContinuumStudy({
           'text-[#bac9d5] font-ibm-plex-sans-condensed font-[200] text-[7px] md:text-[8px] lg:text-[9px] tracking-[1.4px] md:tracking-[1px] lg:tracking-[2.2px]',
         )}
       >
-        <span>{m.home_artwork_principles()}</span>
-        <span>{m.home_artwork_caption()}</span>
+        <span>
+          <MessageUI locale={locale} message={m.home_artwork_principles} />
+        </span>
+        <span>
+          <MessageUI locale={locale} message={m.home_artwork_caption} />
+        </span>
       </figcaption>
     </figure>
   )
