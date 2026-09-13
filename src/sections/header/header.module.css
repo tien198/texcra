@@ -19,7 +19,7 @@
 
 @media (width < 48rem) {
   /* The expanded menu uses its own solid surface instead of page blending. */
-  .header:has(button[aria-expanded='true']) {
+  .header:has(button[aria-controls='mobile-navigation'][aria-expanded='true']) {
     background: #061828;
     mix-blend-mode: normal;
   }

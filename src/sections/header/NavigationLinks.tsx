@@ -4,7 +4,7 @@ import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { ProjectLink } from '../../routes/(home)/comps/shared/-ProjectLink'
 
-export function NavigationLinks() {
+export function NavigationLinks({ includeProjectLink = true }) {
   const locale = useLocale()
 
   const navLinkClass = clsx(
@@ -25,7 +25,7 @@ export function NavigationLinks() {
       <a className={navLinkClass} href="#process">
         <MessageUI locale={locale} message={m.nav_process} />
       </a>
-      <ProjectLink variant="text" />
+      {includeProjectLink && <ProjectLink variant="text" />}
     </>
   )
 }

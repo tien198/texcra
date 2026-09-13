@@ -1,11 +1,14 @@
-import { getLocale } from '#/paraglide/runtime'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { BrandWordmark } from '../../routes/(home)/comps/shared/-BrandWordmark'
+import { ProjectLink } from '../../routes/(home)/comps/shared/-ProjectLink'
+import { LanguageSelect } from './LanguageSelect'
 import { MobileNavigation } from './MobileNavigation'
 import { NavigationLinks } from './NavigationLinks'
 import { clsx } from 'clsx'
 import styles from './header.module.css'
 
 export function SiteHeader() {
+  const locale = useLocale()
   const positionClass = 'fixed inset-x-0 top-0 z-10 h-[88px] md:h-[100px]'
 
   return (
@@ -27,15 +30,21 @@ export function SiteHeader() {
           )}
         >
           <BrandWordmark />
-          <nav
-            className={clsx('hidden md:flex items-center gap-5 lg:gap-8')}
-            aria-label={
-              getLocale() === 'vi' ? 'Điều hướng chính' : 'Main navigation'
-            }
-          >
-            <NavigationLinks />
-          </nav>
-          <MobileNavigation />
+          <div className="flex items-center gap-3 lg:gap-8">
+            <nav
+              className="hidden items-center gap-3 md:flex lg:gap-8"
+              aria-label={
+                locale === 'vi' ? 'Điều hướng chính' : 'Main navigation'
+              }
+            >
+              <NavigationLinks includeProjectLink={false} />
+            </nav>
+            <LanguageSelect />
+            <div className="hidden md:block">
+              <ProjectLink variant="text" />
+            </div>
+            <MobileNavigation />
+          </div>
         </div>
       </header>
     </>

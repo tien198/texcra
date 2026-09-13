@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { getLocale } from '#/paraglide/runtime'
+import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { NavigationLinks } from './NavigationLinks'
 import { clsx } from 'clsx'
 
 export function MobileNavigation() {
   const [isOpen, setIsOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
-  const isVietnamese = getLocale() === 'vi'
+  const isVietnamese = useLocale() === 'vi'
 
   return (
     <div
