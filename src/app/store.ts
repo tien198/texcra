@@ -11,6 +11,7 @@ import editorReducer, {
   setStatus,
   setError,
 } from '#/lexical/editor-RTK/editorSlice'
+import { getDraftStorageKey } from '#/lexical/core/-editor-data'
 
 const listenerMiddleware = createListenerMiddleware()
 
@@ -44,7 +45,7 @@ listenerMiddleware.startListening({
       editor: JSON.stringify(snapshot.json),
     })
 
-    const storageKey = `draft-editor:${postId}`
+    const storageKey = getDraftStorageKey(postId)
 
     try {
       localStorage.setItem(storageKey, pending)

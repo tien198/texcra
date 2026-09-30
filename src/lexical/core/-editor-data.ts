@@ -56,3 +56,15 @@ export function slugify(value: string): string {
       .replace(/^-|-$/g, '') || 'untitled'
   )
 }
+
+export const getDraftStorageKey = (postId: string) => `draft-editor:${postId}`
+export const getLegacyDraftStorageKey = (postId: string) =>
+  `draft-editor:v1:${postId}`
+
+export function getStoredDraft(postId: string): string | null {
+  if (typeof window === 'undefined') return null
+  return (
+    window.localStorage.getItem(getDraftStorageKey(postId)) ??
+    window.localStorage.getItem(getLegacyDraftStorageKey(postId))
+  )
+}

@@ -1,14 +1,6 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Clock3 } from 'lucide-react'
-import { useAppDispatch, useAppSelector } from '#/app/hooks'
-import {
-  setPostId,
-  setTitle,
-  setHeroImage,
-  setSeo,
-  setSnapshot,
-  loadDraftData,
-} from '#/lexical/editor-RTK/editorSlice'
+import { useEditorState, useDraftManagement } from './hooks'
 import { SeoPanel } from './seo/-seo-panel'
 import { StatusBar } from './layout/-status-bar'
 import { EditorActions } from './layout/-editor-actions'
@@ -23,14 +15,6 @@ import { Label } from '#/components/ui/label'
 import { Kbd } from '#/components/ui/kbd'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import { Skeleton } from '#/components/ui/skeleton'
-import { createEditor } from 'lexical'
-import type { EditorState } from 'lexical'
-import { EDITOR_NODES } from '#/lexical/core/-editor-config'
-import {
-  DEFAULT_TITLE,
-  DEFAULT_HERO_IMAGE,
-  DEFAULT_SEO,
-} from '#/lexical/core/-editor-data'
 
 const RichTextEditor = lazy(() =>
   import('#/lexical/-rich-text-editor').then((m) => ({
@@ -39,139 +23,37 @@ const RichTextEditor = lazy(() =>
 )
 
 export default function EditorWorkspace({ postId }: { postId: string }) {
-  const dispatch = useAppDispatch()
-  const title = useAppSelector((state) => state.editor.title)
-  const heroImage = useAppSelector((state) => state.editor.heroImage)
-  const seo = useAppSelector((state) => state.editor.seo)
-  const snapshot = useAppSelector((state) => state.editor.snapshot)
-  const error = useAppSelector((state) => state.editor.error)
-  const isLoaded = useAppSelector((state) => state.editor.isLoaded)
-
   const [preview, setPreview] = useState(false)
-  const [lexicalInitialState, setLexicalInitialState] =
-    useState<EditorState | null>(null)
-  const [editorKey, setEditorKey] = useState(0)
-  const [hasDraft, setHasDraft] = useState(false)
 
-  const storageKey = `draft-editor:v1:${postId}`
+  const {
+    title,
+    heroImage,
+    seo,
+    snapshot,
+    error,
+    isLoaded,
+    handleTitleChange,
+    handleHeroImageChange,
+    handleSeoChange,
+    handleSnapshotChange,
+  } = useEditorState(postId)
 
-  useEffect(() => {
-    dispatch(setPostId(postId))
-  }, [dispatch, postId])
-
-  useEffect(() => {
-    if (!isLoaded) {
-      const raw = localStorage.getItem(storageKey)
-      if (raw) {
-        setHasDraft(true)
-      } else {
-        dispatch(
-          loadDraftData({
-            title,
-            heroImage,
-            seo,
-            snapshot,
-            error: '',
-          }),
-        )
-      }
-    }
-  }, [isLoaded, storageKey, dispatch])
-
-  const handleRestoreDraft = () => {
-    if (
-      !window.confirm(
-        'Current content will be overwritten by the saved draft. Are you sure?',
-      )
-    ) {
-      return
-    }
-    try {
-      const raw = localStorage.getItem(storageKey)
-      if (!raw) return
-
-      const value = JSON.parse(raw)
-      if (
-        value?.version !== 1 ||
-        typeof value.editor !== 'string' ||
-        (!value.settings && !value.seo)
-      ) {
-        throw new Error('Invalid draft')
-      }
-
-      const draftTitle = value.title ?? value.settings?.title ?? DEFAULT_TITLE
-      const draftHeroImage =
-        value.heroImage !== undefined
-          ? value.heroImage
-          : (value.settings?.heroImage ?? DEFAULT_HERO_IMAGE)
-      const draftSeo = {
-        title: value.seo?.title ?? DEFAULT_SEO.title,
-        description:
-          value.seo?.description ??
-          value.settings?.description ??
-          DEFAULT_SEO.description,
-        image: value.seo?.image ?? DEFAULT_SEO.image,
-        canonicalUrl:
-          value.seo?.canonicalUrl ??
-          value.settings?.canonicalUrl ??
-          DEFAULT_SEO.canonicalUrl,
-      }
-
-      const editor = createEditor({
-        nodes: EDITOR_NODES,
-        onError: (err) => {
-          throw err
-        },
-      })
-      const parsedEditorState = editor.parseEditorState(value.editor)
-      if (parsedEditorState.isEmpty()) throw new Error('Empty editor state')
-
-      setLexicalInitialState(parsedEditorState)
-      setEditorKey((k) => k + 1)
-      setHasDraft(false)
-
-      dispatch(
-        loadDraftData({
-          title: draftTitle,
-          heroImage: draftHeroImage,
-          seo: draftSeo,
-          snapshot: null,
-          error: '',
-        }),
-      )
-    } catch {
-      dispatch(
-        loadDraftData({
-          title,
-          heroImage,
-          seo,
-          snapshot: null,
-          error:
-            'Your saved draft could not be opened. It has been kept untouched. Export this session to keep your changes.',
-        }),
-      )
-    }
-  }
-
-  const handleDismissDraft = () => {
-    setHasDraft(false)
-    dispatch(
-      loadDraftData({
-        title,
-        heroImage,
-        seo,
-        snapshot,
-        error: '',
-      }),
-    )
-  }
+  const {
+    lexicalInitialState,
+    editorKey,
+    hasDraft,
+    handleRestoreDraft,
+    handleDismissDraft,
+  } = useDraftManagement({
+    postId,
+    isLoaded,
+    title,
+    heroImage,
+    seo,
+    snapshot,
+  })
 
   const words = snapshot?.words ?? 0
-
-  const handleSnapshotChange = useMemo(
-    () => (newSnapshot: any) => dispatch(setSnapshot(newSnapshot)),
-    [dispatch],
-  )
 
   return (
     <TooltipProvider delay={350}>
@@ -228,7 +110,7 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
               aria-label="Article title"
               value={title}
               placeholder="Untitled document"
-              onChange={(event) => dispatch(setTitle(event.target.value))}
+              onChange={(event) => handleTitleChange(event.target.value)}
             />
           </div>
           <Tabs defaultValue="content" className="gap-0">
@@ -246,10 +128,7 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
               keepMounted
               className="px-[var(--admin-gutter)] pb-[40px] pt-[22px] text-[13px] max-[699px]:pb-[28px] [&_[data-slot=card]]:overflow-visible [&_[data-slot=card]]:rounded-none [&_[data-slot=card]]:border-b [&_[data-slot=card]]:border-border [&_[data-slot=card]]:pb-[26px] [&_[data-slot=card]]:shadow-none [&_[data-slot=card]]:[--card-spacing:0px] [&_[data-slot=card-content]]:rounded-none [&_[data-slot=card-content]_.text-sm]:text-[13px] [&_[data-slot=card-description]]:text-[13px] [&_[data-slot=card-footer]]:rounded-none [&_[data-slot=card-footer]]:bg-transparent [&_[data-slot=card-footer]]:pt-[12px] [&_[data-slot=card-header]]:rounded-none [&_[data-slot=card-title]]:text-[14px]"
             >
-              <ImageUpload
-                value={heroImage}
-                onChange={(url) => dispatch(setHeroImage(url))}
-              />
+              <ImageUpload value={heroImage} onChange={handleHeroImageChange} />
               <Suspense
                 fallback={
                   <Skeleton className="mt-[24px] h-[400px] w-full rounded-md" />
@@ -325,7 +204,7 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
                 seo={seo}
                 title={title}
                 heroImage={heroImage}
-                onChange={(s) => dispatch(setSeo(s))}
+                onChange={handleSeoChange}
                 snapshot={snapshot}
               />
             </TabsContent>
