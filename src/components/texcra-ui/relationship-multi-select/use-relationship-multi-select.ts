@@ -6,14 +6,18 @@ import { getSingularLabel } from './utils'
 import { useAddDrawer } from './drawers/use-add-drawer'
 import { useEditDrawer } from './drawers/use-edit-drawer'
 
-export interface UseRelationshipMultiSelectProps extends RelationshipMultiSelectProps {}
+export interface UseRelationshipMultiSelectProps<
+  TAdditional = { page: number },
+> extends Partial<RelationshipMultiSelectProps<TAdditional>> {
+  onChange?: (value: Option[]) => void
+}
 
-export function useRelationshipMultiSelect({
+export function useRelationshipMultiSelect<TAdditional = { page: number }>({
   label,
-  options = [],
   value,
   selected,
-  onChange,
+  options,
+  onChange = () => {},
   addDrawerContent,
   addDialogContent,
   addDrawerTitle,
@@ -28,20 +32,46 @@ export function useRelationshipMultiSelect({
   editDialogDescription,
   onAddItem,
   onEditItem,
-}: UseRelationshipMultiSelectProps) {
+}: UseRelationshipMultiSelectProps<TAdditional>) {
   const selectedItems = (value ?? selected) || []
-  const [internalOptions, setInternalOptions] =
-    React.useState<Option[]>(options)
+  const [internalOptions, setInternalOptions] = React.useState<Option[]>(
+    options ?? selectedItems,
+  )
 
   const singularLabel = getSingularLabel(label)
   const labelId = label
     ? `label-${label.replaceAll(' ', '-').toLowerCase()}`
     : undefined
 
-  // Keep internal options in sync with incoming options prop
   React.useEffect(() => {
-    setInternalOptions(options)
-  }, [options])
+    setInternalOptions((prev) => {
+      const map = new Map<string, Option>()
+      prev.forEach((opt) => map.set(opt.value, opt))
+      if (options) {
+        options.forEach((opt) => map.set(opt.value, opt))
+      }
+      selectedItems.forEach((opt) => map.set(opt.value, opt))
+      return Array.from(map.values())
+    })
+  }, [options, selectedItems])
+
+  const [drawerVersion, setDrawerVersion] = React.useState(0)
+
+  const handleAddItem = React.useCallback(
+    (newOption: Option) => {
+      setDrawerVersion((v) => v + 1)
+      onAddItem?.(newOption)
+    },
+    [onAddItem],
+  )
+
+  const handleEditItem = React.useCallback(
+    (updatedOption: Option) => {
+      setDrawerVersion((v) => v + 1)
+      onEditItem?.(updatedOption)
+    },
+    [onEditItem],
+  )
 
   const addDrawer = useAddDrawer({
     singularLabel,
@@ -49,7 +79,7 @@ export function useRelationshipMultiSelect({
     setInternalOptions,
     selectedItems,
     onChange,
-    onAddItem,
+    onAddItem: handleAddItem,
     addDrawerTitle,
     addDialogTitle,
     addDrawerDescription,
@@ -63,7 +93,7 @@ export function useRelationshipMultiSelect({
     setInternalOptions,
     selectedItems,
     onChange,
-    onEditItem,
+    onEditItem: handleEditItem,
     editDrawerTitle,
     editDialogTitle,
     editDrawerDescription,
@@ -75,9 +105,11 @@ export function useRelationshipMultiSelect({
   return {
     selectedItems,
     internalOptions,
+    setInternalOptions,
     singularLabel,
     labelId,
     addDrawer,
     editDrawer,
+    drawerVersion,
   }
 }

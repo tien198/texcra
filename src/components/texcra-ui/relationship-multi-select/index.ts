@@ -1,15 +1,16 @@
 export { RelationshipMultiSelect } from './relationship-multi-select'
 export type {
   Option,
+  LoadOptionsFn,
   RelationshipMultiSelectProps,
   SelectedBadgeProps,
   AddDrawerProps,
   EditDrawerProps,
 } from './types'
+export { SelectedBadge } from './components/selected-badge'
 export { getSingularLabel, generateSlug } from './utils'
 export { useRelationshipMultiSelect } from './use-relationship-multi-select'
 export type { UseRelationshipMultiSelectProps } from './use-relationship-multi-select'
-export { SelectedBadge } from './components/selected-badge'
 export { useAddDrawer } from './drawers/use-add-drawer'
 export type { UseAddDrawerProps } from './drawers/use-add-drawer'
 export { useEditDrawer } from './drawers/use-edit-drawer'

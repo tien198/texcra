@@ -1,12 +1,14 @@
 'use client'
 
-import React from 'react'
-import Select, { components } from 'react-select'
+import * as React from 'react'
 import type {
+  GroupBase,
   MultiValueProps,
   DropdownIndicatorProps,
   ClearIndicatorProps,
 } from 'react-select'
+import { components } from 'react-select'
+import { AsyncPaginate } from 'react-select-async-paginate'
 import { ChevronDown, Plus, X } from 'lucide-react'
 import { cn } from '#/lib/utils'
 import type { RelationshipMultiSelectProps, Option } from './types'
@@ -36,25 +38,47 @@ const ClearIndicator = (props: ClearIndicatorProps<Option, true>) => {
   )
 }
 
-export function RelationshipMultiSelect(props: RelationshipMultiSelectProps) {
+const DEFAULT_ADDITIONAL: { page: number } = { page: 1 }
+
+export function RelationshipMultiSelect<TAdditional = { page: number }>(
+  props: RelationshipMultiSelectProps<TAdditional>,
+) {
   const {
     label,
     placeholder = 'Select a value',
     disabled = false,
+    isClearable = true,
     className,
+    debounceTimeout = 300,
+    cacheUniqs,
     showAddButton = true,
     drawerGutterRem = 3,
     onChange,
+    loadOptions,
+    additional = DEFAULT_ADDITIONAL as unknown as TAdditional,
+    options,
+    defaultOptions,
   } = props
 
   const {
     selectedItems,
-    internalOptions,
     singularLabel,
     labelId,
     addDrawer,
     editDrawer,
+    drawerVersion,
   } = useRelationshipMultiSelect(props)
+
+  const reactId = React.useId()
+  const instanceId = labelId
+    ? `${labelId}-${reactId.replace(/:/g, '')}`
+    : `rel-select-${reactId.replace(/:/g, '')}`
+  const inputId = `${instanceId}-input`
+
+  const onChangeRef = React.useRef(onChange)
+  onChangeRef.current = onChange
+  const selectedItemsRef = React.useRef(selectedItems)
+  selectedItemsRef.current = selectedItems
 
   const selectComponents = React.useMemo(
     () => ({
@@ -63,14 +87,18 @@ export function RelationshipMultiSelect(props: RelationshipMultiSelectProps) {
           item={multiValueProps.data}
           disabled={multiValueProps.isDisabled}
           onStartEdit={editDrawer.openEdit}
-          onRemove={(_, e) => {
-            if (e) {
-              multiValueProps.removeProps.onClick?.(e as any)
+          onRemove={(item, e) => {
+            if (multiValueProps.removeProps.onClick) {
+              multiValueProps.removeProps.onClick(
+                (e ?? {
+                  stopPropagation: () => {},
+                  preventDefault: () => {},
+                }) as any,
+              )
             } else {
-              multiValueProps.removeProps.onClick?.({
-                stopPropagation: () => {},
-                preventDefault: () => {},
-              } as any)
+              onChangeRef.current(
+                selectedItemsRef.current.filter((i) => i.value !== item.value),
+              )
             }
           }}
         />
@@ -82,15 +110,25 @@ export function RelationshipMultiSelect(props: RelationshipMultiSelectProps) {
     [editDrawer.openEdit],
   )
 
+  const cacheDependencies = React.useMemo(() => {
+    const base = cacheUniqs ?? []
+    return options
+      ? [...base, drawerVersion, options]
+      : [...base, drawerVersion]
+  }, [cacheUniqs, drawerVersion, options])
+
+  const initialOptions = defaultOptions ?? options
+
   return (
     <div className={cn('grid gap-2', className)}>
       {label && (
-        <span
+        <label
           id={labelId}
+          htmlFor={inputId}
           className="text-sm font-medium text-foreground select-none"
         >
           {label}
-        </span>
+        </label>
       )}
 
       {/* Main unified container */}
@@ -101,22 +139,35 @@ export function RelationshipMultiSelect(props: RelationshipMultiSelectProps) {
           disabled && 'cursor-not-allowed opacity-50 pointer-events-none',
         )}
       >
-        <Select
+        <AsyncPaginate<Option, GroupBase<Option>, TAdditional, true>
           isMulti
           isDisabled={disabled}
-          options={internalOptions}
+          isClearable={isClearable}
           value={selectedItems}
-          onChange={(newVal) => onChange(newVal as Option[])}
+          onChange={(newVal) => onChange([...newVal])}
+          loadOptions={loadOptions}
+          additional={additional}
+          defaultOptions={initialOptions}
+          debounceTimeout={debounceTimeout}
+          cacheUniqs={cacheDependencies}
           placeholder={placeholder}
+          aria-label={label ? undefined : `Select ${singularLabel}`}
           aria-labelledby={labelId}
+          instanceId={instanceId}
+          inputId={inputId}
           unstyled
           className="flex-1 min-w-0"
           components={selectComponents}
           classNames={{
             control: () =>
               'flex w-full items-center justify-between px-2.5 py-1.5 bg-transparent border-0 outline-none',
-            menu: () =>
-              'absolute mt-1 z-50 w-full rounded-[3px] border border-border bg-popover text-popover-foreground shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95',
+            menu: (state) =>
+              cn(
+                'absolute z-50 w-full rounded-[3px] border border-border bg-popover text-popover-foreground shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95',
+                state.placement === 'top'
+                  ? 'bottom-full mb-1'
+                  : 'top-full mt-1',
+              ),
             menuList: () => 'max-h-60 overflow-y-auto p-1 text-sm outline-none',
             option: (state) =>
               cn(
@@ -127,17 +178,21 @@ export function RelationshipMultiSelect(props: RelationshipMultiSelectProps) {
                 state.isSelected &&
                   'bg-accent text-accent-foreground font-medium',
               ),
-            valueContainer: () => 'flex flex-wrap gap-1.5',
+            valueContainer: () => 'flex flex-wrap gap-1.5 py-0.5',
             input: () =>
-              'text-sm text-foreground placeholder:text-muted-foreground',
+              'text-sm text-foreground placeholder:text-muted-foreground m-0 p-0',
             placeholder: () => 'text-muted-foreground text-sm',
             indicatorsContainer: () =>
               'flex items-center gap-1 text-muted-foreground',
             clearIndicator: () =>
-              'p-1 rounded hover:text-foreground hover:bg-accent transition-colors',
+              'p-1 rounded hover:text-foreground hover:bg-accent transition-colors cursor-pointer',
             dropdownIndicator: () =>
-              'p-1 rounded hover:text-foreground hover:bg-accent transition-colors',
+              'p-1 rounded hover:text-foreground hover:bg-accent transition-colors cursor-pointer',
+            loadingIndicator: () =>
+              'p-1 text-muted-foreground flex items-center justify-center',
             noOptionsMessage: () =>
+              'py-3 px-3 text-center text-xs text-muted-foreground',
+            loadingMessage: () =>
               'py-3 px-3 text-center text-xs text-muted-foreground',
           }}
         />
@@ -148,6 +203,9 @@ export function RelationshipMultiSelect(props: RelationshipMultiSelectProps) {
             type="button"
             disabled={disabled}
             aria-label={`Add new ${singularLabel.toLowerCase()}`}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+            }}
             onClick={(e) => {
               e.stopPropagation()
               addDrawer.openAdd()

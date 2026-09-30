@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import type { Option, RelationshipMultiSelectProps } from '../types'
+import type { Option, EditDrawerProps } from '../types'
 
 export interface UseEditDrawerProps {
   singularLabel: string
@@ -9,12 +9,12 @@ export interface UseEditDrawerProps {
   selectedItems: Option[]
   onChange: (value: Option[]) => void
   onEditItem?: (updatedOption: Option) => void
-  editDrawerTitle?: RelationshipMultiSelectProps['editDrawerTitle']
-  editDialogTitle?: RelationshipMultiSelectProps['editDialogTitle']
-  editDrawerDescription?: RelationshipMultiSelectProps['editDrawerDescription']
-  editDialogDescription?: RelationshipMultiSelectProps['editDialogDescription']
-  editDrawerContent?: RelationshipMultiSelectProps['editDrawerContent']
-  editDialogContent?: RelationshipMultiSelectProps['editDialogContent']
+  editDrawerTitle?: EditDrawerProps['title']
+  editDialogTitle?: EditDrawerProps['title']
+  editDrawerDescription?: EditDrawerProps['description']
+  editDialogDescription?: EditDrawerProps['description']
+  editDrawerContent?: EditDrawerProps['content']
+  editDialogContent?: EditDrawerProps['content']
 }
 
 export function useEditDrawer({

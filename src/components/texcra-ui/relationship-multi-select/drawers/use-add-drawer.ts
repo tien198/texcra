@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import type { Option, RelationshipMultiSelectProps } from '../types'
+import type { Option, AddDrawerProps } from '../types'
 
 export interface UseAddDrawerProps {
   singularLabel: string
@@ -14,8 +14,8 @@ export interface UseAddDrawerProps {
   addDialogTitle?: string
   addDrawerDescription?: string
   addDialogDescription?: string
-  addDrawerContent?: RelationshipMultiSelectProps['addDrawerContent']
-  addDialogContent?: RelationshipMultiSelectProps['addDialogContent']
+  addDrawerContent?: AddDrawerProps['content']
+  addDialogContent?: AddDrawerProps['content']
 }
 
 export function useAddDrawer({
