@@ -5,9 +5,8 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { getLocale } from '#/paraglide/runtime'
 import { m } from '#/paraglide/messages.js'
 
-import appCss from '../globals.css?url'
-import { SiteHeader } from '#/sections/header/SiteHeader'
-import { SiteFooter } from '#/sections/footer/SiteFooter'
+import appCss from '#/globals.css?url'
+import { StoreProvider } from '#/app/StoreProvider'
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
@@ -48,22 +47,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
+        <StoreProvider>
+          {children}
 
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
-        <Scripts />
+          <TanStackDevtools
+            config={{
+              position: 'bottom-right',
+            }}
+            plugins={[
+              {
+                name: 'Tanstack Router',
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+            ]}
+          />
+          <Scripts />
+        </StoreProvider>
       </body>
     </html>
   )

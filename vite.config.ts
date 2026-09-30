@@ -22,6 +22,9 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  server: {
+    open: 'http://localhost:3000/admin/posts/1',
+  },
 })
 
 export default config

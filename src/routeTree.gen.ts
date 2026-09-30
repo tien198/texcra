@@ -9,38 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as home_rootRouteImport } from './routes/(home)/__root'
 import { Route as homeIndexRouteImport } from './routes/(home)/index'
+import { Route as AdminPostsPostIdRouteImport } from './routes/admin/posts/$postId'
 
+const home_rootRoute = home_rootRouteImport.update({
+  id: '/(home)/__root',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const homeIndexRoute = homeIndexRouteImport.update({
   id: '/(home)/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPostsPostIdRoute = AdminPostsPostIdRouteImport.update({
+  id: '/admin/posts/$postId',
+  path: '/admin/posts/$postId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof homeIndexRoute
+  '/admin/posts/$postId': typeof AdminPostsPostIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof homeIndexRoute
+  '/admin/posts/$postId': typeof AdminPostsPostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/(home)/__root': typeof home_rootRoute
   '/(home)/': typeof homeIndexRoute
+  '/admin/posts/$postId': typeof AdminPostsPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/admin/posts/$postId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/(home)/'
+  to: '/' | '/admin/posts/$postId'
+  id: '__root__' | '/(home)/__root' | '/(home)/' | '/admin/posts/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  home_rootRoute: typeof home_rootRoute
   homeIndexRoute: typeof homeIndexRoute
+  AdminPostsPostIdRoute: typeof AdminPostsPostIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(home)/__root': {
+      id: '/(home)/__root'
+      path: '/'
+      fullPath: ''
+      preLoaderRoute: typeof home_rootRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(home)/': {
       id: '/(home)/'
       path: '/'
@@ -48,11 +72,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof homeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/posts/$postId': {
+      id: '/admin/posts/$postId'
+      path: '/admin/posts/$postId'
+      fullPath: '/admin/posts/$postId'
+      preLoaderRoute: typeof AdminPostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  home_rootRoute: home_rootRoute,
   homeIndexRoute: homeIndexRoute,
+  AdminPostsPostIdRoute: AdminPostsPostIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

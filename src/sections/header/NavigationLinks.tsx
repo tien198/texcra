@@ -2,7 +2,7 @@ import { MessageUI } from '#/lib/paraglide-message/message-ui'
 import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
-import { ProjectLink } from '../../routes/(home)/comps/shared/-ProjectLink'
+import { ProjectLink } from '#/routes/(home)/-comps/shared/-ProjectLink'
 
 export function NavigationLinks({ includeProjectLink = true }) {
   const locale = useLocale()

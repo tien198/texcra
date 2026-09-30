@@ -1,6 +1,6 @@
 import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
-import { BrandWordmark } from '../../routes/(home)/comps/shared/-BrandWordmark'
-import { ProjectLink } from '../../routes/(home)/comps/shared/-ProjectLink'
+import { BrandWordmark } from '#/routes/(home)/-comps/shared/-BrandWordmark'
+import { ProjectLink } from '#/routes/(home)/-comps/shared/-ProjectLink'
 import { LanguageSelect } from './LanguageSelect'
 import { MobileNavigation } from './MobileNavigation'
 import { NavigationLinks } from './NavigationLinks'
