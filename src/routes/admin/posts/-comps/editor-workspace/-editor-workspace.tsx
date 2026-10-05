@@ -30,12 +30,18 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
     heroImage,
     seo,
     snapshot,
+    authors,
+    categories,
+    relatedPosts,
     error,
     isLoaded,
     handleTitleChange,
     handleHeroImageChange,
     handleSeoChange,
     handleSnapshotChange,
+    handleAuthorsChange,
+    handleCategoriesChange,
+    handleRelatedPostsChange,
   } = useEditorState(postId)
 
   const {
@@ -190,8 +196,18 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
               keepMounted
               className={`${'px-[var(--admin-gutter)] pb-[40px] pt-[22px] text-[13px] max-[699px]:pb-[28px] [&_[data-slot=card]]:overflow-visible [&_[data-slot=card]]:rounded-none [&_[data-slot=card]]:border-b [&_[data-slot=card]]:border-border [&_[data-slot=card]]:pb-[26px] [&_[data-slot=card]]:shadow-none [&_[data-slot=card]]:[--card-spacing:0px] [&_[data-slot=card-content]]:rounded-none [&_[data-slot=card-content]_.text-sm]:text-[13px] [&_[data-slot=card-description]]:text-[13px] [&_[data-slot=card-footer]]:rounded-none [&_[data-slot=card-footer]]:bg-transparent [&_[data-slot=card-footer]]:pt-[12px] [&_[data-slot=card-header]]:rounded-none [&_[data-slot=card-title]]:text-[14px]'} space-y-6`}
             >
-              <RelationshipField label="Related Posts" />
-              <RelationshipField label="Categories" />
+              <RelationshipField
+                label="Related Posts"
+                collection="related-posts"
+                value={relatedPosts}
+                onChange={handleRelatedPostsChange}
+              />
+              <RelationshipField
+                label="Categories"
+                collection="categories"
+                value={categories}
+                onChange={handleCategoriesChange}
+              />
             </TabsContent>
             <TabsContent
               value="seo"
@@ -216,6 +232,8 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
           seo={seo}
           preview={preview}
           snapshot={snapshot}
+          authors={authors}
+          onAuthorsChange={handleAuthorsChange}
         />
       </div>
     </TooltipProvider>

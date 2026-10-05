@@ -2,6 +2,7 @@ import type { SEO, DocumentSnapshot } from '#/lexical/core/-editor-data'
 import { DocumentPreview } from './-document-preview'
 import { buildHtmlDocument } from '#/lexical/document/-document-export'
 import { PostMetadata } from './-post-metadata'
+import type { Option } from '#/components/texcra-ui/relationship-multi-select'
 
 export function SidebarContents({
   title,
@@ -10,6 +11,8 @@ export function SidebarContents({
   preview,
   snapshot,
   setPreviewWidth,
+  authors,
+  onAuthorsChange,
 }: {
   title: string
   heroImage: string | null
@@ -17,6 +20,8 @@ export function SidebarContents({
   preview: boolean
   snapshot: DocumentSnapshot | null
   setPreviewWidth: (width: number | string) => void
+  authors: Option[]
+  onAuthorsChange: (val: Option[]) => void
 }) {
   if (preview && snapshot)
     return (
@@ -25,5 +30,12 @@ export function SidebarContents({
         onWidthChange={setPreviewWidth}
       />
     )
-  else return <PostMetadata title={title} />
+  else
+    return (
+      <PostMetadata
+        title={title}
+        authors={authors}
+        onAuthorsChange={onAuthorsChange}
+      />
+    )
 }

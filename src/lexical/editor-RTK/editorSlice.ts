@@ -6,6 +6,7 @@ import {
   DEFAULT_HERO_IMAGE,
 } from '#/lexical/core/-editor-data'
 import type { SEO, DocumentSnapshot } from '#/lexical/core/-editor-data'
+import type { Option } from '#/components/texcra-ui/relationship-multi-select'
 
 export interface EditorState {
   postId: string | null
@@ -13,6 +14,9 @@ export interface EditorState {
   heroImage: string | null
   seo: SEO
   snapshot: DocumentSnapshot | null
+  authors: Option[]
+  categories: Option[]
+  relatedPosts: Option[]
   status: string
   error: string
   isLoaded: boolean
@@ -24,6 +28,9 @@ const initialState: EditorState = {
   heroImage: DEFAULT_HERO_IMAGE,
   seo: DEFAULT_SEO,
   snapshot: null,
+  authors: [],
+  categories: [],
+  relatedPosts: [],
   status: 'Loading draft…',
   error: '',
   isLoaded: false,
@@ -40,6 +47,9 @@ export const editorSlice = createSlice({
         state.heroImage = DEFAULT_HERO_IMAGE
         state.seo = DEFAULT_SEO
         state.snapshot = null
+        state.authors = []
+        state.categories = []
+        state.relatedPosts = []
         state.error = ''
         state.status = 'Loading draft…'
         state.isLoaded = false
@@ -57,6 +67,15 @@ export const editorSlice = createSlice({
     setSnapshot(state, action: PayloadAction<DocumentSnapshot>) {
       state.snapshot = action.payload
     },
+    setAuthors(state, action: PayloadAction<Option[]>) {
+      state.authors = action.payload
+    },
+    setCategories(state, action: PayloadAction<Option[]>) {
+      state.categories = action.payload
+    },
+    setRelatedPosts(state, action: PayloadAction<Option[]>) {
+      state.relatedPosts = action.payload
+    },
     setStatus(state, action: PayloadAction<string>) {
       state.status = action.payload
     },
@@ -71,6 +90,9 @@ export const editorSlice = createSlice({
         seo: SEO
         snapshot: DocumentSnapshot | null
         error: string
+        authors?: Option[]
+        categories?: Option[]
+        relatedPosts?: Option[]
       }>,
     ) {
       state.title = action.payload.title
@@ -78,6 +100,15 @@ export const editorSlice = createSlice({
       state.seo = action.payload.seo
       state.snapshot = action.payload.snapshot
       state.error = action.payload.error
+      if (action.payload.authors !== undefined) {
+        state.authors = action.payload.authors
+      }
+      if (action.payload.categories !== undefined) {
+        state.categories = action.payload.categories
+      }
+      if (action.payload.relatedPosts !== undefined) {
+        state.relatedPosts = action.payload.relatedPosts
+      }
       state.status = action.payload.error ? 'Draft recovery needed' : 'Loaded'
       state.isLoaded = true
     },
@@ -90,6 +121,9 @@ export const {
   setHeroImage,
   setSeo,
   setSnapshot,
+  setAuthors,
+  setCategories,
+  setRelatedPosts,
   setStatus,
   setError,
   loadDraftData,

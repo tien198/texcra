@@ -6,34 +6,22 @@ import type {
 } from '#/components/texcra-ui/relationship-multi-select'
 import { getRelationshipOptionsServerFn } from '#/server/relationship/get-options'
 
-/** Maps display labels to collection slugs used by the server function */
-const COLLECTION_MAP: Record<string, string> = {
-  Authors: 'authors',
-  Categories: 'categories',
-  'Related Posts': 'related-posts',
-}
-
-const DEFAULT_SELECTED: Record<string, Option[] | undefined> = {
-  Authors: [{ value: 'author-1', label: 'Demo Author' }],
-  Categories: [],
-  'Related Posts': [],
+export interface RelationshipFieldProps {
+  label: string
+  collection: string
+  value: Option[]
+  onChange: (val: Option[]) => void
+  initialOptions?: Option[]
 }
 
 /** Relationship fields with async paginated multi-select. */
 export function RelationshipField({
-  label = 'Authors',
+  label,
+  collection,
+  value,
+  onChange,
   initialOptions,
-  initialSelected,
-}: {
-  label: string
-  initialOptions?: Option[]
-  initialSelected?: Option[]
-}) {
-  const collection = COLLECTION_MAP[label] ?? label.toLowerCase()
-
-  const [selected, setSelected] = useState<Option[]>(
-    initialSelected ?? DEFAULT_SELECTED[label] ?? [],
-  )
+}: RelationshipFieldProps) {
   const [createdOptions, setCreatedOptions] = useState<Option[]>(
     initialOptions ?? [],
   )
@@ -108,10 +96,10 @@ export function RelationshipField({
     <RelationshipMultiSelect
       label={label}
       options={initialOptions}
-      value={selected}
-      onChange={setSelected}
+      value={value}
+      onChange={onChange}
       loadOptions={loadOptions}
-      cacheUniqs={[createdOptions, editedOptions]}
+      cacheUniqs={[collection, createdOptions, editedOptions]}
       showAddButton={true}
       onAddItem={handleAddItem}
       onEditItem={handleEditItem}

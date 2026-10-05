@@ -4,6 +4,7 @@ import type {
   DocumentSnapshot,
 } from '../../../../../../../lexical/core/-editor-data'
 import { SidebarContents } from './-sidebar-contents'
+import type { Option } from '#/components/texcra-ui/relationship-multi-select'
 
 export function PostSidebar({
   title,
@@ -11,12 +12,16 @@ export function PostSidebar({
   seo,
   preview,
   snapshot,
+  authors,
+  onAuthorsChange,
 }: {
   title: string
   heroImage: string | null
   seo: SEO
   preview: boolean
   snapshot: DocumentSnapshot | null
+  authors: Option[]
+  onAuthorsChange: (val: Option[]) => void
 }) {
   const [previewWidth, setPreviewWidth] = useState<number | string>('100%')
 
@@ -46,6 +51,8 @@ export function PostSidebar({
         preview={preview}
         snapshot={snapshot}
         setPreviewWidth={setPreviewWidth}
+        authors={authors}
+        onAuthorsChange={onAuthorsChange}
       />
     </aside>
   )

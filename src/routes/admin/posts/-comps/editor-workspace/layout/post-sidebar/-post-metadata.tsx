@@ -2,15 +2,29 @@ import { Label } from '#/components/ui/label'
 import { Input } from '#/components/ui/input'
 import { RelationshipField } from '../-relationship-field'
 import { slugify } from '../../../../../../../lexical/core/-editor-data'
+import type { Option } from '#/components/texcra-ui/relationship-multi-select'
 
-export function PostMetadata({ title }: { title: string }) {
+export function PostMetadata({
+  title,
+  authors,
+  onAuthorsChange,
+}: {
+  title: string
+  authors: Option[]
+  onAuthorsChange: (authors: Option[]) => void
+}) {
   return (
     <>
       <div className={'grid gap-[8px]'}>
         <Label htmlFor="published-at">Published At</Label>
         <Input id="published-at" type="datetime-local" />
       </div>
-      <RelationshipField label="Authors" />
+      <RelationshipField
+        label="Authors"
+        collection="authors"
+        value={authors}
+        onChange={onAuthorsChange}
+      />
       <div className={'grid gap-[8px]'}>
         <Label htmlFor="post-slug">Slug</Label>
         <div

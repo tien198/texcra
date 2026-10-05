@@ -1,0 +1,10 @@
+| Tiêu chí | Cách 1: Trỏ về bảng chính `posts` (Thiết kế của Payload CMS) | Cách 2: Trỏ về bảng lịch sử `_posts_v` |
+| :--- | :--- | :--- |
+| **Ý tưởng cốt lõi** | **Tham chiếu thực thể (Entity Reference):** Quan tâm đến thực thể cuối cùng, không quan tâm phiên bản. | **Đóng băng trạng thái (State Snapshot):** Ghi nhận chính xác phiên bản tại thời điểm liên kết. |
+| **Tính cập nhật của dữ liệu** | Luôn hiển thị thông tin mới nhất (Live data) khi render bản nháp. | Dữ liệu bị đóng băng (Stale data), hiển thị thông tin cũ của quá khứ. |
+| **Tính toàn vẹn lịch sử (Audit)** | Không đảm bảo. Mất bối cảnh nếu bản chính bị sửa hoặc xóa (`delete: cascade`). | Tuyệt đối bất biến. Khôi phục lại chính xác 100% ngữ cảnh tại thời điểm tạo. |
+| **Khả năng dọn dẹp (Pruning)** | Dễ dàng xóa các phiên bản cũ mà không làm gãy các liên kết lịch sử. | Phức tạp. Xóa một phiên bản có thể gây lỗi dây chuyền cho các bản ghi đang trỏ tới nó. |
+| **Tính tương thích chéo** | Hoạt động tốt ngay cả khi các Collection khác (như User, Category) tắt tính năng Versioning. | Không khả thi. Hệ thống sẽ lỗi nếu collection được tham chiếu không có bảng Version. |
+| **Dung lượng Database** | Tối ưu, tránh được tình trạng nhân bản (cascade) dữ liệu hàng loạt. | Phình to nhanh chóng do phải lưu trữ chéo các cây quan hệ giữa nhiều phiên bản. |
+| **Trải nghiệm người dùng (UX)** | Trực quan cho CMS. Tái sử dụng bản nháp cũ vẫn giữ được các liên kết mới nhất. | Gây bối rối trong CMS do dữ liệu liên quan bị lùi về trạng thái cũ. |
+| **Hệ thống phù hợp nhất** | **Headless CMS**, Quản trị nội dung (Ưu tiên tính linh hoạt và dữ liệu mới nhất). | **Tài chính, Y tế, Kế toán** (Ưu tiên tính tuân thủ và truy xuất hóa đơn/hồ sơ bất biến). |

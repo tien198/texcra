@@ -1,0 +1,388 @@
+Table "_posts_v" {
+  "id" integer [pk, not null]
+  "parent_id" integer
+  "version_title" "character varying"
+  "version_hero_image_id" integer
+  "version_content" jsonb
+  "version_meta_title" "character varying"
+  "version_meta_image_id" integer
+  "version_meta_description" "character varying"
+  "version_published_at" timestamp(3)
+  "version_generate_slug" boolean [default: true]
+  "version_slug" "character varying"
+  "version_updated_at" timestamp(3)
+  "version_created_at" timestamp(3)
+  "version__status" public.enum__posts_v_version_status [default: `'draft'::public.enum__posts_v_version_status`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "latest" boolean
+  "autosave" boolean
+
+  Indexes {
+    autosave [type: btree, name: "_posts_v_autosave_idx"]
+    created_at [type: btree, name: "_posts_v_created_at_idx"]
+    latest [type: btree, name: "_posts_v_latest_idx"]
+    parent_id [type: btree, name: "_posts_v_parent_idx"]
+    updated_at [type: btree, name: "_posts_v_updated_at_idx"]
+    version_meta_image_id [type: btree, name: "_posts_v_version_meta_version_meta_image_idx"]
+    version__status [type: btree, name: "_posts_v_version_version__status_idx"]
+    version_created_at [type: btree, name: "_posts_v_version_version_created_at_idx"]
+    version_hero_image_id [type: btree, name: "_posts_v_version_version_hero_image_idx"]
+    version_slug [type: btree, name: "_posts_v_version_version_slug_idx"]
+    version_updated_at [type: btree, name: "_posts_v_version_version_updated_at_idx"]
+  }
+}
+
+Table "_posts_v_rels" {
+  "id" integer [pk, not null]
+  "order" integer
+  "parent_id" integer [not null]
+  "path" "character varying" [not null]
+  "posts_id" integer
+  "categories_id" integer
+  "users_id" integer
+
+  Indexes {
+    categories_id [type: btree, name: "_posts_v_rels_categories_id_idx"]
+    order [type: btree, name: "_posts_v_rels_order_idx"]
+    parent_id [type: btree, name: "_posts_v_rels_parent_idx"]
+    path [type: btree, name: "_posts_v_rels_path_idx"]
+    posts_id [type: btree, name: "_posts_v_rels_posts_id_idx"]
+    users_id [type: btree, name: "_posts_v_rels_users_id_idx"]
+  }
+}
+
+Table "_posts_v_version_populated_authors" {
+  "_order" integer [not null]
+  "_parent_id" integer [not null]
+  "id" integer [pk, not null]
+  "_uuid" "character varying"
+  "name" "character varying"
+
+  Indexes {
+    _order [type: btree, name: "_posts_v_version_populated_authors_order_idx"]
+    _parent_id [type: btree, name: "_posts_v_version_populated_authors_parent_id_idx"]
+  }
+}
+
+Table "categories" {
+  "id" integer [pk, not null]
+  "title" "character varying" [not null]
+  "generate_slug" boolean [default: true]
+  "slug" "character varying" [not null]
+  "parent_id" integer
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+
+  Indexes {
+    created_at [type: btree, name: "categories_created_at_idx"]
+    parent_id [type: btree, name: "categories_parent_idx"]
+    slug [type: btree, unique, name: "categories_slug_idx"]
+    updated_at [type: btree, name: "categories_updated_at_idx"]
+  }
+}
+
+Table "categories_breadcrumbs" {
+  "_order" integer [not null]
+  "_parent_id" integer [not null]
+  "id" "character varying" [pk, not null]
+  "doc_id" integer
+  "url" "character varying"
+  "label" "character varying"
+
+  Indexes {
+    doc_id [type: btree, name: "categories_breadcrumbs_doc_idx"]
+    _order [type: btree, name: "categories_breadcrumbs_order_idx"]
+    _parent_id [type: btree, name: "categories_breadcrumbs_parent_id_idx"]
+  }
+}
+
+Table "media" {
+  "id" integer [pk, not null]
+  "alt" "character varying"
+  "caption" jsonb
+  "folder_id" integer
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+  "url" "character varying"
+  "thumbnail_u_r_l" "character varying"
+  "filename" "character varying"
+  "mime_type" "character varying"
+  "filesize" numeric
+  "width" numeric
+  "height" numeric
+  "focal_x" numeric
+  "focal_y" numeric
+  "sizes_thumbnail_url" "character varying"
+  "sizes_thumbnail_width" numeric
+  "sizes_thumbnail_height" numeric
+  "sizes_thumbnail_mime_type" "character varying"
+  "sizes_thumbnail_filesize" numeric
+  "sizes_thumbnail_filename" "character varying"
+  "sizes_square_url" "character varying"
+  "sizes_square_width" numeric
+  "sizes_square_height" numeric
+  "sizes_square_mime_type" "character varying"
+  "sizes_square_filesize" numeric
+  "sizes_square_filename" "character varying"
+  "sizes_small_url" "character varying"
+  "sizes_small_width" numeric
+  "sizes_small_height" numeric
+  "sizes_small_mime_type" "character varying"
+  "sizes_small_filesize" numeric
+  "sizes_small_filename" "character varying"
+  "sizes_medium_url" "character varying"
+  "sizes_medium_width" numeric
+  "sizes_medium_height" numeric
+  "sizes_medium_mime_type" "character varying"
+  "sizes_medium_filesize" numeric
+  "sizes_medium_filename" "character varying"
+  "sizes_large_url" "character varying"
+  "sizes_large_width" numeric
+  "sizes_large_height" numeric
+  "sizes_large_mime_type" "character varying"
+  "sizes_large_filesize" numeric
+  "sizes_large_filename" "character varying"
+  "sizes_xlarge_url" "character varying"
+  "sizes_xlarge_width" numeric
+  "sizes_xlarge_height" numeric
+  "sizes_xlarge_mime_type" "character varying"
+  "sizes_xlarge_filesize" numeric
+  "sizes_xlarge_filename" "character varying"
+  "sizes_og_url" "character varying"
+  "sizes_og_width" numeric
+  "sizes_og_height" numeric
+  "sizes_og_mime_type" "character varying"
+  "sizes_og_filesize" numeric
+  "sizes_og_filename" "character varying"
+
+  Indexes {
+    created_at [type: btree, name: "media_created_at_idx"]
+    filename [type: btree, unique, name: "media_filename_idx"]
+    folder_id [type: btree, name: "media_folder_idx"]
+    sizes_large_filename [type: btree, name: "media_sizes_large_sizes_large_filename_idx"]
+    sizes_medium_filename [type: btree, name: "media_sizes_medium_sizes_medium_filename_idx"]
+    sizes_og_filename [type: btree, name: "media_sizes_og_sizes_og_filename_idx"]
+    sizes_small_filename [type: btree, name: "media_sizes_small_sizes_small_filename_idx"]
+    sizes_square_filename [type: btree, name: "media_sizes_square_sizes_square_filename_idx"]
+    sizes_thumbnail_filename [type: btree, name: "media_sizes_thumbnail_sizes_thumbnail_filename_idx"]
+    sizes_xlarge_filename [type: btree, name: "media_sizes_xlarge_sizes_xlarge_filename_idx"]
+    updated_at [type: btree, name: "media_updated_at_idx"]
+  }
+}
+
+Table "payload_folders" {
+  "id" integer [pk, not null]
+  "name" "character varying" [not null]
+  "folder_id" integer
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+
+  Indexes {
+    created_at [type: btree, name: "payload_folders_created_at_idx"]
+    folder_id [type: btree, name: "payload_folders_folder_idx"]
+    name [type: btree, name: "payload_folders_name_idx"]
+    updated_at [type: btree, name: "payload_folders_updated_at_idx"]
+  }
+}
+
+Table "payload_folders_folder_type" {
+  "order" integer [not null]
+  "parent_id" integer [not null]
+  "value" public.enum_payload_folders_folder_type
+  "id" integer [pk, not null]
+
+  Indexes {
+    order [type: btree, name: "payload_folders_folder_type_order_idx"]
+    parent_id [type: btree, name: "payload_folders_folder_type_parent_idx"]
+  }
+}
+
+Table "posts" {
+  "id" integer [pk, not null]
+  "title" "character varying"
+  "hero_image_id" integer
+  "content" jsonb
+  "meta_title" "character varying"
+  "meta_image_id" integer
+  "meta_description" "character varying"
+  "published_at" timestamp(3)
+  "generate_slug" boolean [default: true]
+  "slug" "character varying"
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+  "_status" public.enum_posts_status [default: `'draft'::public.enum_posts_status`]
+
+  Indexes {
+    _status [type: btree, name: "posts__status_idx"]
+    created_at [type: btree, name: "posts_created_at_idx"]
+    hero_image_id [type: btree, name: "posts_hero_image_idx"]
+    meta_image_id [type: btree, name: "posts_meta_meta_image_idx"]
+    slug [type: btree, unique, name: "posts_slug_idx"]
+    updated_at [type: btree, name: "posts_updated_at_idx"]
+  }
+}
+
+Table "posts_populated_authors" {
+  "_order" integer [not null]
+  "_parent_id" integer [not null]
+  "id" "character varying" [pk, not null]
+  "name" "character varying"
+
+  Indexes {
+    _order [type: btree, name: "posts_populated_authors_order_idx"]
+    _parent_id [type: btree, name: "posts_populated_authors_parent_id_idx"]
+  }
+}
+
+Table "posts_rels" {
+  "id" integer [pk, not null]
+  "order" integer
+  "parent_id" integer [not null]
+  "path" "character varying" [not null]
+  "posts_id" integer
+  "categories_id" integer
+  "users_id" integer
+
+  Indexes {
+    categories_id [type: btree, name: "posts_rels_categories_id_idx"]
+    order [type: btree, name: "posts_rels_order_idx"]
+    parent_id [type: btree, name: "posts_rels_parent_idx"]
+    path [type: btree, name: "posts_rels_path_idx"]
+    posts_id [type: btree, name: "posts_rels_posts_id_idx"]
+    users_id [type: btree, name: "posts_rels_users_id_idx"]
+  }
+}
+
+Table "search" {
+  "id" integer [pk, not null]
+  "title" "character varying"
+  "priority" numeric
+  "slug" "character varying"
+  "meta_title" "character varying"
+  "meta_description" "character varying"
+  "meta_image_id" integer
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+
+  Indexes {
+    created_at [type: btree, name: "search_created_at_idx"]
+    meta_image_id [type: btree, name: "search_meta_meta_image_idx"]
+    slug [type: btree, name: "search_slug_idx"]
+    updated_at [type: btree, name: "search_updated_at_idx"]
+  }
+}
+
+Table "search_categories" {
+  "_order" integer [not null]
+  "_parent_id" integer [not null]
+  "id" "character varying" [pk, not null]
+  "relation_to" "character varying"
+  "category_i_d" "character varying"
+  "title" "character varying"
+
+  Indexes {
+    _order [type: btree, name: "search_categories_order_idx"]
+    _parent_id [type: btree, name: "search_categories_parent_id_idx"]
+  }
+}
+
+Table "search_rels" {
+  "id" integer [pk, not null]
+  "order" integer
+  "parent_id" integer [not null]
+  "path" "character varying" [not null]
+  "posts_id" integer
+
+  Indexes {
+    order [type: btree, name: "search_rels_order_idx"]
+    parent_id [type: btree, name: "search_rels_parent_idx"]
+    path [type: btree, name: "search_rels_path_idx"]
+    posts_id [type: btree, name: "search_rels_posts_id_idx"]
+  }
+}
+
+Table "users" {
+  "id" integer [pk, not null]
+  "name" "character varying"
+  "updated_at" timestamp(3) [not null, default: `now()`]
+  "created_at" timestamp(3) [not null, default: `now()`]
+  "email" "character varying" [not null]
+  "reset_password_token" "character varying"
+  "reset_password_expiration" timestamp(3)
+  "salt" "character varying"
+  "hash" "character varying"
+  "login_attempts" numeric [default: 0]
+  "lock_until" timestamp(3)
+
+  Indexes {
+    created_at [type: btree, name: "users_created_at_idx"]
+    email [type: btree, unique, name: "users_email_idx"]
+    updated_at [type: btree, name: "users_updated_at_idx"]
+  }
+}
+
+Table "users_sessions" {
+  "_order" integer [not null]
+  "_parent_id" integer [not null]
+  "id" "character varying" [pk, not null]
+  "created_at" timestamp(3)
+  "expires_at" timestamp(3) [not null]
+
+  Indexes {
+    _order [type: btree, name: "users_sessions_order_idx"]
+    _parent_id [type: btree, name: "users_sessions_parent_id_idx"]
+  }
+}
+
+Ref "_posts_v_parent_id_posts_id_fk":"posts"."id" < "_posts_v"."parent_id" [delete: set null]
+
+Ref "_posts_v_rels_categories_fk":"categories"."id" < "_posts_v_rels"."categories_id" [delete: cascade]
+
+Ref "_posts_v_rels_parent_fk":"_posts_v"."id" < "_posts_v_rels"."parent_id" [delete: cascade]
+
+Ref "_posts_v_rels_posts_fk":"posts"."id" < "_posts_v_rels"."posts_id" [delete: cascade]
+
+Ref "_posts_v_rels_users_fk":"users"."id" < "_posts_v_rels"."users_id" [delete: cascade]
+
+Ref "_posts_v_version_hero_image_id_media_id_fk":"media"."id" < "_posts_v"."version_hero_image_id" [delete: set null]
+
+Ref "_posts_v_version_meta_image_id_media_id_fk":"media"."id" < "_posts_v"."version_meta_image_id" [delete: set null]
+
+Ref "_posts_v_version_populated_authors_parent_id_fk":"_posts_v"."id" < "_posts_v_version_populated_authors"."_parent_id" [delete: cascade]
+
+Ref "categories_breadcrumbs_doc_id_categories_id_fk":"categories"."id" < "categories_breadcrumbs"."doc_id" [delete: set null]
+
+Ref "categories_breadcrumbs_parent_id_fk":"categories"."id" < "categories_breadcrumbs"."_parent_id" [delete: cascade]
+
+Ref "categories_parent_id_categories_id_fk":"categories"."id" < "categories"."parent_id" [delete: set null]
+
+Ref "media_folder_id_payload_folders_id_fk":"payload_folders"."id" < "media"."folder_id" [delete: set null]
+
+Ref "payload_folders_folder_id_payload_folders_id_fk":"payload_folders"."id" < "payload_folders"."folder_id" [delete: set null]
+
+Ref "payload_folders_folder_type_parent_fk":"payload_folders"."id" < "payload_folders_folder_type"."parent_id" [delete: cascade]
+
+Ref "posts_hero_image_id_media_id_fk":"media"."id" < "posts"."hero_image_id" [delete: set null]
+
+Ref "posts_meta_image_id_media_id_fk":"media"."id" < "posts"."meta_image_id" [delete: set null]
+
+Ref "posts_populated_authors_parent_id_fk":"posts"."id" < "posts_populated_authors"."_parent_id" [delete: cascade]
+
+Ref "posts_rels_categories_fk":"categories"."id" < "posts_rels"."categories_id" [delete: cascade]
+
+Ref "posts_rels_parent_fk":"posts"."id" < "posts_rels"."parent_id" [delete: cascade]
+
+Ref "posts_rels_posts_fk":"posts"."id" < "posts_rels"."posts_id" [delete: cascade]
+
+Ref "posts_rels_users_fk":"users"."id" < "posts_rels"."users_id" [delete: cascade]
+
+Ref "search_categories_parent_id_fk":"search"."id" < "search_categories"."_parent_id" [delete: cascade]
+
+Ref "search_meta_image_id_media_id_fk":"media"."id" < "search"."meta_image_id" [delete: set null]
+
+Ref "search_rels_parent_fk":"search"."id" < "search_rels"."parent_id" [delete: cascade]
+
+Ref "search_rels_posts_fk":"posts"."id" < "search_rels"."posts_id" [delete: cascade]
+
+Ref "users_sessions_parent_id_fk":"users"."id" < "users_sessions"."_parent_id" [delete: cascade]
