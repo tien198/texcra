@@ -20,6 +20,7 @@ export default [
       'prettier.config.js',
       'src/paraglide/**',
       '.output/**',
+      'drizzle/**',
     ],
   },
 ]

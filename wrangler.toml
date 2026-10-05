@@ -1,0 +1,14 @@
+name = "texcra"
+compatibility_date = "2024-04-05"
+compatibility_flags = ["nodejs_compat"]
+
+# Nitro's default output for Cloudflare Workers
+main = ".output/server/index.mjs"
+
+# Cloudflare D1 Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "texcra-db"
+database_id = "YOUR_D1_DATABASE_ID"
+migrations_dir = "drizzle"
+migrations_pattern = "drizzle/*/migration.sql"

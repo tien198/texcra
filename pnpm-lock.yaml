@@ -174,6 +174,9 @@ importers:
       prettier:
         specifier: ^3.8.1
         version: 3.9.6
+      prettier-plugin-toml:
+        specifier: ^3.0.2
+        version: 3.0.2(prettier@3.9.6)
       tsx:
         specifier: ^4.23.15
         version: 4.23.15
@@ -405,6 +408,9 @@ packages:
 
   '@drizzle-team/brocli@0.12.1':
     resolution: {integrity: sha512-yHwomvolVafvUXhy5TdiJVkuNCxXn+bKOs2aWiWEQh/5YaV97Oa/abJz3dmx7lxgIUsUlS1Jl4mEfvJPo3YsVw==}
+
+  '@dual-bundle/import-meta-resolve@4.2.1':
+    resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -2208,6 +2214,9 @@ packages:
   '@tanstack/virtual-file-routes@1.162.0':
     resolution: {integrity: sha512-uhOeFyxLcU41HzvrxsGpiWdcMbScY1EDgbZ5K7DVRMYInbLYWAC0EA/kx9wXAoSM8q82bUG2hRl8+EAjE6XAbA==}
     engines: {node: '>=20.19'}
+
+  '@tombi-toml/wasm-lib@1.7.1':
+    resolution: {integrity: sha512-z+8BRpJ8kaU2uWVtWCuo3+vdgTi3iglMKLrYbxkSJUAC1LUP4iVd6HKvPIggrvg1miOGqXPJQPogfqN3EIHpYg==}
 
   '@ts-morph/common@0.27.0':
     resolution: {integrity: sha512-Wf29UqxWDpc+i61k3oIOzcUfQt79PIT9y/MWfAGlrkjg6lBC1hwDECLXPVJAhWjiGbfBCxZd65F/LIZF3+jeJQ==}
@@ -4252,6 +4261,12 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
+  prettier-plugin-toml@3.0.2:
+    resolution: {integrity: sha512-1t1FOSGaXNy7xN6ffE7ND71VqsnbUtanGEKAD1hTwFDrGIH1cwZ0KH6lMThDVItjdV/UUJWqD3f1+16AHG3eUQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      prettier: ^3.0.3
+
   prettier@3.9.6:
     resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
     engines: {node: '>=14'}
@@ -4555,6 +4570,10 @@ packages:
   smart-buffer@4.2.0:
     resolution: {integrity: sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==}
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
+
+  smol-toml@1.9.0:
+    resolution: {integrity: sha512-hpd+HLON7HdZXqYchMM/+LaTTbdK0AU3NngIJ4KVyWbY9bfQqdL9cD+4yf6dUoU2Ap4VsU0JkQi6FxAI1B2mXQ==}
+    engines: {node: '>= 18'}
 
   socks@2.8.10:
     resolution: {integrity: sha512-e0VyvkVTwVYViNovRkZ9aodhxVlyoMn7eJhVUPxZ+eK9P/7CBkxvvsBOHqFPEH416726W8tLXXXjKwqgTErrCQ==}
@@ -5479,6 +5498,8 @@ snapshots:
   '@dotenvx/primitives@0.8.0': {}
 
   '@drizzle-team/brocli@0.12.1': {}
+
+  '@dual-bundle/import-meta-resolve@4.2.1': {}
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -7166,6 +7187,8 @@ snapshots:
   '@tanstack/store@0.11.2': {}
 
   '@tanstack/virtual-file-routes@1.162.0': {}
+
+  '@tombi-toml/wasm-lib@1.7.1': {}
 
   '@ts-morph/common@0.27.0':
     dependencies:
@@ -8933,6 +8956,13 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
+  prettier-plugin-toml@3.0.2(prettier@3.9.6):
+    dependencies:
+      '@dual-bundle/import-meta-resolve': 4.2.1
+      '@tombi-toml/wasm-lib': 1.7.1
+      prettier: 3.9.6
+      smol-toml: 1.9.0
+
   prettier@3.9.6: {}
 
   pretty-ms@9.3.1:
@@ -9319,6 +9349,8 @@ snapshots:
   sleep-promise@9.1.0: {}
 
   smart-buffer@4.2.0: {}
+
+  smol-toml@1.9.0: {}
 
   socks@2.8.10:
     dependencies:

@@ -13,6 +13,9 @@
     "lint": "eslint",
     "format": "prettier --write . && eslint --fix",
     "check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "test:db": "tsx scripts/verify-db.ts",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy url baseLocale",
     "paraglide:watch": "npm run paraglide -- --watch"
   },
@@ -74,6 +77,7 @@
     "drizzle-kit": "1.0.0-rc.4",
     "eslint": "^9.20.0",
     "prettier": "^3.8.1",
+    "prettier-plugin-toml": "^3.0.2",
     "tsx": "^4.23.15",
     "typescript": "^6.0.2",
     "vite": "^8.0.0"
