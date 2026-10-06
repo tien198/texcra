@@ -7,7 +7,10 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
+import { relations } from 'drizzle-orm/_relations'
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
+import { postsUsers } from './posts'
+import { postsVUsers } from './posts-v'
 
 export const users = sqliteTable(
   'users',
@@ -53,3 +56,8 @@ export const usersSessions = sqliteTable(
     index('users_sessions_parent_id_idx').on(table.parentId),
   ],
 )
+
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(postsUsers),
+  postVersions: many(postsVUsers),
+}))

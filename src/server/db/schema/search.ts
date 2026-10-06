@@ -4,8 +4,10 @@ import {
   text,
   numeric,
   index,
+  primaryKey,
 } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
+import { relations } from 'drizzle-orm/_relations'
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { media } from './media'
 import { posts } from './posts'
@@ -46,6 +48,7 @@ export const searchCategories = sqliteTable(
       .notNull()
       .references((): AnySQLiteColumn => search.id, { onDelete: 'cascade' }),
     id: text('id').primaryKey(),
+    // consider to remove
     relationTo: text('relation_to'),
     categoryId: text('category_i_d'),
     title: text('title'),
@@ -56,23 +59,36 @@ export const searchCategories = sqliteTable(
   ],
 )
 
-export const searchRels = sqliteTable(
-  'search_rels',
+export const searchPosts = sqliteTable(
+  'search_posts',
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
-    order: integer('order'),
-    parentId: integer('parent_id')
+    searchId: integer('search_id')
       .notNull()
       .references((): AnySQLiteColumn => search.id, { onDelete: 'cascade' }),
-    path: text('path').notNull(),
-    postsId: integer('posts_id').references((): AnySQLiteColumn => posts.id, {
-      onDelete: 'cascade',
-    }),
+    postId: integer('post_id')
+      .notNull()
+      .references((): AnySQLiteColumn => posts.id, { onDelete: 'cascade' }),
+    order: integer('order'),
   },
-  (table) => [
-    index('search_rels_order_idx').on(table.order),
-    index('search_rels_parent_idx').on(table.parentId),
-    index('search_rels_path_idx').on(table.path),
-    index('search_rels_posts_id_idx').on(table.postsId),
+  (t) => [
+    primaryKey({ columns: [t.searchId, t.postId] }),
+    index('search_posts_order_idx').on(t.order),
+    index('search_posts_search_id_idx').on(t.searchId),
+    index('search_posts_post_id_idx').on(t.postId),
   ],
 )
+
+export const searchRelations = relations(search, ({ many }) => ({
+  posts: many(searchPosts),
+}))
+
+export const searchPostsRelations = relations(searchPosts, ({ one }) => ({
+  search: one(search, {
+    fields: [searchPosts.searchId],
+    references: [search.id],
+  }),
+  post: one(posts, {
+    fields: [searchPosts.postId],
+    references: [posts.id],
+  }),
+}))

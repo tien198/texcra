@@ -12,13 +12,13 @@ Work only on fonts and theme colors. Do not edit localized copy or message catal
 Next.js reference pattern:
 
 ```typescript
-import { Alumni_Sans } from "next/font/google";
+import { Alumni_Sans } from 'next/font/google'
 
 const alumniSans = Alumni_Sans({
-  variable: "--font-alumni-sans",
-  subsets: ["latin"],
-  weight: "400",
-});
+  variable: '--font-alumni-sans',
+  subsets: ['latin'],
+  weight: '400',
+})
 ```
 
 ## Theme Colors

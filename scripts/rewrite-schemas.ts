@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const files: Record<string, string> = {
   'categories.ts': `import { sqliteTable, integer, text, index } from 'drizzle-orm/sqlite-core'

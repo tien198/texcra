@@ -21,6 +21,7 @@ export default [
       'src/paraglide/**',
       '.output/**',
       'drizzle/**',
+      'scripts/*.js',
     ],
   },
 ]

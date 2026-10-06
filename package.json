@@ -15,6 +15,7 @@
     "check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
+    "db:export": "bash scripts/export-schema.sh",
     "test:db": "tsx scripts/verify-db.ts",
     "paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy url baseLocale",
     "paraglide:watch": "npm run paraglide -- --watch"
@@ -66,6 +67,8 @@
     "wrangler": "^4.147.0"
   },
   "devDependencies": {
+    "@dbml/cli": "^10.2.0",
+    "@dbml/core": "^10.2.0",
     "@inlang/paraglide-js": "^2.13.1",
     "@tanstack/devtools-vite": "latest",
     "@tanstack/eslint-config": "latest",
@@ -74,6 +77,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "1.0.0-rc.4",
     "eslint": "^9.20.0",
     "prettier": "^3.8.1",

@@ -4,7 +4,176 @@ import { defineRelations } from 'drizzle-orm'
 
 import * as schema from './schema/index'
 
-export const relations = defineRelations(schema)
+export const relations = defineRelations(schema, (h) => ({
+  posts: {
+    postsCategories: h.many.postsCategories({
+      from: h.posts.id,
+      to: h.postsCategories.postId,
+    }),
+    categories: h.many.categories({
+      from: h.posts.id.through(h.postsCategories.postId),
+      to: h.categories.id.through(h.postsCategories.categoryId),
+    }),
+    postsUsers: h.many.postsUsers({
+      from: h.posts.id,
+      to: h.postsUsers.postId,
+    }),
+    authors: h.many.users({
+      from: h.posts.id.through(h.postsUsers.postId),
+      to: h.users.id.through(h.postsUsers.userId),
+    }),
+    postsRelatedPosts: h.many.postsRelatedPosts({
+      from: h.posts.id,
+      to: h.postsRelatedPosts.postId,
+    }),
+    relatedPosts: h.many.posts({
+      from: h.posts.id.through(h.postsRelatedPosts.postId),
+      to: h.posts.id.through(h.postsRelatedPosts.relatedPostId),
+    }),
+  },
+  postsCategories: {
+    post: h.one.posts({
+      from: h.postsCategories.postId,
+      to: h.posts.id,
+    }),
+    category: h.one.categories({
+      from: h.postsCategories.categoryId,
+      to: h.categories.id,
+    }),
+  },
+  postsUsers: {
+    post: h.one.posts({
+      from: h.postsUsers.postId,
+      to: h.posts.id,
+    }),
+    user: h.one.users({
+      from: h.postsUsers.userId,
+      to: h.users.id,
+    }),
+  },
+  postsRelatedPosts: {
+    post: h.one.posts({
+      from: h.postsRelatedPosts.postId,
+      to: h.posts.id,
+    }),
+    relatedPost: h.one.posts({
+      from: h.postsRelatedPosts.relatedPostId,
+      to: h.posts.id,
+    }),
+  },
+  categories: {
+    postsCategories: h.many.postsCategories({
+      from: h.categories.id,
+      to: h.postsCategories.categoryId,
+    }),
+    posts: h.many.posts({
+      from: h.categories.id.through(h.postsCategories.categoryId),
+      to: h.posts.id.through(h.postsCategories.postId),
+    }),
+    postsVCategories: h.many.postsVCategories({
+      from: h.categories.id,
+      to: h.postsVCategories.categoryId,
+    }),
+    postVersions: h.many.postsV({
+      from: h.categories.id.through(h.postsVCategories.categoryId),
+      to: h.postsV.id.through(h.postsVCategories.versionId),
+    }),
+  },
+  users: {
+    postsUsers: h.many.postsUsers({
+      from: h.users.id,
+      to: h.postsUsers.userId,
+    }),
+    posts: h.many.posts({
+      from: h.users.id.through(h.postsUsers.userId),
+      to: h.posts.id.through(h.postsUsers.postId),
+    }),
+    postsVUsers: h.many.postsVUsers({
+      from: h.users.id,
+      to: h.postsVUsers.userId,
+    }),
+    postVersions: h.many.postsV({
+      from: h.users.id.through(h.postsVUsers.userId),
+      to: h.postsV.id.through(h.postsVUsers.versionId),
+    }),
+  },
+  postsV: {
+    postsVCategories: h.many.postsVCategories({
+      from: h.postsV.id,
+      to: h.postsVCategories.versionId,
+    }),
+    categories: h.many.categories({
+      from: h.postsV.id.through(h.postsVCategories.versionId),
+      to: h.categories.id.through(h.postsVCategories.categoryId),
+    }),
+    postsVUsers: h.many.postsVUsers({
+      from: h.postsV.id,
+      to: h.postsVUsers.versionId,
+    }),
+    authors: h.many.users({
+      from: h.postsV.id.through(h.postsVUsers.versionId),
+      to: h.users.id.through(h.postsVUsers.userId),
+    }),
+    postsVRelatedPosts: h.many.postsVRelatedPosts({
+      from: h.postsV.id,
+      to: h.postsVRelatedPosts.versionId,
+    }),
+    relatedPosts: h.many.posts({
+      from: h.postsV.id.through(h.postsVRelatedPosts.versionId),
+      to: h.posts.id.through(h.postsVRelatedPosts.relatedPostId),
+    }),
+  },
+  postsVCategories: {
+    version: h.one.postsV({
+      from: h.postsVCategories.versionId,
+      to: h.postsV.id,
+    }),
+    category: h.one.categories({
+      from: h.postsVCategories.categoryId,
+      to: h.categories.id,
+    }),
+  },
+  postsVUsers: {
+    version: h.one.postsV({
+      from: h.postsVUsers.versionId,
+      to: h.postsV.id,
+    }),
+    user: h.one.users({
+      from: h.postsVUsers.userId,
+      to: h.users.id,
+    }),
+  },
+  postsVRelatedPosts: {
+    version: h.one.postsV({
+      from: h.postsVRelatedPosts.versionId,
+      to: h.postsV.id,
+    }),
+    relatedPost: h.one.posts({
+      from: h.postsVRelatedPosts.relatedPostId,
+      to: h.posts.id,
+    }),
+  },
+  search: {
+    searchPosts: h.many.searchPosts({
+      from: h.search.id,
+      to: h.searchPosts.searchId,
+    }),
+    posts: h.many.posts({
+      from: h.search.id.through(h.searchPosts.searchId),
+      to: h.posts.id.through(h.searchPosts.postId),
+    }),
+  },
+  searchPosts: {
+    search: h.one.search({
+      from: h.searchPosts.searchId,
+      to: h.search.id,
+    }),
+    post: h.one.posts({
+      from: h.searchPosts.postId,
+      to: h.posts.id,
+    }),
+  },
+}))
 
 /**
  * Obtain a Drizzle database instance connected to Cloudflare D1.

@@ -1,4 +1,4 @@
-import styles from "./InterfaceOverlay.module.css";
+import styles from './InterfaceOverlay.module.css'
 
 export function InterfaceOverlay() {
   return (
@@ -14,7 +14,9 @@ export function InterfaceOverlay() {
       <header className={styles.masthead}>
         <div>
           <p className={styles.wordmark}>TEXCRA</p>
-          <p className={styles.brandLine}>Technology&nbsp; / &nbsp;Craftsmanship</p>
+          <p className={styles.brandLine}>
+            Technology&nbsp; / &nbsp;Craftsmanship
+          </p>
         </div>
         <div className={styles.observation}>
           <p>Observation TC–01</p>
@@ -63,5 +65,5 @@ export function InterfaceOverlay() {
         Drag the ring&nbsp; / &nbsp;move to refract
       </p>
     </section>
-  );
+  )
 }

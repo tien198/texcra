@@ -37,7 +37,10 @@ function ellipsePoints({
 
   return Array.from({ length: segments + 1 }, (_, index) => {
     const angle = start + (index / segments) * (end - start)
-    const noise = 1 + Math.sin(angle * 3 + phase) * warp + Math.sin(angle * 7 - phase) * warp * 0.28
+    const noise =
+      1 +
+      Math.sin(angle * 3 + phase) * warp +
+      Math.sin(angle * 7 - phase) * warp * 0.28
     const localX = Math.cos(angle) * radiusX * noise
     const localY = Math.sin(angle) * radiusY * noise
 
@@ -50,7 +53,12 @@ function ellipsePoints({
 }
 
 function curvePoints(points: THREE.Vector3[], divisions = 96) {
-  return new THREE.CatmullRomCurve3(points, false, 'centripetal', 0.5).getPoints(divisions)
+  return new THREE.CatmullRomCurve3(
+    points,
+    false,
+    'centripetal',
+    0.5,
+  ).getPoints(divisions)
 }
 
 export function TechnicalGrid() {
@@ -103,14 +111,86 @@ export function TechnicalGrid() {
 
   const orbitArcs = useMemo(
     () => [
-      ellipsePoints({ x: 2.92, y: 1.22, radiusX: 1.26, radiusY: 0.94, rotation: 0.2, start: -0.15, end: 5.55, z: -1.38 }),
-      ellipsePoints({ x: 3.92, y: 0.48, radiusX: 2.2, radiusY: 1.18, rotation: -0.11, start: 0.35, end: 4.8, z: -1.4 }),
-      ellipsePoints({ x: 4.28, y: 1.73, radiusX: 1.16, radiusY: 0.68, rotation: 0.1, start: 2.25, end: 6.15, z: -1.39 }),
-      ellipsePoints({ x: -1.65, y: 0.76, radiusX: 1.44, radiusY: 0.88, rotation: -0.23, start: -0.55, end: 4.7, z: -1.39 }),
-      ellipsePoints({ x: -2.62, y: -1.52, radiusX: 2.35, radiusY: 1.22, rotation: 0.11, start: 3.42, end: 6.82, z: -1.4 }),
-      ellipsePoints({ x: 0.3, y: 1.94, radiusX: 1.78, radiusY: 0.72, rotation: 0.08, start: 2.82, end: 6.28, z: -1.37 }),
-      ellipsePoints({ x: 1.98, y: -1.36, radiusX: 2.08, radiusY: 0.84, rotation: -0.19, start: -0.15, end: 3.95, z: -1.4 }),
-      ellipsePoints({ x: 5.0, y: -0.84, radiusX: 1.72, radiusY: 0.94, rotation: -0.24, start: 1.62, end: 4.85, z: -1.4 }),
+      ellipsePoints({
+        x: 2.92,
+        y: 1.22,
+        radiusX: 1.26,
+        radiusY: 0.94,
+        rotation: 0.2,
+        start: -0.15,
+        end: 5.55,
+        z: -1.38,
+      }),
+      ellipsePoints({
+        x: 3.92,
+        y: 0.48,
+        radiusX: 2.2,
+        radiusY: 1.18,
+        rotation: -0.11,
+        start: 0.35,
+        end: 4.8,
+        z: -1.4,
+      }),
+      ellipsePoints({
+        x: 4.28,
+        y: 1.73,
+        radiusX: 1.16,
+        radiusY: 0.68,
+        rotation: 0.1,
+        start: 2.25,
+        end: 6.15,
+        z: -1.39,
+      }),
+      ellipsePoints({
+        x: -1.65,
+        y: 0.76,
+        radiusX: 1.44,
+        radiusY: 0.88,
+        rotation: -0.23,
+        start: -0.55,
+        end: 4.7,
+        z: -1.39,
+      }),
+      ellipsePoints({
+        x: -2.62,
+        y: -1.52,
+        radiusX: 2.35,
+        radiusY: 1.22,
+        rotation: 0.11,
+        start: 3.42,
+        end: 6.82,
+        z: -1.4,
+      }),
+      ellipsePoints({
+        x: 0.3,
+        y: 1.94,
+        radiusX: 1.78,
+        radiusY: 0.72,
+        rotation: 0.08,
+        start: 2.82,
+        end: 6.28,
+        z: -1.37,
+      }),
+      ellipsePoints({
+        x: 1.98,
+        y: -1.36,
+        radiusX: 2.08,
+        radiusY: 0.84,
+        rotation: -0.19,
+        start: -0.15,
+        end: 3.95,
+        z: -1.4,
+      }),
+      ellipsePoints({
+        x: 5.0,
+        y: -0.84,
+        radiusX: 1.72,
+        radiusY: 0.94,
+        rotation: -0.24,
+        start: 1.62,
+        end: 4.85,
+        z: -1.4,
+      }),
     ],
     [],
   )
@@ -166,15 +246,42 @@ export function TechnicalGrid() {
 
   const constructionLines = useMemo(
     () => [
-      [new THREE.Vector3(-5.8, 0.94, -1.45), new THREE.Vector3(5.8, 0.94, -1.45)],
-      [new THREE.Vector3(-4.7, -1.36, -1.45), new THREE.Vector3(5.9, -1.36, -1.45)],
-      [new THREE.Vector3(-2.85, -3.25, -1.45), new THREE.Vector3(-2.85, 3.35, -1.45)],
-      [new THREE.Vector3(-0.42, -3.15, -1.45), new THREE.Vector3(-0.42, 3.4, -1.45)],
-      [new THREE.Vector3(1.35, -3.2, -1.45), new THREE.Vector3(1.35, 3.42, -1.45)],
-      [new THREE.Vector3(3.35, -3.16, -1.45), new THREE.Vector3(3.35, 3.34, -1.45)],
-      [new THREE.Vector3(4.72, -2.78, -1.45), new THREE.Vector3(4.72, 2.9, -1.45)],
-      [new THREE.Vector3(-4.9, -2.72, -1.45), new THREE.Vector3(5.7, 2.62, -1.45)],
-      [new THREE.Vector3(-2.2, 3.2, -1.45), new THREE.Vector3(4.9, -2.2, -1.45)],
+      [
+        new THREE.Vector3(-5.8, 0.94, -1.45),
+        new THREE.Vector3(5.8, 0.94, -1.45),
+      ],
+      [
+        new THREE.Vector3(-4.7, -1.36, -1.45),
+        new THREE.Vector3(5.9, -1.36, -1.45),
+      ],
+      [
+        new THREE.Vector3(-2.85, -3.25, -1.45),
+        new THREE.Vector3(-2.85, 3.35, -1.45),
+      ],
+      [
+        new THREE.Vector3(-0.42, -3.15, -1.45),
+        new THREE.Vector3(-0.42, 3.4, -1.45),
+      ],
+      [
+        new THREE.Vector3(1.35, -3.2, -1.45),
+        new THREE.Vector3(1.35, 3.42, -1.45),
+      ],
+      [
+        new THREE.Vector3(3.35, -3.16, -1.45),
+        new THREE.Vector3(3.35, 3.34, -1.45),
+      ],
+      [
+        new THREE.Vector3(4.72, -2.78, -1.45),
+        new THREE.Vector3(4.72, 2.9, -1.45),
+      ],
+      [
+        new THREE.Vector3(-4.9, -2.72, -1.45),
+        new THREE.Vector3(5.7, 2.62, -1.45),
+      ],
+      [
+        new THREE.Vector3(-2.2, 3.2, -1.45),
+        new THREE.Vector3(4.9, -2.2, -1.45),
+      ],
     ],
     [],
   )
@@ -188,7 +295,10 @@ export function TechnicalGrid() {
         const length = isMajor ? 0.2 : index % 4 === 0 ? 0.13 : 0.075
         const direction = new THREE.Vector2(Math.cos(angle), Math.sin(angle))
         const tangentOffset = Math.sin(index * 2.73) * 0.018
-        const tangent = new THREE.Vector2(-direction.y, direction.x).multiplyScalar(tangentOffset)
+        const tangent = new THREE.Vector2(
+          -direction.y,
+          direction.x,
+        ).multiplyScalar(tangentOffset)
 
         return {
           major: isMajor,

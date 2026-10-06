@@ -1,4 +1,4 @@
-always use pnpm, don't use npm, yarn, bun
+always use pnpm (include pnpm run, pnpm exec, pnpm dlx, ...), don't use npm, yarn, bun
 Always run scripts using pnpm run <script> (e.g., pnpm run build) rather than pnpm <script> directly.
 
 always comment before Simulate server-side processing delay

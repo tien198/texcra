@@ -22,6 +22,6 @@
     height: var(--atmosphere-height, 400px);
   }
   .atmosphere::after {
-    height: var(--join-height, 160px); 
+    height: var(--join-height, 160px);
   }
 }
