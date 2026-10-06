@@ -1,9 +1,9 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "59edf4ec-b617-45fa-be49-268cbed0ef03",
+  "id": "809287c8-82b4-418e-bb08-71467f9f9c5e",
   "prevIds": [
-    "0953e5ea-4973-4045-ae50-c10ea3ca58d4"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -162,7 +162,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_order",
+      "name": "order",
       "entityType": "columns",
       "table": "categories_breadcrumbs"
     },
@@ -172,7 +172,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_parent_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "categories_breadcrumbs"
     },
@@ -1002,7 +1002,7 @@
       "autoincrement": false,
       "default": "'draft'",
       "generated": null,
-      "name": "_status",
+      "name": "status",
       "entityType": "columns",
       "table": "posts"
     },
@@ -1012,7 +1012,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "post_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "posts_categories"
     },
@@ -1042,7 +1042,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_order",
+      "name": "order",
       "entityType": "columns",
       "table": "posts_populated_authors"
     },
@@ -1052,7 +1052,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_parent_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "posts_populated_authors"
     },
@@ -1082,7 +1082,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "post_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "posts_related_posts"
     },
@@ -1112,7 +1112,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "post_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "posts_users"
     },
@@ -1272,7 +1272,7 @@
       "autoincrement": false,
       "default": "'draft'",
       "generated": null,
-      "name": "version__status",
+      "name": "version_status",
       "entityType": "columns",
       "table": "_posts_v"
     },
@@ -1322,7 +1322,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "version_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "_posts_v_categories"
     },
@@ -1352,7 +1352,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "version_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "_posts_v_related_posts"
     },
@@ -1382,7 +1382,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "version_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "_posts_v_users"
     },
@@ -1412,7 +1412,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_order",
+      "name": "order",
       "entityType": "columns",
       "table": "_posts_v_version_populated_authors"
     },
@@ -1422,7 +1422,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_parent_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "_posts_v_version_populated_authors"
     },
@@ -1442,7 +1442,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_uuid",
+      "name": "uuid",
       "entityType": "columns",
       "table": "_posts_v_version_populated_authors"
     },
@@ -1552,7 +1552,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_order",
+      "name": "order",
       "entityType": "columns",
       "table": "search_categories"
     },
@@ -1562,7 +1562,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_parent_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "search_categories"
     },
@@ -1752,7 +1752,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_order",
+      "name": "order",
       "entityType": "columns",
       "table": "users_sessions"
     },
@@ -1762,7 +1762,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "_parent_id",
+      "name": "parent_id",
       "entityType": "columns",
       "table": "users_sessions"
     },
@@ -1813,7 +1813,7 @@
     },
     {
       "columns": [
-        "_parent_id"
+        "parent_id"
       ],
       "tableTo": "categories",
       "columnsTo": [
@@ -1822,7 +1822,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_categories_breadcrumbs__parent_id_categories_id_fk",
+      "name": "fk_categories_breadcrumbs_parent_id_categories_id_fk",
       "entityType": "fks",
       "table": "categories_breadcrumbs"
     },
@@ -1918,7 +1918,7 @@
     },
     {
       "columns": [
-        "post_id"
+        "parent_id"
       ],
       "tableTo": "posts",
       "columnsTo": [
@@ -1927,7 +1927,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_posts_categories_post_id_posts_id_fk",
+      "name": "fk_posts_categories_parent_id_posts_id_fk",
       "entityType": "fks",
       "table": "posts_categories"
     },
@@ -1948,7 +1948,7 @@
     },
     {
       "columns": [
-        "_parent_id"
+        "parent_id"
       ],
       "tableTo": "posts",
       "columnsTo": [
@@ -1957,13 +1957,13 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_posts_populated_authors__parent_id_posts_id_fk",
+      "name": "fk_posts_populated_authors_parent_id_posts_id_fk",
       "entityType": "fks",
       "table": "posts_populated_authors"
     },
     {
       "columns": [
-        "post_id"
+        "parent_id"
       ],
       "tableTo": "posts",
       "columnsTo": [
@@ -1972,7 +1972,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_posts_related_posts_post_id_posts_id_fk",
+      "name": "fk_posts_related_posts_parent_id_posts_id_fk",
       "entityType": "fks",
       "table": "posts_related_posts"
     },
@@ -1993,7 +1993,7 @@
     },
     {
       "columns": [
-        "post_id"
+        "parent_id"
       ],
       "tableTo": "posts",
       "columnsTo": [
@@ -2002,7 +2002,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_posts_users_post_id_posts_id_fk",
+      "name": "fk_posts_users_parent_id_posts_id_fk",
       "entityType": "fks",
       "table": "posts_users"
     },
@@ -2068,7 +2068,7 @@
     },
     {
       "columns": [
-        "version_id"
+        "parent_id"
       ],
       "tableTo": "_posts_v",
       "columnsTo": [
@@ -2077,7 +2077,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk__posts_v_categories_version_id__posts_v_id_fk",
+      "name": "fk__posts_v_categories_parent_id__posts_v_id_fk",
       "entityType": "fks",
       "table": "_posts_v_categories"
     },
@@ -2098,7 +2098,7 @@
     },
     {
       "columns": [
-        "version_id"
+        "parent_id"
       ],
       "tableTo": "_posts_v",
       "columnsTo": [
@@ -2107,7 +2107,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk__posts_v_related_posts_version_id__posts_v_id_fk",
+      "name": "fk__posts_v_related_posts_parent_id__posts_v_id_fk",
       "entityType": "fks",
       "table": "_posts_v_related_posts"
     },
@@ -2128,7 +2128,7 @@
     },
     {
       "columns": [
-        "version_id"
+        "parent_id"
       ],
       "tableTo": "_posts_v",
       "columnsTo": [
@@ -2137,7 +2137,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk__posts_v_users_version_id__posts_v_id_fk",
+      "name": "fk__posts_v_users_parent_id__posts_v_id_fk",
       "entityType": "fks",
       "table": "_posts_v_users"
     },
@@ -2158,7 +2158,7 @@
     },
     {
       "columns": [
-        "_parent_id"
+        "parent_id"
       ],
       "tableTo": "_posts_v",
       "columnsTo": [
@@ -2167,7 +2167,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk__posts_v_version_populated_authors__parent_id__posts_v_id_fk",
+      "name": "fk__posts_v_version_populated_authors_parent_id__posts_v_id_fk",
       "entityType": "fks",
       "table": "_posts_v_version_populated_authors"
     },
@@ -2188,7 +2188,7 @@
     },
     {
       "columns": [
-        "_parent_id"
+        "parent_id"
       ],
       "tableTo": "search",
       "columnsTo": [
@@ -2197,7 +2197,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_search_categories__parent_id_search_id_fk",
+      "name": "fk_search_categories_parent_id_search_id_fk",
       "entityType": "fks",
       "table": "search_categories"
     },
@@ -2233,7 +2233,7 @@
     },
     {
       "columns": [
-        "_parent_id"
+        "parent_id"
       ],
       "tableTo": "users",
       "columnsTo": [
@@ -2242,13 +2242,13 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_users_sessions__parent_id_users_id_fk",
+      "name": "fk_users_sessions_parent_id_users_id_fk",
       "entityType": "fks",
       "table": "users_sessions"
     },
     {
       "columns": [
-        "post_id",
+        "parent_id",
         "category_id"
       ],
       "nameExplicit": false,
@@ -2258,7 +2258,7 @@
     },
     {
       "columns": [
-        "post_id",
+        "parent_id",
         "related_post_id"
       ],
       "nameExplicit": false,
@@ -2268,7 +2268,7 @@
     },
     {
       "columns": [
-        "post_id",
+        "parent_id",
         "user_id"
       ],
       "nameExplicit": false,
@@ -2278,7 +2278,7 @@
     },
     {
       "columns": [
-        "version_id",
+        "parent_id",
         "category_id"
       ],
       "nameExplicit": false,
@@ -2288,7 +2288,7 @@
     },
     {
       "columns": [
-        "version_id",
+        "parent_id",
         "related_post_id"
       ],
       "nameExplicit": false,
@@ -2298,7 +2298,7 @@
     },
     {
       "columns": [
-        "version_id",
+        "parent_id",
         "user_id"
       ],
       "nameExplicit": false,
@@ -2506,7 +2506,7 @@
     {
       "columns": [
         {
-          "value": "_order",
+          "value": "order",
           "isExpression": false
         }
       ],
@@ -2520,7 +2520,7 @@
     {
       "columns": [
         {
-          "value": "_parent_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -2772,7 +2772,7 @@
     {
       "columns": [
         {
-          "value": "_status",
+          "value": "status",
           "isExpression": false
         }
       ],
@@ -2870,14 +2870,14 @@
     {
       "columns": [
         {
-          "value": "post_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
       "isUnique": false,
       "where": null,
       "origin": "manual",
-      "name": "posts_categories_post_id_idx",
+      "name": "posts_categories_parent_id_idx",
       "entityType": "indexes",
       "table": "posts_categories"
     },
@@ -2898,7 +2898,7 @@
     {
       "columns": [
         {
-          "value": "_order",
+          "value": "order",
           "isExpression": false
         }
       ],
@@ -2912,7 +2912,7 @@
     {
       "columns": [
         {
-          "value": "_parent_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -2940,14 +2940,14 @@
     {
       "columns": [
         {
-          "value": "post_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
       "isUnique": false,
       "where": null,
       "origin": "manual",
-      "name": "posts_related_posts_post_id_idx",
+      "name": "posts_related_posts_parent_id_idx",
       "entityType": "indexes",
       "table": "posts_related_posts"
     },
@@ -2982,14 +2982,14 @@
     {
       "columns": [
         {
-          "value": "post_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
       "isUnique": false,
       "where": null,
       "origin": "manual",
-      "name": "posts_users_post_id_idx",
+      "name": "posts_users_parent_id_idx",
       "entityType": "indexes",
       "table": "posts_users"
     },
@@ -3094,7 +3094,7 @@
     {
       "columns": [
         {
-          "value": "version__status",
+          "value": "version_status",
           "isExpression": false
         }
       ],
@@ -3178,7 +3178,7 @@
     {
       "columns": [
         {
-          "value": "version_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -3220,7 +3220,7 @@
     {
       "columns": [
         {
-          "value": "version_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -3262,7 +3262,7 @@
     {
       "columns": [
         {
-          "value": "version_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -3290,7 +3290,7 @@
     {
       "columns": [
         {
-          "value": "_order",
+          "value": "order",
           "isExpression": false
         }
       ],
@@ -3304,7 +3304,7 @@
     {
       "columns": [
         {
-          "value": "_parent_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -3374,7 +3374,7 @@
     {
       "columns": [
         {
-          "value": "_order",
+          "value": "order",
           "isExpression": false
         }
       ],
@@ -3388,7 +3388,7 @@
     {
       "columns": [
         {
-          "value": "_parent_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],
@@ -3486,7 +3486,7 @@
     {
       "columns": [
         {
-          "value": "_order",
+          "value": "order",
           "isExpression": false
         }
       ],
@@ -3500,7 +3500,7 @@
     {
       "columns": [
         {
-          "value": "_parent_id",
+          "value": "parent_id",
           "isExpression": false
         }
       ],

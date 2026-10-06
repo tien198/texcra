@@ -40,8 +40,8 @@ export const categories = sqliteTable(
 export const categoriesBreadcrumbs = sqliteTable(
   'categories_breadcrumbs',
   {
-    order: integer('_order').notNull(),
-    parentId: integer('_parent_id')
+    order: integer('order').notNull(),
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => categories.id, {
         onDelete: 'cascade',

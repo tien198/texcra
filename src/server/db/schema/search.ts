@@ -43,8 +43,8 @@ export const search = sqliteTable(
 export const searchCategories = sqliteTable(
   'search_categories',
   {
-    order: integer('_order').notNull(),
-    parentId: integer('_parent_id')
+    order: integer('order').notNull(),
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => search.id, { onDelete: 'cascade' }),
     id: text('id').primaryKey(),

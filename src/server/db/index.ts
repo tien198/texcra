@@ -8,32 +8,32 @@ export const relations = defineRelations(schema, (h) => ({
   posts: {
     postsCategories: h.many.postsCategories({
       from: h.posts.id,
-      to: h.postsCategories.postId,
+      to: h.postsCategories.parentId,
     }),
     categories: h.many.categories({
-      from: h.posts.id.through(h.postsCategories.postId),
+      from: h.posts.id.through(h.postsCategories.parentId),
       to: h.categories.id.through(h.postsCategories.categoryId),
     }),
     postsUsers: h.many.postsUsers({
       from: h.posts.id,
-      to: h.postsUsers.postId,
+      to: h.postsUsers.parentId,
     }),
     authors: h.many.users({
-      from: h.posts.id.through(h.postsUsers.postId),
+      from: h.posts.id.through(h.postsUsers.parentId),
       to: h.users.id.through(h.postsUsers.userId),
     }),
     postsRelatedPosts: h.many.postsRelatedPosts({
       from: h.posts.id,
-      to: h.postsRelatedPosts.postId,
+      to: h.postsRelatedPosts.parentId,
     }),
     relatedPosts: h.many.posts({
-      from: h.posts.id.through(h.postsRelatedPosts.postId),
+      from: h.posts.id.through(h.postsRelatedPosts.parentId),
       to: h.posts.id.through(h.postsRelatedPosts.relatedPostId),
     }),
   },
   postsCategories: {
     post: h.one.posts({
-      from: h.postsCategories.postId,
+      from: h.postsCategories.parentId,
       to: h.posts.id,
     }),
     category: h.one.categories({
@@ -43,7 +43,7 @@ export const relations = defineRelations(schema, (h) => ({
   },
   postsUsers: {
     post: h.one.posts({
-      from: h.postsUsers.postId,
+      from: h.postsUsers.parentId,
       to: h.posts.id,
     }),
     user: h.one.users({
@@ -53,7 +53,7 @@ export const relations = defineRelations(schema, (h) => ({
   },
   postsRelatedPosts: {
     post: h.one.posts({
-      from: h.postsRelatedPosts.postId,
+      from: h.postsRelatedPosts.parentId,
       to: h.posts.id,
     }),
     relatedPost: h.one.posts({
@@ -68,7 +68,7 @@ export const relations = defineRelations(schema, (h) => ({
     }),
     posts: h.many.posts({
       from: h.categories.id.through(h.postsCategories.categoryId),
-      to: h.posts.id.through(h.postsCategories.postId),
+      to: h.posts.id.through(h.postsCategories.parentId),
     }),
     postsVCategories: h.many.postsVCategories({
       from: h.categories.id,
@@ -76,7 +76,7 @@ export const relations = defineRelations(schema, (h) => ({
     }),
     postVersions: h.many.postsV({
       from: h.categories.id.through(h.postsVCategories.categoryId),
-      to: h.postsV.id.through(h.postsVCategories.versionId),
+      to: h.postsV.id.through(h.postsVCategories.parentId),
     }),
   },
   users: {
@@ -86,7 +86,7 @@ export const relations = defineRelations(schema, (h) => ({
     }),
     posts: h.many.posts({
       from: h.users.id.through(h.postsUsers.userId),
-      to: h.posts.id.through(h.postsUsers.postId),
+      to: h.posts.id.through(h.postsUsers.parentId),
     }),
     postsVUsers: h.many.postsVUsers({
       from: h.users.id,
@@ -94,38 +94,38 @@ export const relations = defineRelations(schema, (h) => ({
     }),
     postVersions: h.many.postsV({
       from: h.users.id.through(h.postsVUsers.userId),
-      to: h.postsV.id.through(h.postsVUsers.versionId),
+      to: h.postsV.id.through(h.postsVUsers.parentId),
     }),
   },
   postsV: {
     postsVCategories: h.many.postsVCategories({
       from: h.postsV.id,
-      to: h.postsVCategories.versionId,
+      to: h.postsVCategories.parentId,
     }),
     categories: h.many.categories({
-      from: h.postsV.id.through(h.postsVCategories.versionId),
+      from: h.postsV.id.through(h.postsVCategories.parentId),
       to: h.categories.id.through(h.postsVCategories.categoryId),
     }),
     postsVUsers: h.many.postsVUsers({
       from: h.postsV.id,
-      to: h.postsVUsers.versionId,
+      to: h.postsVUsers.parentId,
     }),
     authors: h.many.users({
-      from: h.postsV.id.through(h.postsVUsers.versionId),
+      from: h.postsV.id.through(h.postsVUsers.parentId),
       to: h.users.id.through(h.postsVUsers.userId),
     }),
     postsVRelatedPosts: h.many.postsVRelatedPosts({
       from: h.postsV.id,
-      to: h.postsVRelatedPosts.versionId,
+      to: h.postsVRelatedPosts.parentId,
     }),
     relatedPosts: h.many.posts({
-      from: h.postsV.id.through(h.postsVRelatedPosts.versionId),
+      from: h.postsV.id.through(h.postsVRelatedPosts.parentId),
       to: h.posts.id.through(h.postsVRelatedPosts.relatedPostId),
     }),
   },
   postsVCategories: {
     version: h.one.postsV({
-      from: h.postsVCategories.versionId,
+      from: h.postsVCategories.parentId,
       to: h.postsV.id,
     }),
     category: h.one.categories({
@@ -135,7 +135,7 @@ export const relations = defineRelations(schema, (h) => ({
   },
   postsVUsers: {
     version: h.one.postsV({
-      from: h.postsVUsers.versionId,
+      from: h.postsVUsers.parentId,
       to: h.postsV.id,
     }),
     user: h.one.users({
@@ -145,7 +145,7 @@ export const relations = defineRelations(schema, (h) => ({
   },
   postsVRelatedPosts: {
     version: h.one.postsV({
-      from: h.postsVRelatedPosts.versionId,
+      from: h.postsVRelatedPosts.parentId,
       to: h.postsV.id,
     }),
     relatedPost: h.one.posts({

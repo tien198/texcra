@@ -38,7 +38,7 @@ export const posts = sqliteTable(
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
-    status: text('_status', { enum: ['draft', 'published'] }).default('draft'),
+    status: text('status', { enum: ['draft', 'published'] }).default('draft'),
   },
   (table) => [
     index('posts__status_idx').on(table.status),
@@ -53,8 +53,8 @@ export const posts = sqliteTable(
 export const postsPopulatedAuthors = sqliteTable(
   'posts_populated_authors',
   {
-    order: integer('_order').notNull(),
-    parentId: integer('_parent_id')
+    order: integer('order').notNull(),
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => posts.id, { onDelete: 'cascade' }),
     id: text('id').primaryKey(),
@@ -69,7 +69,7 @@ export const postsPopulatedAuthors = sqliteTable(
 export const postsCategories = sqliteTable(
   'posts_categories',
   {
-    postId: integer('post_id')
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => posts.id, { onDelete: 'cascade' }),
     categoryId: integer('category_id')
@@ -80,9 +80,9 @@ export const postsCategories = sqliteTable(
     order: integer('order'),
   },
   (table) => [
-    primaryKey({ columns: [table.postId, table.categoryId] }),
+    primaryKey({ columns: [table.parentId, table.categoryId] }),
     index('posts_categories_order_idx').on(table.order),
-    index('posts_categories_post_id_idx').on(table.postId),
+    index('posts_categories_parent_id_idx').on(table.parentId),
     index('posts_categories_category_id_idx').on(table.categoryId),
   ],
 )
@@ -90,7 +90,7 @@ export const postsCategories = sqliteTable(
 export const postsUsers = sqliteTable(
   'posts_users',
   {
-    postId: integer('post_id')
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => posts.id, { onDelete: 'cascade' }),
     userId: integer('user_id')
@@ -99,9 +99,9 @@ export const postsUsers = sqliteTable(
     order: integer('order'),
   },
   (table) => [
-    primaryKey({ columns: [table.postId, table.userId] }),
+    primaryKey({ columns: [table.parentId, table.userId] }),
     index('posts_users_order_idx').on(table.order),
-    index('posts_users_post_id_idx').on(table.postId),
+    index('posts_users_parent_id_idx').on(table.parentId),
     index('posts_users_user_id_idx').on(table.userId),
   ],
 )
@@ -109,7 +109,7 @@ export const postsUsers = sqliteTable(
 export const postsRelatedPosts = sqliteTable(
   'posts_related_posts',
   {
-    postId: integer('post_id')
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => posts.id, { onDelete: 'cascade' }),
     relatedPostId: integer('related_post_id')
@@ -118,9 +118,9 @@ export const postsRelatedPosts = sqliteTable(
     order: integer('order'),
   },
   (table) => [
-    primaryKey({ columns: [table.postId, table.relatedPostId] }),
+    primaryKey({ columns: [table.parentId, table.relatedPostId] }),
     index('posts_related_posts_order_idx').on(table.order),
-    index('posts_related_posts_post_id_idx').on(table.postId),
+    index('posts_related_posts_parent_id_idx').on(table.parentId),
     index('posts_related_posts_related_post_id_idx').on(table.relatedPostId),
   ],
 )
@@ -137,7 +137,7 @@ export const postsCategoriesRelations = relations(
   postsCategories,
   ({ one }) => ({
     post: one(posts, {
-      fields: [postsCategories.postId],
+      fields: [postsCategories.parentId],
       references: [posts.id],
     }),
     category: one(categories, {
@@ -149,7 +149,7 @@ export const postsCategoriesRelations = relations(
 
 export const postsUsersRelations = relations(postsUsers, ({ one }) => ({
   post: one(posts, {
-    fields: [postsUsers.postId],
+    fields: [postsUsers.parentId],
     references: [posts.id],
   }),
   user: one(users, {
@@ -162,7 +162,7 @@ export const postsRelatedPostsRelations = relations(
   postsRelatedPosts,
   ({ one }) => ({
     post: one(posts, {
-      fields: [postsRelatedPosts.postId],
+      fields: [postsRelatedPosts.parentId],
       references: [posts.id],
       relationName: 'post_related_posts',
     }),

@@ -43,8 +43,8 @@ export const users = sqliteTable(
 export const usersSessions = sqliteTable(
   'users_sessions',
   {
-    order: integer('_order').notNull(),
-    parentId: integer('_parent_id')
+    order: integer('order').notNull(),
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => users.id, { onDelete: 'cascade' }),
     id: text('id').primaryKey(),

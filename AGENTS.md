@@ -1,19 +1,24 @@
-always use pnpm (include pnpm run, pnpm exec, pnpm dlx, ...), don't use npm, yarn, bun
-Always run scripts using pnpm run <script> (e.g., pnpm run build) rather than pnpm <script> directly.
+## Package Manager & Scripts
 
-always comment before Simulate server-side processing delay
+- **Tooling**: Always use `pnpm` (including `pnpm run`, `pnpm exec`, `pnpm dlx`). Do NOT use `npm`, `yarn`, or `bun`.
+- **Running Scripts**: Always run scripts with `pnpm run <script>` (e.g., `pnpm run build`) instead of `pnpm <script>` directly.
 
-```typescript
-// Simulate server-side processing delay to <do something>
-await new Promise((resolve) => setTimeout(resolve, 800))
-```
+## Simulated Delays & Mocking
 
-always comment before Simulated network delay
+Always include an explanatory comment immediately above any simulated delay:
 
-```typescript
-// Simulated network delay to to <do something>
-await new Promise((resolve) => setTimeout(resolve, 2000))
-```
+- **Server-side processing delay**:
+  ```typescript
+  // Simulate server-side processing delay to <do something>
+  await new Promise((resolve) => setTimeout(resolve, 800))
+  ```
+
+- **Network delay**:
+  ```typescript
+  // Simulated network delay to <do something>
+  await new Promise((resolve) => setTimeout(resolve, 2000))
+  ```
+
 
 <!-- intent-skills:start -->
 

@@ -16,8 +16,8 @@ Table "categories" {
 }
 
 Table "categories_breadcrumbs" {
-  "_order" integer [not null]
-  "_parent_id" integer [not null]
+  "order" integer [not null]
+  "parent_id" integer [not null]
   "id" text [pk]
   "doc_id" integer
   "url" text
@@ -25,8 +25,8 @@ Table "categories_breadcrumbs" {
 
   Indexes {
     doc_id [name: "categories_breadcrumbs_doc_idx"]
-    _order [name: "categories_breadcrumbs_order_idx"]
-    _parent_id [name: "categories_breadcrumbs_parent_id_idx"]
+    order [name: "categories_breadcrumbs_order_idx"]
+    parent_id [name: "categories_breadcrumbs_parent_id_idx"]
   }
 }
 
@@ -144,10 +144,10 @@ Table "posts" {
   "slug" text
   "updated_at" integer [not null, default: 0]
   "created_at" integer [not null, default: 0]
-  "_status" text [default: 'draft']
+  "status" text [default: 'draft']
 
   Indexes {
-    _status [name: "posts__status_idx"]
+    status [name: "posts__status_idx"]
     created_at [name: "posts_created_at_idx"]
     hero_image_id [name: "posts_hero_image_idx"]
     meta_image_id [name: "posts_meta_meta_image_idx"]
@@ -157,52 +157,52 @@ Table "posts" {
 }
 
 Table "posts_categories" {
-  "post_id" integer [not null]
+  "parent_id" integer [not null]
   "category_id" integer [not null]
   "order" integer
 
   Indexes {
-    (post_id, category_id) [pk, name: "posts_categories_pk"]
+    (parent_id, category_id) [pk, name: "posts_categories_pk"]
     order [name: "posts_categories_order_idx"]
-    post_id [name: "posts_categories_post_id_idx"]
+    parent_id [name: "posts_categories_parent_id_idx"]
     category_id [name: "posts_categories_category_id_idx"]
   }
 }
 
 Table "posts_populated_authors" {
-  "_order" integer [not null]
-  "_parent_id" integer [not null]
+  "order" integer [not null]
+  "parent_id" integer [not null]
   "id" text [pk]
   "name" text
 
   Indexes {
-    _order [name: "posts_populated_authors_order_idx"]
-    _parent_id [name: "posts_populated_authors_parent_id_idx"]
+    order [name: "posts_populated_authors_order_idx"]
+    parent_id [name: "posts_populated_authors_parent_id_idx"]
   }
 }
 
 Table "posts_related_posts" {
-  "post_id" integer [not null]
+  "parent_id" integer [not null]
   "related_post_id" integer [not null]
   "order" integer
 
   Indexes {
-    (post_id, related_post_id) [pk, name: "posts_related_posts_pk"]
+    (parent_id, related_post_id) [pk, name: "posts_related_posts_pk"]
     order [name: "posts_related_posts_order_idx"]
-    post_id [name: "posts_related_posts_post_id_idx"]
+    parent_id [name: "posts_related_posts_parent_id_idx"]
     related_post_id [name: "posts_related_posts_related_post_id_idx"]
   }
 }
 
 Table "posts_users" {
-  "post_id" integer [not null]
+  "parent_id" integer [not null]
   "user_id" integer [not null]
   "order" integer
 
   Indexes {
-    (post_id, user_id) [pk, name: "posts_users_pk"]
+    (parent_id, user_id) [pk, name: "posts_users_pk"]
     order [name: "posts_users_order_idx"]
-    post_id [name: "posts_users_post_id_idx"]
+    parent_id [name: "posts_users_parent_id_idx"]
     user_id [name: "posts_users_user_id_idx"]
   }
 }
@@ -221,7 +221,7 @@ Table "_posts_v" {
   "version_slug" text
   "version_updated_at" integer
   "version_created_at" integer
-  "version__status" text [default: 'draft']
+  "version_status" text [default: 'draft']
   "created_at" integer [not null, default: 0]
   "updated_at" integer [not null, default: 0]
   "latest" integer
@@ -234,7 +234,7 @@ Table "_posts_v" {
     parent_id [name: "_posts_v_parent_idx"]
     updated_at [name: "_posts_v_updated_at_idx"]
     version_meta_image_id [name: "_posts_v_version_meta_version_meta_image_idx"]
-    version__status [name: "_posts_v_version_version__status_idx"]
+    version_status [name: "_posts_v_version_version__status_idx"]
     version_created_at [name: "_posts_v_version_version_created_at_idx"]
     version_hero_image_id [name: "_posts_v_version_version_hero_image_idx"]
     version_slug [name: "_posts_v_version_version_slug_idx"]
@@ -243,54 +243,54 @@ Table "_posts_v" {
 }
 
 Table "_posts_v_categories" {
-  "version_id" integer [not null]
+  "parent_id" integer [not null]
   "category_id" integer [not null]
   "order" integer
 
   Indexes {
-    (version_id, category_id) [pk, name: "_posts_v_categories_pk"]
+    (parent_id, category_id) [pk, name: "_posts_v_categories_pk"]
     order [name: "_posts_v_categories_order_idx"]
-    version_id [name: "_posts_v_categories_version_id_idx"]
+    parent_id [name: "_posts_v_categories_version_id_idx"]
     category_id [name: "_posts_v_categories_category_id_idx"]
   }
 }
 
 Table "_posts_v_related_posts" {
-  "version_id" integer [not null]
+  "parent_id" integer [not null]
   "related_post_id" integer [not null]
   "order" integer
 
   Indexes {
-    (version_id, related_post_id) [pk, name: "_posts_v_related_posts_pk"]
+    (parent_id, related_post_id) [pk, name: "_posts_v_related_posts_pk"]
     order [name: "_posts_v_related_posts_order_idx"]
-    version_id [name: "_posts_v_related_posts_version_id_idx"]
+    parent_id [name: "_posts_v_related_posts_version_id_idx"]
     related_post_id [name: "_posts_v_related_posts_related_post_id_idx"]
   }
 }
 
 Table "_posts_v_users" {
-  "version_id" integer [not null]
+  "parent_id" integer [not null]
   "user_id" integer [not null]
   "order" integer
 
   Indexes {
-    (version_id, user_id) [pk, name: "_posts_v_users_pk"]
+    (parent_id, user_id) [pk, name: "_posts_v_users_pk"]
     order [name: "_posts_v_users_order_idx"]
-    version_id [name: "_posts_v_users_version_id_idx"]
+    parent_id [name: "_posts_v_users_version_id_idx"]
     user_id [name: "_posts_v_users_user_id_idx"]
   }
 }
 
 Table "_posts_v_version_populated_authors" {
-  "_order" integer [not null]
-  "_parent_id" integer [not null]
+  "order" integer [not null]
+  "parent_id" integer [not null]
   "id" integer [pk]
-  "_uuid" text
+  "uuid" text
   "name" text
 
   Indexes {
-    _order [name: "_posts_v_version_populated_authors_order_idx"]
-    _parent_id [name: "_posts_v_version_populated_authors_parent_id_idx"]
+    order [name: "_posts_v_version_populated_authors_order_idx"]
+    parent_id [name: "_posts_v_version_populated_authors_parent_id_idx"]
   }
 }
 
@@ -314,16 +314,16 @@ Table "search" {
 }
 
 Table "search_categories" {
-  "_order" integer [not null]
-  "_parent_id" integer [not null]
+  "order" integer [not null]
+  "parent_id" integer [not null]
   "id" text [pk]
   "relation_to" text
   "category_i_d" text
   "title" text
 
   Indexes {
-    _order [name: "search_categories_order_idx"]
-    _parent_id [name: "search_categories_parent_id_idx"]
+    order [name: "search_categories_order_idx"]
+    parent_id [name: "search_categories_parent_id_idx"]
   }
 }
 
@@ -361,21 +361,21 @@ Table "users" {
 }
 
 Table "users_sessions" {
-  "_order" integer [not null]
-  "_parent_id" integer [not null]
+  "order" integer [not null]
+  "parent_id" integer [not null]
   "id" text [pk]
   "created_at" integer
   "expires_at" integer [not null]
 
   Indexes {
-    _order [name: "users_sessions_order_idx"]
-    _parent_id [name: "users_sessions_parent_id_idx"]
+    order [name: "users_sessions_order_idx"]
+    parent_id [name: "users_sessions_parent_id_idx"]
   }
 }
 
 Ref "fk_categories_parent_id_categories_id_fk":"categories"."id" ?<? "categories"."parent_id" [delete: set null]
 
-Ref "fk_categories_breadcrumbs__parent_id_categories_id_fk":"categories"."id" <? "categories_breadcrumbs"."_parent_id" [delete: cascade]
+Ref "fk_categories_breadcrumbs_parent_id_categories_id_fk":"categories"."id" <? "categories_breadcrumbs"."parent_id" [delete: cascade]
 
 Ref "fk_categories_breadcrumbs_doc_id_categories_id_fk":"categories"."id" ?<? "categories_breadcrumbs"."doc_id" [delete: set null]
 
@@ -389,17 +389,17 @@ Ref "fk_posts_hero_image_id_media_id_fk":"media"."id" ?<? "posts"."hero_image_id
 
 Ref "fk_posts_meta_image_id_media_id_fk":"media"."id" ?<? "posts"."meta_image_id" [delete: set null]
 
-Ref "fk_posts_categories_post_id_posts_id_fk":"posts"."id" <? "posts_categories"."post_id" [delete: cascade]
+Ref "fk_posts_categories_parent_id_posts_id_fk":"posts"."id" <? "posts_categories"."parent_id" [delete: cascade]
 
 Ref "fk_posts_categories_category_id_categories_id_fk":"categories"."id" <? "posts_categories"."category_id" [delete: cascade]
 
-Ref "fk_posts_populated_authors__parent_id_posts_id_fk":"posts"."id" <? "posts_populated_authors"."_parent_id" [delete: cascade]
+Ref "fk_posts_populated_authors_parent_id_posts_id_fk":"posts"."id" <? "posts_populated_authors"."parent_id" [delete: cascade]
 
-Ref "fk_posts_related_posts_post_id_posts_id_fk":"posts"."id" <? "posts_related_posts"."post_id" [delete: cascade]
+Ref "fk_posts_related_posts_parent_id_posts_id_fk":"posts"."id" <? "posts_related_posts"."parent_id" [delete: cascade]
 
 Ref "fk_posts_related_posts_related_post_id_posts_id_fk":"posts"."id" <? "posts_related_posts"."related_post_id" [delete: cascade]
 
-Ref "fk_posts_users_post_id_posts_id_fk":"posts"."id" <? "posts_users"."post_id" [delete: cascade]
+Ref "fk_posts_users_parent_id_posts_id_fk":"posts"."id" <? "posts_users"."parent_id" [delete: cascade]
 
 Ref "fk_posts_users_user_id_users_id_fk":"users"."id" <? "posts_users"."user_id" [delete: cascade]
 
@@ -409,26 +409,26 @@ Ref "fk__posts_v_version_hero_image_id_media_id_fk":"media"."id" ?<? "_posts_v".
 
 Ref "fk__posts_v_version_meta_image_id_media_id_fk":"media"."id" ?<? "_posts_v"."version_meta_image_id" [delete: set null]
 
-Ref "fk__posts_v_categories_version_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_categories"."version_id" [delete: cascade]
+Ref "fk__posts_v_categories_parent_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_categories"."parent_id" [delete: cascade]
 
 Ref "fk__posts_v_categories_category_id_categories_id_fk":"categories"."id" <? "_posts_v_categories"."category_id" [delete: cascade]
 
-Ref "fk__posts_v_related_posts_version_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_related_posts"."version_id" [delete: cascade]
+Ref "fk__posts_v_related_posts_parent_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_related_posts"."parent_id" [delete: cascade]
 
 Ref "fk__posts_v_related_posts_related_post_id_posts_id_fk":"posts"."id" <? "_posts_v_related_posts"."related_post_id" [delete: cascade]
 
-Ref "fk__posts_v_users_version_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_users"."version_id" [delete: cascade]
+Ref "fk__posts_v_users_parent_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_users"."parent_id" [delete: cascade]
 
 Ref "fk__posts_v_users_user_id_users_id_fk":"users"."id" <? "_posts_v_users"."user_id" [delete: cascade]
 
-Ref "fk__posts_v_version_populated_authors__parent_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_version_populated_authors"."_parent_id" [delete: cascade]
+Ref "fk__posts_v_version_populated_authors_parent_id__posts_v_id_fk":"_posts_v"."id" <? "_posts_v_version_populated_authors"."parent_id" [delete: cascade]
 
 Ref "fk_search_meta_image_id_media_id_fk":"media"."id" ?<? "search"."meta_image_id" [delete: set null]
 
-Ref "fk_search_categories__parent_id_search_id_fk":"search"."id" <? "search_categories"."_parent_id" [delete: cascade]
+Ref "fk_search_categories_parent_id_search_id_fk":"search"."id" <? "search_categories"."parent_id" [delete: cascade]
 
 Ref "fk_search_posts_search_id_search_id_fk":"search"."id" <? "search_posts"."search_id" [delete: cascade]
 
 Ref "fk_search_posts_post_id_posts_id_fk":"posts"."id" <? "search_posts"."post_id" [delete: cascade]
 
-Ref "fk_users_sessions__parent_id_users_id_fk":"users"."id" <? "users_sessions"."_parent_id" [delete: cascade]
+Ref "fk_users_sessions_parent_id_users_id_fk":"users"."id" <? "users_sessions"."parent_id" [delete: cascade]

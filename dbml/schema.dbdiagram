@@ -1,15 +1,587 @@
 {
   "version": "3.0.0",
-  "darkMode": false,
+  "darkMode": true,
   "gridEnabling": false,
   "currentViewName": null,
   "defaultView": {
     "detailLevel": "All",
     "relationshipMode": "All",
-    "tablePositions": [],
+    "tablePositions": [
+      {
+        "name": "categories",
+        "schemaName": "public",
+        "x": 12,
+        "y": 32
+      },
+      {
+        "name": "categories_breadcrumbs",
+        "schemaName": "public",
+        "x": 567.21630859375,
+        "y": 73
+      },
+      {
+        "name": "media",
+        "schemaName": "public",
+        "x": 567.21630859375,
+        "y": 343
+      },
+      {
+        "name": "payload_folders",
+        "schemaName": "public",
+        "x": 12,
+        "y": 354
+      },
+      {
+        "name": "payload_folders_folder_type",
+        "schemaName": "public",
+        "x": 567.21630859375,
+        "y": 2245
+      },
+      {
+        "name": "posts",
+        "schemaName": "public",
+        "x": 1110.34033203125,
+        "y": 73
+      },
+      {
+        "name": "posts_categories",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 32
+      },
+      {
+        "name": "posts_populated_authors",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 228
+      },
+      {
+        "name": "posts_related_posts",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 434
+      },
+      {
+        "name": "posts_users",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 608
+      },
+      {
+        "name": "_posts_v",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 782
+      },
+      {
+        "name": "_posts_v_categories",
+        "schemaName": "public",
+        "x": 2253.35888671875,
+        "y": 32
+      },
+      {
+        "name": "_posts_v_related_posts",
+        "schemaName": "public",
+        "x": 2253.35888671875,
+        "y": 206
+      },
+      {
+        "name": "_posts_v_users",
+        "schemaName": "public",
+        "x": 2253.35888671875,
+        "y": 618
+      },
+      {
+        "name": "_posts_v_version_populated_authors",
+        "schemaName": "public",
+        "x": 2253.35888671875,
+        "y": 380
+      },
+      {
+        "name": "search",
+        "schemaName": "public",
+        "x": 1110.34033203125,
+        "y": 589
+      },
+      {
+        "name": "search_categories",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 1610
+      },
+      {
+        "name": "search_posts",
+        "schemaName": "public",
+        "x": 1687.57958984375,
+        "y": 1436
+      },
+      {
+        "name": "users",
+        "schemaName": "public",
+        "x": 12,
+        "y": 592
+      },
+      {
+        "name": "users_sessions",
+        "schemaName": "public",
+        "x": 567.21630859375,
+        "y": 2452
+      }
+    ],
     "tableGroupCollapseStates": [],
     "stickyNoteLayouts": [],
-    "referencePaths": []
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "categories",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "categories",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "categories",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "categories_breadcrumbs",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "categories",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "doc_id"
+        ],
+        "secondTableName": "categories_breadcrumbs",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "payload_folders",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "folder_id"
+        ],
+        "secondTableName": "media",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "payload_folders",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "folder_id"
+        ],
+        "secondTableName": "payload_folders",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "payload_folders",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "payload_folders_folder_type",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "media",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "hero_image_id"
+        ],
+        "secondTableName": "posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "media",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "meta_image_id"
+        ],
+        "secondTableName": "posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "posts_categories",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "categories",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "category_id"
+        ],
+        "secondTableName": "posts_categories",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "posts_populated_authors",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "posts_related_posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "related_post_id"
+        ],
+        "secondTableName": "posts_related_posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "posts_users",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "posts_users",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "_posts_v",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "media",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "version_hero_image_id"
+        ],
+        "secondTableName": "_posts_v",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "media",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "version_meta_image_id"
+        ],
+        "secondTableName": "_posts_v",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "_posts_v",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "_posts_v_categories",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "categories",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "category_id"
+        ],
+        "secondTableName": "_posts_v_categories",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "_posts_v",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "_posts_v_related_posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "related_post_id"
+        ],
+        "secondTableName": "_posts_v_related_posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "_posts_v",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "_posts_v_users",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "_posts_v_users",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "_posts_v",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "_posts_v_version_populated_authors",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "media",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "meta_image_id"
+        ],
+        "secondTableName": "search",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "search",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "search_categories",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "search",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "search_id"
+        ],
+        "secondTableName": "search_posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "post_id"
+        ],
+        "secondTableName": "search_posts",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "parent_id"
+        ],
+        "secondTableName": "users_sessions",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      }
+    ]
   },
   "views": {}
 }

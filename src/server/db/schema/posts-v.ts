@@ -41,7 +41,7 @@ export const postsV = sqliteTable(
     versionSlug: text('version_slug'),
     versionUpdatedAt: integer('version_updated_at', { mode: 'timestamp_ms' }),
     versionCreatedAt: integer('version_created_at', { mode: 'timestamp_ms' }),
-    versionStatus: text('version__status', {
+    versionStatus: text('version_status', {
       enum: ['draft', 'published'],
     }).default('draft'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
@@ -75,7 +75,7 @@ export const postsV = sqliteTable(
 export const postsVCategories = sqliteTable(
   '_posts_v_categories',
   {
-    versionId: integer('version_id')
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => postsV.id, { onDelete: 'cascade' }),
     categoryId: integer('category_id')
@@ -86,9 +86,9 @@ export const postsVCategories = sqliteTable(
     order: integer('order'),
   },
   (t) => [
-    primaryKey({ columns: [t.versionId, t.categoryId] }),
+    primaryKey({ columns: [t.parentId, t.categoryId] }),
     index('_posts_v_categories_order_idx').on(t.order),
-    index('_posts_v_categories_version_id_idx').on(t.versionId),
+    index('_posts_v_categories_version_id_idx').on(t.parentId),
     index('_posts_v_categories_category_id_idx').on(t.categoryId),
   ],
 )
@@ -96,7 +96,7 @@ export const postsVCategories = sqliteTable(
 export const postsVUsers = sqliteTable(
   '_posts_v_users',
   {
-    versionId: integer('version_id')
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => postsV.id, { onDelete: 'cascade' }),
     userId: integer('user_id')
@@ -105,9 +105,9 @@ export const postsVUsers = sqliteTable(
     order: integer('order'),
   },
   (t) => [
-    primaryKey({ columns: [t.versionId, t.userId] }),
+    primaryKey({ columns: [t.parentId, t.userId] }),
     index('_posts_v_users_order_idx').on(t.order),
-    index('_posts_v_users_version_id_idx').on(t.versionId),
+    index('_posts_v_users_version_id_idx').on(t.parentId),
     index('_posts_v_users_user_id_idx').on(t.userId),
   ],
 )
@@ -115,7 +115,7 @@ export const postsVUsers = sqliteTable(
 export const postsVRelatedPosts = sqliteTable(
   '_posts_v_related_posts',
   {
-    versionId: integer('version_id')
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => postsV.id, { onDelete: 'cascade' }),
     relatedPostId: integer('related_post_id')
@@ -124,9 +124,9 @@ export const postsVRelatedPosts = sqliteTable(
     order: integer('order'),
   },
   (t) => [
-    primaryKey({ columns: [t.versionId, t.relatedPostId] }),
+    primaryKey({ columns: [t.parentId, t.relatedPostId] }),
     index('_posts_v_related_posts_order_idx').on(t.order),
-    index('_posts_v_related_posts_version_id_idx').on(t.versionId),
+    index('_posts_v_related_posts_version_id_idx').on(t.parentId),
     index('_posts_v_related_posts_related_post_id_idx').on(t.relatedPostId),
   ],
 )
@@ -141,7 +141,7 @@ export const postsVCategoriesRelations = relations(
   postsVCategories,
   ({ one }) => ({
     version: one(postsV, {
-      fields: [postsVCategories.versionId],
+      fields: [postsVCategories.parentId],
       references: [postsV.id],
     }),
     category: one(categories, {
@@ -153,7 +153,7 @@ export const postsVCategoriesRelations = relations(
 
 export const postsVUsersRelations = relations(postsVUsers, ({ one }) => ({
   version: one(postsV, {
-    fields: [postsVUsers.versionId],
+    fields: [postsVUsers.parentId],
     references: [postsV.id],
   }),
   user: one(users, {
@@ -166,7 +166,7 @@ export const postsVRelatedPostsRelations = relations(
   postsVRelatedPosts,
   ({ one }) => ({
     version: one(postsV, {
-      fields: [postsVRelatedPosts.versionId],
+      fields: [postsVRelatedPosts.parentId],
       references: [postsV.id],
     }),
     relatedPost: one(posts, {
@@ -179,12 +179,12 @@ export const postsVRelatedPostsRelations = relations(
 export const postsVVersionPopulatedAuthors = sqliteTable(
   '_posts_v_version_populated_authors',
   {
-    order: integer('_order').notNull(),
-    parentId: integer('_parent_id')
+    order: integer('order').notNull(),
+    parentId: integer('parent_id')
       .notNull()
       .references((): AnySQLiteColumn => postsV.id, { onDelete: 'cascade' }),
     id: integer('id').primaryKey({ autoIncrement: true }),
-    uuid: text('_uuid'),
+    uuid: text('uuid'),
     name: text('name'),
   },
   (table) => [

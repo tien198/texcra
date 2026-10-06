@@ -10,13 +10,13 @@ CREATE TABLE `categories` (
 );
 --> statement-breakpoint
 CREATE TABLE `categories_breadcrumbs` (
-	`_order` integer NOT NULL,
-	`_parent_id` integer NOT NULL,
+	`order` integer NOT NULL,
+	`parent_id` integer NOT NULL,
 	`id` text PRIMARY KEY,
 	`doc_id` integer,
 	`url` text,
 	`label` text,
-	CONSTRAINT `fk_categories_breadcrumbs__parent_id_categories_id_fk` FOREIGN KEY (`_parent_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk_categories_breadcrumbs_parent_id_categories_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE,
 	CONSTRAINT `fk_categories_breadcrumbs_doc_id_categories_id_fk` FOREIGN KEY (`doc_id`) REFERENCES `categories`(`id`) ON DELETE SET NULL
 );
 --> statement-breakpoint
@@ -111,31 +111,44 @@ CREATE TABLE `posts` (
 	`slug` text,
 	`updated_at` integer DEFAULT (unixepoch() * 1000) NOT NULL,
 	`created_at` integer DEFAULT (unixepoch() * 1000) NOT NULL,
-	`_status` text DEFAULT 'draft',
+	`status` text DEFAULT 'draft',
 	CONSTRAINT `fk_posts_hero_image_id_media_id_fk` FOREIGN KEY (`hero_image_id`) REFERENCES `media`(`id`) ON DELETE SET NULL,
 	CONSTRAINT `fk_posts_meta_image_id_media_id_fk` FOREIGN KEY (`meta_image_id`) REFERENCES `media`(`id`) ON DELETE SET NULL
 );
 --> statement-breakpoint
-CREATE TABLE `posts_populated_authors` (
-	`_order` integer NOT NULL,
-	`_parent_id` integer NOT NULL,
-	`id` text PRIMARY KEY,
-	`name` text,
-	CONSTRAINT `fk_posts_populated_authors__parent_id_posts_id_fk` FOREIGN KEY (`_parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
+CREATE TABLE `posts_categories` (
+	`parent_id` integer NOT NULL,
+	`category_id` integer NOT NULL,
+	`order` integer,
+	CONSTRAINT `posts_categories_pk` PRIMARY KEY(`parent_id`, `category_id`),
+	CONSTRAINT `fk_posts_categories_parent_id_posts_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk_posts_categories_category_id_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
-CREATE TABLE `posts_rels` (
-	`id` integer PRIMARY KEY AUTOINCREMENT,
-	`order` integer,
+CREATE TABLE `posts_populated_authors` (
+	`order` integer NOT NULL,
 	`parent_id` integer NOT NULL,
-	`path` text NOT NULL,
-	`posts_id` integer,
-	`categories_id` integer,
-	`users_id` integer,
-	CONSTRAINT `fk_posts_rels_parent_id_posts_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_posts_rels_posts_id_posts_id_fk` FOREIGN KEY (`posts_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_posts_rels_categories_id_categories_id_fk` FOREIGN KEY (`categories_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_posts_rels_users_id_users_id_fk` FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+	`id` text PRIMARY KEY,
+	`name` text,
+	CONSTRAINT `fk_posts_populated_authors_parent_id_posts_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
+);
+--> statement-breakpoint
+CREATE TABLE `posts_related_posts` (
+	`parent_id` integer NOT NULL,
+	`related_post_id` integer NOT NULL,
+	`order` integer,
+	CONSTRAINT `posts_related_posts_pk` PRIMARY KEY(`parent_id`, `related_post_id`),
+	CONSTRAINT `fk_posts_related_posts_parent_id_posts_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk_posts_related_posts_related_post_id_posts_id_fk` FOREIGN KEY (`related_post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
+);
+--> statement-breakpoint
+CREATE TABLE `posts_users` (
+	`parent_id` integer NOT NULL,
+	`user_id` integer NOT NULL,
+	`order` integer,
+	CONSTRAINT `posts_users_pk` PRIMARY KEY(`parent_id`, `user_id`),
+	CONSTRAINT `fk_posts_users_parent_id_posts_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk_posts_users_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
 CREATE TABLE `_posts_v` (
@@ -152,7 +165,7 @@ CREATE TABLE `_posts_v` (
 	`version_slug` text,
 	`version_updated_at` integer,
 	`version_created_at` integer,
-	`version__status` text DEFAULT 'draft',
+	`version_status` text DEFAULT 'draft',
 	`created_at` integer DEFAULT (unixepoch() * 1000) NOT NULL,
 	`updated_at` integer DEFAULT (unixepoch() * 1000) NOT NULL,
 	`latest` integer,
@@ -162,27 +175,40 @@ CREATE TABLE `_posts_v` (
 	CONSTRAINT `fk__posts_v_version_meta_image_id_media_id_fk` FOREIGN KEY (`version_meta_image_id`) REFERENCES `media`(`id`) ON DELETE SET NULL
 );
 --> statement-breakpoint
-CREATE TABLE `_posts_v_rels` (
-	`id` integer PRIMARY KEY AUTOINCREMENT,
-	`order` integer,
+CREATE TABLE `_posts_v_categories` (
 	`parent_id` integer NOT NULL,
-	`path` text NOT NULL,
-	`posts_id` integer,
-	`categories_id` integer,
-	`users_id` integer,
-	CONSTRAINT `fk__posts_v_rels_parent_id__posts_v_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `_posts_v`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk__posts_v_rels_posts_id_posts_id_fk` FOREIGN KEY (`posts_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk__posts_v_rels_categories_id_categories_id_fk` FOREIGN KEY (`categories_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk__posts_v_rels_users_id_users_id_fk` FOREIGN KEY (`users_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+	`category_id` integer NOT NULL,
+	`order` integer,
+	CONSTRAINT `_posts_v_categories_pk` PRIMARY KEY(`parent_id`, `category_id`),
+	CONSTRAINT `fk__posts_v_categories_parent_id__posts_v_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `_posts_v`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk__posts_v_categories_category_id_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
+);
+--> statement-breakpoint
+CREATE TABLE `_posts_v_related_posts` (
+	`parent_id` integer NOT NULL,
+	`related_post_id` integer NOT NULL,
+	`order` integer,
+	CONSTRAINT `_posts_v_related_posts_pk` PRIMARY KEY(`parent_id`, `related_post_id`),
+	CONSTRAINT `fk__posts_v_related_posts_parent_id__posts_v_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `_posts_v`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk__posts_v_related_posts_related_post_id_posts_id_fk` FOREIGN KEY (`related_post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
+);
+--> statement-breakpoint
+CREATE TABLE `_posts_v_users` (
+	`parent_id` integer NOT NULL,
+	`user_id` integer NOT NULL,
+	`order` integer,
+	CONSTRAINT `_posts_v_users_pk` PRIMARY KEY(`parent_id`, `user_id`),
+	CONSTRAINT `fk__posts_v_users_parent_id__posts_v_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `_posts_v`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk__posts_v_users_user_id_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
 CREATE TABLE `_posts_v_version_populated_authors` (
-	`_order` integer NOT NULL,
-	`_parent_id` integer NOT NULL,
+	`order` integer NOT NULL,
+	`parent_id` integer NOT NULL,
 	`id` integer PRIMARY KEY AUTOINCREMENT,
-	`_uuid` text,
+	`uuid` text,
 	`name` text,
-	CONSTRAINT `fk__posts_v_version_populated_authors__parent_id__posts_v_id_fk` FOREIGN KEY (`_parent_id`) REFERENCES `_posts_v`(`id`) ON DELETE CASCADE
+	CONSTRAINT `fk__posts_v_version_populated_authors_parent_id__posts_v_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `_posts_v`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
 CREATE TABLE `search` (
@@ -199,23 +225,22 @@ CREATE TABLE `search` (
 );
 --> statement-breakpoint
 CREATE TABLE `search_categories` (
-	`_order` integer NOT NULL,
-	`_parent_id` integer NOT NULL,
+	`order` integer NOT NULL,
+	`parent_id` integer NOT NULL,
 	`id` text PRIMARY KEY,
 	`relation_to` text,
 	`category_i_d` text,
 	`title` text,
-	CONSTRAINT `fk_search_categories__parent_id_search_id_fk` FOREIGN KEY (`_parent_id`) REFERENCES `search`(`id`) ON DELETE CASCADE
+	CONSTRAINT `fk_search_categories_parent_id_search_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `search`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
-CREATE TABLE `search_rels` (
-	`id` integer PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE `search_posts` (
+	`search_id` integer NOT NULL,
+	`post_id` integer NOT NULL,
 	`order` integer,
-	`parent_id` integer NOT NULL,
-	`path` text NOT NULL,
-	`posts_id` integer,
-	CONSTRAINT `fk_search_rels_parent_id_search_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `search`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_search_rels_posts_id_posts_id_fk` FOREIGN KEY (`posts_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
+	CONSTRAINT `search_posts_pk` PRIMARY KEY(`search_id`, `post_id`),
+	CONSTRAINT `fk_search_posts_search_id_search_id_fk` FOREIGN KEY (`search_id`) REFERENCES `search`(`id`) ON DELETE CASCADE,
+	CONSTRAINT `fk_search_posts_post_id_posts_id_fk` FOREIGN KEY (`post_id`) REFERENCES `posts`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
 CREATE TABLE `users` (
@@ -228,17 +253,17 @@ CREATE TABLE `users` (
 	`reset_password_expiration` integer,
 	`salt` text,
 	`hash` text,
-	`login_attempts` numeric DEFAULT 0,
+	`login_attempts` numeric DEFAULT '0',
 	`lock_until` integer
 );
 --> statement-breakpoint
 CREATE TABLE `users_sessions` (
-	`_order` integer NOT NULL,
-	`_parent_id` integer NOT NULL,
+	`order` integer NOT NULL,
+	`parent_id` integer NOT NULL,
 	`id` text PRIMARY KEY,
 	`created_at` integer,
 	`expires_at` integer NOT NULL,
-	CONSTRAINT `fk_users_sessions__parent_id_users_id_fk` FOREIGN KEY (`_parent_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+	CONSTRAINT `fk_users_sessions_parent_id_users_id_fk` FOREIGN KEY (`parent_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 );
 --> statement-breakpoint
 CREATE INDEX `categories_created_at_idx` ON `categories` (`created_at`);--> statement-breakpoint
@@ -246,8 +271,8 @@ CREATE INDEX `categories_parent_idx` ON `categories` (`parent_id`);--> statement
 CREATE UNIQUE INDEX `categories_slug_idx` ON `categories` (`slug`);--> statement-breakpoint
 CREATE INDEX `categories_updated_at_idx` ON `categories` (`updated_at`);--> statement-breakpoint
 CREATE INDEX `categories_breadcrumbs_doc_idx` ON `categories_breadcrumbs` (`doc_id`);--> statement-breakpoint
-CREATE INDEX `categories_breadcrumbs_order_idx` ON `categories_breadcrumbs` (`_order`);--> statement-breakpoint
-CREATE INDEX `categories_breadcrumbs_parent_id_idx` ON `categories_breadcrumbs` (`_parent_id`);--> statement-breakpoint
+CREATE INDEX `categories_breadcrumbs_order_idx` ON `categories_breadcrumbs` (`order`);--> statement-breakpoint
+CREATE INDEX `categories_breadcrumbs_parent_id_idx` ON `categories_breadcrumbs` (`parent_id`);--> statement-breakpoint
 CREATE INDEX `media_created_at_idx` ON `media` (`created_at`);--> statement-breakpoint
 CREATE UNIQUE INDEX `media_filename_idx` ON `media` (`filename`);--> statement-breakpoint
 CREATE INDEX `media_folder_idx` ON `media` (`folder_id`);--> statement-breakpoint
@@ -265,51 +290,56 @@ CREATE INDEX `payload_folders_name_idx` ON `payload_folders` (`name`);--> statem
 CREATE INDEX `payload_folders_updated_at_idx` ON `payload_folders` (`updated_at`);--> statement-breakpoint
 CREATE INDEX `payload_folders_folder_type_order_idx` ON `payload_folders_folder_type` (`order`);--> statement-breakpoint
 CREATE INDEX `payload_folders_folder_type_parent_idx` ON `payload_folders_folder_type` (`parent_id`);--> statement-breakpoint
-CREATE INDEX `posts__status_idx` ON `posts` (`_status`);--> statement-breakpoint
+CREATE INDEX `posts__status_idx` ON `posts` (`status`);--> statement-breakpoint
 CREATE INDEX `posts_created_at_idx` ON `posts` (`created_at`);--> statement-breakpoint
 CREATE INDEX `posts_hero_image_idx` ON `posts` (`hero_image_id`);--> statement-breakpoint
 CREATE INDEX `posts_meta_meta_image_idx` ON `posts` (`meta_image_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `posts_slug_idx` ON `posts` (`slug`);--> statement-breakpoint
 CREATE INDEX `posts_updated_at_idx` ON `posts` (`updated_at`);--> statement-breakpoint
-CREATE INDEX `posts_populated_authors_order_idx` ON `posts_populated_authors` (`_order`);--> statement-breakpoint
-CREATE INDEX `posts_populated_authors_parent_id_idx` ON `posts_populated_authors` (`_parent_id`);--> statement-breakpoint
-CREATE INDEX `posts_rels_categories_id_idx` ON `posts_rels` (`categories_id`);--> statement-breakpoint
-CREATE INDEX `posts_rels_order_idx` ON `posts_rels` (`order`);--> statement-breakpoint
-CREATE INDEX `posts_rels_parent_idx` ON `posts_rels` (`parent_id`);--> statement-breakpoint
-CREATE INDEX `posts_rels_path_idx` ON `posts_rels` (`path`);--> statement-breakpoint
-CREATE INDEX `posts_rels_posts_id_idx` ON `posts_rels` (`posts_id`);--> statement-breakpoint
-CREATE INDEX `posts_rels_users_id_idx` ON `posts_rels` (`users_id`);--> statement-breakpoint
+CREATE INDEX `posts_categories_order_idx` ON `posts_categories` (`order`);--> statement-breakpoint
+CREATE INDEX `posts_categories_parent_id_idx` ON `posts_categories` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `posts_categories_category_id_idx` ON `posts_categories` (`category_id`);--> statement-breakpoint
+CREATE INDEX `posts_populated_authors_order_idx` ON `posts_populated_authors` (`order`);--> statement-breakpoint
+CREATE INDEX `posts_populated_authors_parent_id_idx` ON `posts_populated_authors` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `posts_related_posts_order_idx` ON `posts_related_posts` (`order`);--> statement-breakpoint
+CREATE INDEX `posts_related_posts_parent_id_idx` ON `posts_related_posts` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `posts_related_posts_related_post_id_idx` ON `posts_related_posts` (`related_post_id`);--> statement-breakpoint
+CREATE INDEX `posts_users_order_idx` ON `posts_users` (`order`);--> statement-breakpoint
+CREATE INDEX `posts_users_parent_id_idx` ON `posts_users` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `posts_users_user_id_idx` ON `posts_users` (`user_id`);--> statement-breakpoint
 CREATE INDEX `_posts_v_autosave_idx` ON `_posts_v` (`autosave`);--> statement-breakpoint
 CREATE INDEX `_posts_v_created_at_idx` ON `_posts_v` (`created_at`);--> statement-breakpoint
 CREATE INDEX `_posts_v_latest_idx` ON `_posts_v` (`latest`);--> statement-breakpoint
 CREATE INDEX `_posts_v_parent_idx` ON `_posts_v` (`parent_id`);--> statement-breakpoint
 CREATE INDEX `_posts_v_updated_at_idx` ON `_posts_v` (`updated_at`);--> statement-breakpoint
 CREATE INDEX `_posts_v_version_meta_version_meta_image_idx` ON `_posts_v` (`version_meta_image_id`);--> statement-breakpoint
-CREATE INDEX `_posts_v_version_version__status_idx` ON `_posts_v` (`version__status`);--> statement-breakpoint
+CREATE INDEX `_posts_v_version_version__status_idx` ON `_posts_v` (`version_status`);--> statement-breakpoint
 CREATE INDEX `_posts_v_version_version_created_at_idx` ON `_posts_v` (`version_created_at`);--> statement-breakpoint
 CREATE INDEX `_posts_v_version_version_hero_image_idx` ON `_posts_v` (`version_hero_image_id`);--> statement-breakpoint
 CREATE INDEX `_posts_v_version_version_slug_idx` ON `_posts_v` (`version_slug`);--> statement-breakpoint
 CREATE INDEX `_posts_v_version_version_updated_at_idx` ON `_posts_v` (`version_updated_at`);--> statement-breakpoint
-CREATE INDEX `_posts_v_rels_categories_id_idx` ON `_posts_v_rels` (`categories_id`);--> statement-breakpoint
-CREATE INDEX `_posts_v_rels_order_idx` ON `_posts_v_rels` (`order`);--> statement-breakpoint
-CREATE INDEX `_posts_v_rels_parent_idx` ON `_posts_v_rels` (`parent_id`);--> statement-breakpoint
-CREATE INDEX `_posts_v_rels_path_idx` ON `_posts_v_rels` (`path`);--> statement-breakpoint
-CREATE INDEX `_posts_v_rels_posts_id_idx` ON `_posts_v_rels` (`posts_id`);--> statement-breakpoint
-CREATE INDEX `_posts_v_rels_users_id_idx` ON `_posts_v_rels` (`users_id`);--> statement-breakpoint
-CREATE INDEX `_posts_v_version_populated_authors_order_idx` ON `_posts_v_version_populated_authors` (`_order`);--> statement-breakpoint
-CREATE INDEX `_posts_v_version_populated_authors_parent_id_idx` ON `_posts_v_version_populated_authors` (`_parent_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_categories_order_idx` ON `_posts_v_categories` (`order`);--> statement-breakpoint
+CREATE INDEX `_posts_v_categories_version_id_idx` ON `_posts_v_categories` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_categories_category_id_idx` ON `_posts_v_categories` (`category_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_related_posts_order_idx` ON `_posts_v_related_posts` (`order`);--> statement-breakpoint
+CREATE INDEX `_posts_v_related_posts_version_id_idx` ON `_posts_v_related_posts` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_related_posts_related_post_id_idx` ON `_posts_v_related_posts` (`related_post_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_users_order_idx` ON `_posts_v_users` (`order`);--> statement-breakpoint
+CREATE INDEX `_posts_v_users_version_id_idx` ON `_posts_v_users` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_users_user_id_idx` ON `_posts_v_users` (`user_id`);--> statement-breakpoint
+CREATE INDEX `_posts_v_version_populated_authors_order_idx` ON `_posts_v_version_populated_authors` (`order`);--> statement-breakpoint
+CREATE INDEX `_posts_v_version_populated_authors_parent_id_idx` ON `_posts_v_version_populated_authors` (`parent_id`);--> statement-breakpoint
 CREATE INDEX `search_created_at_idx` ON `search` (`created_at`);--> statement-breakpoint
 CREATE INDEX `search_meta_meta_image_idx` ON `search` (`meta_image_id`);--> statement-breakpoint
 CREATE INDEX `search_slug_idx` ON `search` (`slug`);--> statement-breakpoint
 CREATE INDEX `search_updated_at_idx` ON `search` (`updated_at`);--> statement-breakpoint
-CREATE INDEX `search_categories_order_idx` ON `search_categories` (`_order`);--> statement-breakpoint
-CREATE INDEX `search_categories_parent_id_idx` ON `search_categories` (`_parent_id`);--> statement-breakpoint
-CREATE INDEX `search_rels_order_idx` ON `search_rels` (`order`);--> statement-breakpoint
-CREATE INDEX `search_rels_parent_idx` ON `search_rels` (`parent_id`);--> statement-breakpoint
-CREATE INDEX `search_rels_path_idx` ON `search_rels` (`path`);--> statement-breakpoint
-CREATE INDEX `search_rels_posts_id_idx` ON `search_rels` (`posts_id`);--> statement-breakpoint
+CREATE INDEX `search_categories_order_idx` ON `search_categories` (`order`);--> statement-breakpoint
+CREATE INDEX `search_categories_parent_id_idx` ON `search_categories` (`parent_id`);--> statement-breakpoint
+CREATE INDEX `search_posts_order_idx` ON `search_posts` (`order`);--> statement-breakpoint
+CREATE INDEX `search_posts_search_id_idx` ON `search_posts` (`search_id`);--> statement-breakpoint
+CREATE INDEX `search_posts_post_id_idx` ON `search_posts` (`post_id`);--> statement-breakpoint
 CREATE INDEX `users_created_at_idx` ON `users` (`created_at`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_idx` ON `users` (`email`);--> statement-breakpoint
 CREATE INDEX `users_updated_at_idx` ON `users` (`updated_at`);--> statement-breakpoint
-CREATE INDEX `users_sessions_order_idx` ON `users_sessions` (`_order`);--> statement-breakpoint
-CREATE INDEX `users_sessions_parent_id_idx` ON `users_sessions` (`_parent_id`);
+CREATE INDEX `users_sessions_order_idx` ON `users_sessions` (`order`);--> statement-breakpoint
+CREATE INDEX `users_sessions_parent_id_idx` ON `users_sessions` (`parent_id`);

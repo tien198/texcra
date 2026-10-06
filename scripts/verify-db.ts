@@ -270,7 +270,7 @@ const userRow = sqliteDb
   .prepare("SELECT id FROM users WHERE email = 'user@example.com'")
   .get() as { id: number }
 sqliteDb.exec(
-  `INSERT INTO users_sessions (_order, _parent_id, id, expires_at) VALUES (1, ${userRow.id}, 'session-1', 1700000000);`,
+  `INSERT INTO users_sessions ("order", parent_id, id, expires_at) VALUES (1, ${userRow.id}, 'session-1', 1700000000);`,
 )
 sqliteDb.exec(`DELETE FROM users WHERE id = ${userRow.id};`)
 const remainingSessions = sqliteDb
@@ -305,7 +305,7 @@ console.log('✓ Verified foreign key ON DELETE SET NULL (media -> posts)')
 // Test Foreign Key Enforcement on Join Tables: Inserting invalid foreign key must fail
 try {
   sqliteDb.exec(
-    'INSERT INTO posts_categories (post_id, category_id, "order") VALUES (9999, 9999, 1);',
+    'INSERT INTO posts_categories (parent_id, category_id, "order") VALUES (9999, 9999, 1);',
   )
   throw new Error('Expected FK failure on invalid posts_categories insert!')
 } catch (err: any) {
@@ -337,27 +337,27 @@ sqliteDb.exec(
 const joinTablePks = [
   {
     name: 'posts_categories',
-    sql: 'INSERT INTO posts_categories (post_id, category_id, "order") VALUES (10, 1, 1);',
+    sql: 'INSERT INTO posts_categories (parent_id, category_id, "order") VALUES (10, 1, 1);',
   },
   {
     name: 'posts_users',
-    sql: 'INSERT INTO posts_users (post_id, user_id, "order") VALUES (10, 1, 1);',
+    sql: 'INSERT INTO posts_users (parent_id, user_id, "order") VALUES (10, 1, 1);',
   },
   {
     name: 'posts_related_posts',
-    sql: 'INSERT INTO posts_related_posts (post_id, related_post_id, "order") VALUES (10, 20, 1);',
+    sql: 'INSERT INTO posts_related_posts (parent_id, related_post_id, "order") VALUES (10, 20, 1);',
   },
   {
     name: '_posts_v_categories',
-    sql: 'INSERT INTO _posts_v_categories (version_id, category_id, "order") VALUES (100, 1, 1);',
+    sql: 'INSERT INTO _posts_v_categories (parent_id, category_id, "order") VALUES (100, 1, 1);',
   },
   {
     name: '_posts_v_users',
-    sql: 'INSERT INTO _posts_v_users (version_id, user_id, "order") VALUES (100, 1, 1);',
+    sql: 'INSERT INTO _posts_v_users (parent_id, user_id, "order") VALUES (100, 1, 1);',
   },
   {
     name: '_posts_v_related_posts',
-    sql: 'INSERT INTO _posts_v_related_posts (version_id, related_post_id, "order") VALUES (100, 20, 1);',
+    sql: 'INSERT INTO _posts_v_related_posts (parent_id, related_post_id, "order") VALUES (100, 20, 1);',
   },
   {
     name: 'search_posts',
@@ -388,14 +388,14 @@ sqliteDb.exec('DELETE FROM posts WHERE id = 20;')
 const postRelCount = (
   sqliteDb
     .prepare(
-      'SELECT count(*) as count FROM posts_related_posts WHERE post_id = 10',
+      'SELECT count(*) as count FROM posts_related_posts WHERE parent_id = 10',
     )
     .get() as { count: number }
 ).count
 const vPostRelCount = (
   sqliteDb
     .prepare(
-      'SELECT count(*) as count FROM _posts_v_related_posts WHERE version_id = 100',
+      'SELECT count(*) as count FROM _posts_v_related_posts WHERE parent_id = 100',
     )
     .get() as { count: number }
 ).count
@@ -413,14 +413,14 @@ sqliteDb.exec('DELETE FROM _posts_v WHERE id = 100;')
 const vCatCount = (
   sqliteDb
     .prepare(
-      'SELECT count(*) as count FROM _posts_v_categories WHERE version_id = 100',
+      'SELECT count(*) as count FROM _posts_v_categories WHERE parent_id = 100',
     )
     .get() as { count: number }
 ).count
 const vUserCount = (
   sqliteDb
     .prepare(
-      'SELECT count(*) as count FROM _posts_v_users WHERE version_id = 100',
+      'SELECT count(*) as count FROM _posts_v_users WHERE parent_id = 100',
     )
     .get() as { count: number }
 ).count
@@ -430,7 +430,7 @@ if (vCatCount !== 0 || vUserCount !== 0) {
   )
 }
 console.log(
-  '✓ Verified CASCADE delete on version_id (_posts_v -> _posts_v_categories & _posts_v_users)',
+  '✓ Verified CASCADE delete on parent_id (_posts_v -> _posts_v_categories & _posts_v_users)',
 )
 
 // 3. Delete search 50 -> should cascade delete search_posts
@@ -452,13 +452,13 @@ sqliteDb.exec('DELETE FROM posts WHERE id = 10;')
 const postCatCount = (
   sqliteDb
     .prepare(
-      'SELECT count(*) as count FROM posts_categories WHERE post_id = 10',
+      'SELECT count(*) as count FROM posts_categories WHERE parent_id = 10',
     )
     .get() as { count: number }
 ).count
 const postUserCount = (
   sqliteDb
-    .prepare('SELECT count(*) as count FROM posts_users WHERE post_id = 10')
+    .prepare('SELECT count(*) as count FROM posts_users WHERE parent_id = 10')
     .get() as { count: number }
 ).count
 if (postCatCount !== 0 || postUserCount !== 0) {
@@ -467,7 +467,7 @@ if (postCatCount !== 0 || postUserCount !== 0) {
   )
 }
 console.log(
-  '✓ Verified CASCADE delete on post_id (posts -> posts_categories & posts_users)',
+  '✓ Verified CASCADE delete on parent_id (posts -> posts_categories & posts_users)',
 )
 
 // 5. End-to-end real Drizzle query execution via SQLite-backed D1 adapter
@@ -551,18 +551,18 @@ await liveDb.insert(schema.posts).values([
 ])
 
 await liveDb.insert(schema.postsCategories).values([
-  { postId: 301, categoryId: 101, order: 1 },
-  { postId: 301, categoryId: 102, order: 2 },
+  { parentId: 301, categoryId: 101, order: 1 },
+  { parentId: 301, categoryId: 102, order: 2 },
 ])
 
 await liveDb.insert(schema.postsUsers).values([
-  { postId: 301, userId: 201, order: 1 },
-  { postId: 301, userId: 202, order: 2 },
+  { parentId: 301, userId: 201, order: 1 },
+  { parentId: 301, userId: 202, order: 2 },
 ])
 
 await liveDb.insert(schema.postsRelatedPosts).values([
-  { postId: 301, relatedPostId: 302, order: 1 },
-  { postId: 301, relatedPostId: 303, order: 2 },
+  { parentId: 301, relatedPostId: 302, order: 1 },
+  { parentId: 301, relatedPostId: 303, order: 2 },
 ])
 
 await liveDb
@@ -571,15 +571,15 @@ await liveDb
 
 await liveDb
   .insert(schema.postsVCategories)
-  .values([{ versionId: 401, categoryId: 101, order: 1 }])
+  .values([{ parentId: 401, categoryId: 101, order: 1 }])
 
 await liveDb
   .insert(schema.postsVUsers)
-  .values([{ versionId: 401, userId: 201, order: 1 }])
+  .values([{ parentId: 401, userId: 201, order: 1 }])
 
 await liveDb
   .insert(schema.postsVRelatedPosts)
-  .values([{ versionId: 401, relatedPostId: 302, order: 1 }])
+  .values([{ parentId: 401, relatedPostId: 302, order: 1 }])
 
 await liveDb
   .insert(schema.search)
