@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { POSTS } from './data.ts'
+import { getPostById } from './queries.ts'
 
 export const getPostByIdServerFn = createServerFn({
   method: 'GET',
@@ -15,7 +15,7 @@ export const getPostByIdServerFn = createServerFn({
     // Simulated network delay to test SSR streaming
     // await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    const post = POSTS.find((p) => String(p.id) === data.id)
+    const post = await getPostById(data.id)
 
     if (!post) {
       throw new Error(`Post not found: ${data.id}`)

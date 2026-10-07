@@ -6,6 +6,14 @@ import * as schema from './schema/index'
 
 export const relations = defineRelations(schema, (h) => ({
   posts: {
+    heroImage: h.one.media({
+      from: h.posts.heroImageId,
+      to: h.media.id,
+    }),
+    metaImage: h.one.media({
+      from: h.posts.metaImageId,
+      to: h.media.id,
+    }),
     postsCategories: h.many.postsCategories({
       from: h.posts.id,
       to: h.postsCategories.parentId,

@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { COLLECTIONS } from './data.ts'
+import { COLLECTIONS } from './queries.ts'
 import type {
   RelationshipOptionsRequest,
   RelationshipOptionsResponse,

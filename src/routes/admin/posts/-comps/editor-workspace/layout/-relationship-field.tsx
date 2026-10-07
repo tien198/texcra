@@ -4,7 +4,7 @@ import type {
   Option,
   LoadOptionsFn,
 } from '#/components/texcra-ui/relationship-multi-select'
-import { getRelationshipOptionsServerFn } from '#/server/relationship/get-options'
+import { getRelationshipOptionsServerFn } from '#/server/relationship/functions'
 
 export interface RelationshipFieldProps {
   label: string

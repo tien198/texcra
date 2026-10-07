@@ -5,7 +5,7 @@ import { Breadcrumb } from './-comps/editor-workspace/layout/-breadcrumb'
 import { NavSidebar } from './-comps/editor-workspace/layout/-nav-sidebar'
 import { EditorFallback } from './-comps/editor-workspace/layout/-editor-fallback'
 import { Button } from '#/components/ui/button'
-import { getPostByIdServerFn } from '#/server/post/get-post-by-id'
+import { getPostByIdServerFn } from '#/server/post/functions'
 
 const EditorWorkspace = lazy(
   () => import('./-comps/editor-workspace/-editor-workspace'),
