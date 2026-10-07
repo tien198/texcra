@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createEditor } from 'lexical'
 import type { EditorState } from 'lexical'
 import { EDITOR_NODES } from '#/lexical/core/-editor-config'
@@ -8,38 +8,29 @@ import {
   DEFAULT_SEO,
   getStoredDraft,
 } from '#/lexical/core/-editor-data'
-import type { SEO, DocumentSnapshot } from '#/lexical/core/-editor-data'
-import { useAppDispatch } from '#/app/hooks'
-import { loadDraftData } from '#/lexical/editor-RTK/editorSlice'
+import { useAppDispatch, useAppSelector } from '#/app/hooks'
+import {
+  loadDraftData,
+  setError,
+  setStatus,
+} from '#/lexical/editor-RTK/editorSlice'
+import type { Post } from '#/server/post/types'
 
 export interface UseDraftManagementOptions {
-  postId: string
-  isLoaded: boolean
-  title: string
-  heroImage: string | null
-  seo: SEO
-  snapshot: DocumentSnapshot | null
+  post: Post
 }
 
 export function useDraftManagement({
-  postId,
-  isLoaded,
-  title,
-  heroImage,
-  seo,
-  snapshot,
+  post,
 }: UseDraftManagementOptions) {
   const dispatch = useAppDispatch()
+  const isLoaded = useAppSelector((state) => state.editor.isLoaded)
+  const postId = String(post.id)
+
   const [lexicalInitialState, setLexicalInitialState] =
     useState<EditorState | null>(null)
   const [draftVersion, setDraftVersion] = useState(0)
   const [hasDraft, setHasDraft] = useState(false)
-
-  // Keep a ref to the latest values so callbacks and effects don't re-run or recreate on every keystroke
-  const stateRef = useRef({ title, heroImage, seo, snapshot })
-  useEffect(() => {
-    stateRef.current = { title, heroImage, seo, snapshot }
-  }, [title, heroImage, seo, snapshot])
 
   // Reset editor draft state when navigating between different posts
   useEffect(() => {
@@ -52,28 +43,62 @@ export function useDraftManagement({
   useEffect(() => {
     if (!isLoaded) {
       const raw = getStoredDraft(postId)
-      if (raw) {
-        setHasDraft(true)
-      } else {
-        setHasDraft(false)
-        const {
-          title: currentTitle,
-          heroImage: currentHeroImage,
-          seo: currentSeo,
-          snapshot: currentSnapshot,
-        } = stateRef.current
-        dispatch(
-          loadDraftData({
-            title: currentTitle,
-            heroImage: currentHeroImage,
-            seo: currentSeo,
-            snapshot: currentSnapshot,
-            error: '',
-          }),
-        )
+
+      let serverEditorState: EditorState | null = null
+      try {
+        const editor = createEditor({
+          nodes: EDITOR_NODES,
+          onError: (err) => {
+            throw err
+          },
+        })
+        const contentStr =
+          typeof post.content === 'string'
+            ? post.content
+            : JSON.stringify(post.content)
+        serverEditorState = editor.parseEditorState(contentStr)
+      } catch (err) {
+        console.error('Failed to parse server content', err)
       }
+
+      setLexicalInitialState(serverEditorState)
+      setHasDraft(!!raw)
+
+      dispatch(
+        loadDraftData({
+          title: post.title || DEFAULT_TITLE,
+          heroImage:
+            typeof post.heroImage === 'string'
+              ? post.heroImage
+              : post.heroImage?.url || DEFAULT_HERO_IMAGE,
+          seo: {
+            title: post.meta_title || post.title || DEFAULT_SEO.title,
+            description: post.meta_description || DEFAULT_SEO.description,
+            image:
+              post.meta_image_id ||
+              (typeof post.heroImage === 'string'
+                ? post.heroImage
+                : post.heroImage?.url) ||
+              DEFAULT_SEO.image,
+            canonicalUrl: DEFAULT_SEO.canonicalUrl,
+          },
+          snapshot: null,
+          authors: (post.authors || []).map((a: any) => ({
+            value: String(typeof a === 'object' ? a.id : a),
+            label:
+              typeof a === 'object'
+                ? a.name || a.email || String(a.id)
+                : String(a),
+          })),
+          categories: (post.categories || []).map((c: any) => ({
+            value: String(typeof c === 'object' ? c.id : c),
+            label: typeof c === 'object' ? c.title || String(c.id) : String(c),
+          })),
+          error: '',
+        }),
+      )
     }
-  }, [isLoaded, postId, dispatch])
+  }, [isLoaded, postId, dispatch, post])
 
   const handleRestoreDraft = useCallback(() => {
     if (
@@ -138,41 +163,19 @@ export function useDraftManagement({
       )
     } catch {
       setHasDraft(false)
-      const {
-        title: currentTitle,
-        heroImage: currentHeroImage,
-        seo: currentSeo,
-      } = stateRef.current
       dispatch(
-        loadDraftData({
-          title: currentTitle,
-          heroImage: currentHeroImage,
-          seo: currentSeo,
-          snapshot: null,
-          error:
-            'Your saved draft could not be opened. It has been kept untouched. Export this session to keep your changes.',
-        }),
+        setError(
+          'Your saved draft could not be opened. It has been kept untouched. Export this session to keep your changes.',
+        ),
       )
+      dispatch(setStatus('Draft recovery needed'))
     }
   }, [postId, dispatch])
 
   const handleDismissDraft = useCallback(() => {
     setHasDraft(false)
-    const {
-      title: currentTitle,
-      heroImage: currentHeroImage,
-      seo: currentSeo,
-      snapshot: currentSnapshot,
-    } = stateRef.current
-    dispatch(
-      loadDraftData({
-        title: currentTitle,
-        heroImage: currentHeroImage,
-        seo: currentSeo,
-        snapshot: currentSnapshot,
-        error: '',
-      }),
-    )
+    dispatch(setError(''))
+    dispatch(setStatus('Loaded'))
   }, [dispatch])
 
   return {

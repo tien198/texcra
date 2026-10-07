@@ -16,15 +16,22 @@ import { Kbd } from '#/components/ui/kbd'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '#/components/ui/tabs'
 import { Skeleton } from '#/components/ui/skeleton'
 
+import type { Post } from '#/server/post/types'
+
 const RichTextEditor = lazy(() =>
   import('#/lexical/-rich-text-editor').then((m) => ({
     default: m.RichTextEditor,
   })),
 )
 
-export default function EditorWorkspace({ postId }: { postId: string }) {
+export default function EditorWorkspace({
+  post,
+}: {
+  post: Post
+}) {
   const [preview, setPreview] = useState(false)
 
+  const postId = String(post.id)
   const {
     title,
     heroImage,
@@ -34,7 +41,6 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
     categories,
     relatedPosts,
     error,
-    isLoaded,
     handleTitleChange,
     handleHeroImageChange,
     handleSeoChange,
@@ -51,12 +57,7 @@ export default function EditorWorkspace({ postId }: { postId: string }) {
     handleRestoreDraft,
     handleDismissDraft,
   } = useDraftManagement({
-    postId,
-    isLoaded,
-    title,
-    heroImage,
-    seo,
-    snapshot,
+    post,
   })
 
   const words = snapshot?.words ?? 0
