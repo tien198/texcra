@@ -6,12 +6,12 @@ import {
   primaryKey,
 } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
-import { relations } from 'drizzle-orm/_relations'
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { posts } from './posts'
 import { media } from './media'
 import { categories } from './categories'
 import { users } from './users'
+import { authors } from './authors'
 
 export const postsV = sqliteTable(
   '_posts_v',
@@ -59,16 +59,12 @@ export const postsV = sqliteTable(
     index('_posts_v_latest_idx').on(table.latest),
     index('_posts_v_parent_idx').on(table.parentId),
     index('_posts_v_updated_at_idx').on(table.updatedAt),
-    index('_posts_v_version_meta_version_meta_image_idx').on(
-      table.versionMetaImageId,
-    ),
-    index('_posts_v_version_version__status_idx').on(table.versionStatus),
-    index('_posts_v_version_version_created_at_idx').on(table.versionCreatedAt),
-    index('_posts_v_version_version_hero_image_idx').on(
-      table.versionHeroImageId,
-    ),
-    index('_posts_v_version_version_slug_idx').on(table.versionSlug),
-    index('_posts_v_version_version_updated_at_idx').on(table.versionUpdatedAt),
+    index('_posts_v_version_meta_image_idx').on(table.versionMetaImageId),
+    index('_posts_v_version_status_idx').on(table.versionStatus),
+    index('_posts_v_version_created_at_idx').on(table.versionCreatedAt),
+    index('_posts_v_version_hero_image_idx').on(table.versionHeroImageId),
+    index('_posts_v_version_slug_idx').on(table.versionSlug),
+    index('_posts_v_version_updated_at_idx').on(table.versionUpdatedAt),
   ],
 )
 
@@ -88,7 +84,7 @@ export const postsVCategories = sqliteTable(
   (t) => [
     primaryKey({ columns: [t.parentId, t.categoryId] }),
     index('_posts_v_categories_order_idx').on(t.order),
-    index('_posts_v_categories_version_id_idx').on(t.parentId),
+    index('_posts_v_categories_parent_id_idx').on(t.parentId),
     index('_posts_v_categories_category_id_idx').on(t.categoryId),
   ],
 )
@@ -107,7 +103,7 @@ export const postsVUsers = sqliteTable(
   (t) => [
     primaryKey({ columns: [t.parentId, t.userId] }),
     index('_posts_v_users_order_idx').on(t.order),
-    index('_posts_v_users_version_id_idx').on(t.parentId),
+    index('_posts_v_users_parent_id_idx').on(t.parentId),
     index('_posts_v_users_user_id_idx').on(t.userId),
   ],
 )
@@ -126,58 +122,13 @@ export const postsVRelatedPosts = sqliteTable(
   (t) => [
     primaryKey({ columns: [t.parentId, t.relatedPostId] }),
     index('_posts_v_related_posts_order_idx').on(t.order),
-    index('_posts_v_related_posts_version_id_idx').on(t.parentId),
+    index('_posts_v_related_posts_parent_id_idx').on(t.parentId),
     index('_posts_v_related_posts_related_post_id_idx').on(t.relatedPostId),
   ],
 )
 
-export const postsVRelations = relations(postsV, ({ many }) => ({
-  categories: many(postsVCategories),
-  authors: many(postsVUsers),
-  relatedPosts: many(postsVRelatedPosts),
-}))
-
-export const postsVCategoriesRelations = relations(
-  postsVCategories,
-  ({ one }) => ({
-    version: one(postsV, {
-      fields: [postsVCategories.parentId],
-      references: [postsV.id],
-    }),
-    category: one(categories, {
-      fields: [postsVCategories.categoryId],
-      references: [categories.id],
-    }),
-  }),
-)
-
-export const postsVUsersRelations = relations(postsVUsers, ({ one }) => ({
-  version: one(postsV, {
-    fields: [postsVUsers.parentId],
-    references: [postsV.id],
-  }),
-  user: one(users, {
-    fields: [postsVUsers.userId],
-    references: [users.id],
-  }),
-}))
-
-export const postsVRelatedPostsRelations = relations(
-  postsVRelatedPosts,
-  ({ one }) => ({
-    version: one(postsV, {
-      fields: [postsVRelatedPosts.parentId],
-      references: [postsV.id],
-    }),
-    relatedPost: one(posts, {
-      fields: [postsVRelatedPosts.relatedPostId],
-      references: [posts.id],
-    }),
-  }),
-)
-
 export const postsVVersionPopulatedAuthors = sqliteTable(
-  '_posts_v_version_populated_authors',
+  '_posts_v_populated_authors',
   {
     order: integer('order').notNull(),
     parentId: integer('parent_id')
@@ -186,11 +137,14 @@ export const postsVVersionPopulatedAuthors = sqliteTable(
     id: integer('id').primaryKey({ autoIncrement: true }),
     uuid: text('uuid'),
     name: text('name'),
+    authorId: integer('author_id').references(
+      (): AnySQLiteColumn => authors.id,
+      { onDelete: 'set null' },
+    ),
   },
   (table) => [
-    index('_posts_v_version_populated_authors_order_idx').on(table.order),
-    index('_posts_v_version_populated_authors_parent_id_idx').on(
-      table.parentId,
-    ),
+    index('_posts_v_populated_authors_order_idx').on(table.order),
+    index('_posts_v_populated_authors_parent_id_idx').on(table.parentId),
+    index('_posts_v_populated_authors_author_id_idx').on(table.authorId),
   ],
 )

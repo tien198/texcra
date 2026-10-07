@@ -7,7 +7,6 @@ import {
   primaryKey,
 } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
-import { relations } from 'drizzle-orm/_relations'
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { media } from './media'
 import { posts } from './posts'
@@ -77,18 +76,3 @@ export const searchPosts = sqliteTable(
     index('search_posts_post_id_idx').on(t.postId),
   ],
 )
-
-export const searchRelations = relations(search, ({ many }) => ({
-  posts: many(searchPosts),
-}))
-
-export const searchPostsRelations = relations(searchPosts, ({ one }) => ({
-  search: one(search, {
-    fields: [searchPosts.searchId],
-    references: [search.id],
-  }),
-  post: one(posts, {
-    fields: [searchPosts.postId],
-    references: [posts.id],
-  }),
-}))

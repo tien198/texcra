@@ -13,6 +13,7 @@ import { getDb, schema, relations } from '../src/server/db'
 console.log('Testing Drizzle schema and D1 connection setup...')
 
 const expectedTables = [
+  'authors',
   'postsV',
   'postsVCategories',
   'postsVUsers',
@@ -208,6 +209,7 @@ const tablesInDb = (
 ).map((r) => r.name)
 
 const expectedSqliteTableNames = [
+  'authors',
   '_posts_v',
   '_posts_v_categories',
   '_posts_v_users',
@@ -301,6 +303,90 @@ if (postRow.hero_image_id !== null) {
   throw new Error('Expected posts.hero_image_id to be SET NULL!')
 }
 console.log('✓ Verified foreign key ON DELETE SET NULL (media -> posts)')
+
+// Test Foreign Key SET NULL: deleting user sets authors.user_id to NULL
+sqliteDb.exec(
+  "INSERT INTO users (id, name, email) VALUES (901, 'Author User', 'authoruser@example.com');",
+)
+sqliteDb.exec(
+  "INSERT INTO authors (id, name, user_id, bio, twitter) VALUES (1, 'Author With User', 901, 'Bio', '@author');",
+)
+sqliteDb.exec('DELETE FROM users WHERE id = 901;')
+const authorUserRow = sqliteDb
+  .prepare('SELECT user_id FROM authors WHERE id = 1')
+  .get() as { user_id: number | null }
+if (authorUserRow.user_id !== null) {
+  throw new Error('Expected authors.user_id to be SET NULL!')
+}
+console.log('✓ Verified foreign key ON DELETE SET NULL (users -> authors)')
+
+// Test Foreign Key SET NULL: deleting media sets authors.avatar_id to NULL
+sqliteDb.exec("INSERT INTO media (id, filename) VALUES (902, 'avatar.png');")
+sqliteDb.exec('UPDATE authors SET avatar_id = 902 WHERE id = 1;')
+sqliteDb.exec('DELETE FROM media WHERE id = 902;')
+const authorAvatarRow = sqliteDb
+  .prepare('SELECT avatar_id FROM authors WHERE id = 1')
+  .get() as { avatar_id: number | null }
+if (authorAvatarRow.avatar_id !== null) {
+  throw new Error('Expected authors.avatar_id to be SET NULL!')
+}
+console.log('✓ Verified foreign key ON DELETE SET NULL (media -> authors)')
+
+// Test Foreign Key SET NULL: deleting author sets posts_populated_authors.author_id to NULL while preserving name
+sqliteDb.exec(
+  "INSERT INTO posts (id, title, slug) VALUES (903, 'Author Test Post', 'author-test-post');",
+)
+sqliteDb.exec(
+  "INSERT INTO authors (id, name, bio, twitter) VALUES (2, 'Guest Author', 'Guest Bio', '@guest');",
+)
+sqliteDb.exec(
+  "INSERT INTO posts_populated_authors (id, parent_id, \"order\", name, author_id) VALUES ('ppa-test-1', 903, 1, 'Guest Author (Cached)', 2);",
+)
+sqliteDb.exec('DELETE FROM authors WHERE id = 2;')
+const ppaRow = sqliteDb
+  .prepare(
+    "SELECT author_id, name FROM posts_populated_authors WHERE id = 'ppa-test-1'",
+  )
+  .get() as { author_id: number | null; name: string | null }
+if (ppaRow.author_id !== null) {
+  throw new Error('Expected posts_populated_authors.author_id to be SET NULL!')
+}
+if (ppaRow.name !== 'Guest Author (Cached)') {
+  throw new Error(
+    'Expected posts_populated_authors.name to be preserved as denormalized value!',
+  )
+}
+console.log(
+  '✓ Verified foreign key ON DELETE SET NULL (authors -> posts_populated_authors) and preserved denormalized name',
+)
+
+// Test Foreign Key SET NULL: deleting author sets _posts_v_version_populated_authors.author_id to NULL while preserving name
+sqliteDb.exec(
+  "INSERT INTO _posts_v (id, parent_id, version_title) VALUES (904, 903, 'Author Test Version');",
+)
+sqliteDb.exec("INSERT INTO authors (id, name) VALUES (3, 'History Author');")
+sqliteDb.exec(
+  'INSERT INTO _posts_v_version_populated_authors (parent_id, "order", name, author_id) VALUES (904, 1, \'History Author (Cached)\', 3);',
+)
+sqliteDb.exec('DELETE FROM authors WHERE id = 3;')
+const vPpaRow = sqliteDb
+  .prepare(
+    'SELECT author_id, name FROM _posts_v_version_populated_authors WHERE parent_id = 904',
+  )
+  .get() as { author_id: number | null; name: string | null }
+if (vPpaRow.author_id !== null) {
+  throw new Error(
+    'Expected _posts_v_version_populated_authors.author_id to be SET NULL!',
+  )
+}
+if (vPpaRow.name !== 'History Author (Cached)') {
+  throw new Error(
+    'Expected _posts_v_version_populated_authors.name to be preserved as denormalized value!',
+  )
+}
+console.log(
+  '✓ Verified foreign key ON DELETE SET NULL (authors -> _posts_v_version_populated_authors) and preserved denormalized name',
+)
 
 // Test Foreign Key Enforcement on Join Tables: Inserting invalid foreign key must fail
 try {
@@ -671,7 +757,42 @@ const fetchedSearch = await liveDb.query.search.findFirst({
 if (!fetchedSearch || fetchedSearch.posts.length !== 1) {
   throw new Error('Expected search to return 1 related post!')
 }
-console.log('✓ Successfully queried search with related posts')
+// 5. Query authors with relations
+await liveDb.insert(schema.authors).values([
+  {
+    id: 601,
+    name: 'Lead Writer',
+    bio: 'Tech Lead',
+    twitter: '@techlead',
+    userId: 201,
+  },
+])
+await liveDb.insert(schema.postsPopulatedAuthors).values([
+  {
+    id: 'ppa-live-1',
+    parentId: 301,
+    order: 1,
+    name: 'Lead Writer',
+    authorId: 601,
+  },
+])
+const fetchedAuthor = await liveDb.query.authors.findFirst({
+  where: { id: 601 },
+  with: {
+    user: true,
+    postsPopulatedAuthors: true,
+  },
+})
+if (
+  !fetchedAuthor ||
+  fetchedAuthor.user?.id !== 201 ||
+  fetchedAuthor.postsPopulatedAuthors.length !== 1
+) {
+  throw new Error('Failed to query authors relations!')
+}
+console.log(
+  '✓ Successfully queried author with user and postsPopulatedAuthors relations',
+)
 
 console.log(
   '\nAll schema, D1 connection, normalization, migration, constraint, and live relational query tests passed successfully!',

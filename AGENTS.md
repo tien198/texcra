@@ -1,6 +1,6 @@
 ## Package Manager & Scripts
 
-- **Tooling**: Always use `pnpm` (including `pnpm run`, `pnpm exec`, `pnpm dlx`). Do NOT use `npm`, `yarn`, or `bun`.
+- **Tooling**: Always use `pnpm` (including `pnpm run`, `pnpm exec`, `pnpm dlx`). Do NOT use `npm`, `yarn`, or `bun`(for both plan and proceed)
 - **Running Scripts**: Always run scripts with `pnpm run <script>` (e.g., `pnpm run build`) instead of `pnpm <script>` directly.
 
 ## Simulated Delays & Mocking
@@ -8,17 +8,22 @@
 Always include an explanatory comment immediately above any simulated delay:
 
 - **Server-side processing delay**:
+
   ```typescript
   // Simulate server-side processing delay to <do something>
   await new Promise((resolve) => setTimeout(resolve, 800))
   ```
 
 - **Network delay**:
+
   ```typescript
   // Simulated network delay to <do something>
   await new Promise((resolve) => setTimeout(resolve, 2000))
   ```
 
+## Subagents
+
+- Before proceed or execute, analyze and split to small tasks, involke subagents foreach task if neccessary
 
 <!-- intent-skills:start -->
 

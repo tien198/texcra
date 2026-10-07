@@ -30,6 +30,10 @@ export const relations = defineRelations(schema, (h) => ({
       from: h.posts.id.through(h.postsRelatedPosts.parentId),
       to: h.posts.id.through(h.postsRelatedPosts.relatedPostId),
     }),
+    postsPopulatedAuthors: h.many.postsPopulatedAuthors({
+      from: h.posts.id,
+      to: h.postsPopulatedAuthors.parentId,
+    }),
   },
   postsCategories: {
     post: h.one.posts({
@@ -96,6 +100,10 @@ export const relations = defineRelations(schema, (h) => ({
       from: h.users.id.through(h.postsVUsers.userId),
       to: h.postsV.id.through(h.postsVUsers.parentId),
     }),
+    authors: h.many.authors({
+      from: h.users.id,
+      to: h.authors.userId,
+    }),
   },
   postsV: {
     postsVCategories: h.many.postsVCategories({
@@ -121,6 +129,10 @@ export const relations = defineRelations(schema, (h) => ({
     relatedPosts: h.many.posts({
       from: h.postsV.id.through(h.postsVRelatedPosts.parentId),
       to: h.posts.id.through(h.postsVRelatedPosts.relatedPostId),
+    }),
+    postsVVersionPopulatedAuthors: h.many.postsVVersionPopulatedAuthors({
+      from: h.postsV.id,
+      to: h.postsVVersionPopulatedAuthors.parentId,
     }),
   },
   postsVCategories: {
@@ -171,6 +183,50 @@ export const relations = defineRelations(schema, (h) => ({
     post: h.one.posts({
       from: h.searchPosts.postId,
       to: h.posts.id,
+    }),
+  },
+  postsPopulatedAuthors: {
+    post: h.one.posts({
+      from: h.postsPopulatedAuthors.parentId,
+      to: h.posts.id,
+    }),
+    author: h.one.authors({
+      from: h.postsPopulatedAuthors.authorId,
+      to: h.authors.id,
+    }),
+  },
+  postsVVersionPopulatedAuthors: {
+    version: h.one.postsV({
+      from: h.postsVVersionPopulatedAuthors.parentId,
+      to: h.postsV.id,
+    }),
+    author: h.one.authors({
+      from: h.postsVVersionPopulatedAuthors.authorId,
+      to: h.authors.id,
+    }),
+  },
+  authors: {
+    user: h.one.users({
+      from: h.authors.userId,
+      to: h.users.id,
+    }),
+    avatar: h.one.media({
+      from: h.authors.avatarId,
+      to: h.media.id,
+    }),
+    postsPopulatedAuthors: h.many.postsPopulatedAuthors({
+      from: h.authors.id,
+      to: h.postsPopulatedAuthors.authorId,
+    }),
+    postsVVersionPopulatedAuthors: h.many.postsVVersionPopulatedAuthors({
+      from: h.authors.id,
+      to: h.postsVVersionPopulatedAuthors.authorId,
+    }),
+  },
+  media: {
+    authors: h.many.authors({
+      from: h.media.id,
+      to: h.authors.avatarId,
     }),
   },
 }))

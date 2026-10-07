@@ -7,11 +7,11 @@ import {
   primaryKey,
 } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
-import { relations } from 'drizzle-orm/_relations'
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { media } from './media'
 import { categories } from './categories'
 import { users } from './users'
+import { authors } from './authors'
 
 export const posts = sqliteTable(
   'posts',
@@ -59,10 +59,15 @@ export const postsPopulatedAuthors = sqliteTable(
       .references((): AnySQLiteColumn => posts.id, { onDelete: 'cascade' }),
     id: text('id').primaryKey(),
     name: text('name'),
+    authorId: integer('author_id').references(
+      (): AnySQLiteColumn => authors.id,
+      { onDelete: 'set null' },
+    ),
   },
   (table) => [
     index('posts_populated_authors_order_idx').on(table.order),
     index('posts_populated_authors_parent_id_idx').on(table.parentId),
+    index('posts_populated_authors_author_id_idx').on(table.authorId),
   ],
 )
 
@@ -123,53 +128,4 @@ export const postsRelatedPosts = sqliteTable(
     index('posts_related_posts_parent_id_idx').on(table.parentId),
     index('posts_related_posts_related_post_id_idx').on(table.relatedPostId),
   ],
-)
-
-export const postsRelations = relations(posts, ({ many }) => ({
-  categories: many(postsCategories),
-  authors: many(postsUsers),
-  relatedPosts: many(postsRelatedPosts, {
-    relationName: 'post_related_posts',
-  }),
-}))
-
-export const postsCategoriesRelations = relations(
-  postsCategories,
-  ({ one }) => ({
-    post: one(posts, {
-      fields: [postsCategories.parentId],
-      references: [posts.id],
-    }),
-    category: one(categories, {
-      fields: [postsCategories.categoryId],
-      references: [categories.id],
-    }),
-  }),
-)
-
-export const postsUsersRelations = relations(postsUsers, ({ one }) => ({
-  post: one(posts, {
-    fields: [postsUsers.parentId],
-    references: [posts.id],
-  }),
-  user: one(users, {
-    fields: [postsUsers.userId],
-    references: [users.id],
-  }),
-}))
-
-export const postsRelatedPostsRelations = relations(
-  postsRelatedPosts,
-  ({ one }) => ({
-    post: one(posts, {
-      fields: [postsRelatedPosts.parentId],
-      references: [posts.id],
-      relationName: 'post_related_posts',
-    }),
-    relatedPost: one(posts, {
-      fields: [postsRelatedPosts.relatedPostId],
-      references: [posts.id],
-      relationName: 'related_post_target',
-    }),
-  }),
 )

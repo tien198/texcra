@@ -6,10 +6,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
-import { relations } from 'drizzle-orm/_relations'
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
-import { postsCategories } from './posts'
-import { postsVCategories } from './posts-v'
 
 export const categories = sqliteTable(
   'categories',
@@ -59,8 +56,3 @@ export const categoriesBreadcrumbs = sqliteTable(
     index('categories_breadcrumbs_parent_id_idx').on(table.parentId),
   ],
 )
-
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  posts: many(postsCategories),
-  postVersions: many(postsVCategories),
-}))

@@ -1,3 +1,4 @@
+export * from './authors'
 export * from './categories'
 export * from './media'
 export * from './payload-folders'
