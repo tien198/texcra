@@ -1,0 +1,37 @@
+sequenceDiagram
+autonumber
+actor Client as Người dùng (Client)
+participant CDN as Cloudflare CDN
+participant Worker as Cloudflare Worker
+participant Container as Cloudflare Container
+participant R2 as Cloudflare R2 (Storage)
+
+    rect rgba(0, 0, 0, 1)
+    note right of Client: LUỒNG 1: TẢI LÊN (GHI & XỬ LÝ ẢNH)
+    Client->>Worker: Gửi request upload ảnh gốc
+    Worker->>Worker: Xác thực quyền (Auth) & Kiểm tra request
+    Worker->>Container: Đẩy (Stream) dữ liệu ảnh gốc sang Container
+
+    activate Container
+    Container->>Container: Xử lý nặng: Resize, crop, nén (thumb, large, etc.)
+    Container->>R2: Ghi trực tiếp các file ảnh đã xử lý vào Bucket R2
+    R2-->>Container: Xác nhận lưu thành công
+    Container-->>Worker: Trả về metadata (danh sách đường dẫn URL, kích thước)
+    deactivate Container
+
+    Worker-->>Client: Phản hồi Upload thành công kèm URL
+    end
+
+    rect rgba(0, 0, 0, 1)
+    note right of Client: LUỒNG 2: XEM ẢNH (ĐỌC) - KHÔNG GỌI CONTAINER
+    Client->>CDN: Request xem ảnh qua URL định tuyến
+
+    alt Ảnh đã lưu trong Cache CDN (HIT)
+        CDN-->>Client: Trả về ảnh ngay lập tức từ Edge Server gần nhất
+    else Cache chưa có hoặc đã hết hạn (MISS)
+        CDN->>R2: Lấy file ảnh tĩnh từ Storage
+        R2-->>CDN: Trả về file tĩnh
+        CDN->>CDN: Lưu bản sao vào Cache tại Edge Server
+        CDN-->>Client: Trả về ảnh cho người dùng
+    end
+    end

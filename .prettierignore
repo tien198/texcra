@@ -1,5 +1,14 @@
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-drizzle
 *.toml
+**/drizzle/**
+**/paraglide/**
+**/routeTree.gen.ts
+**/.output/**
+**/*.dbml
+**/*.dbdiagram
+**/.turbo/**
+**/.wrangler/**
+**/.agents/**
+**/.claude/**

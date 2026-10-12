@@ -18,10 +18,12 @@ export default [
     ignores: [
       'eslint.config.js',
       'prettier.config.js',
-      'src/paraglide/**',
-      '.output/**',
-      'drizzle/**',
-      'scripts/*.js',
+      '**/paraglide/**',
+      '**/.output/**',
+      '**/drizzle/**',
+      '**/scripts/*.js',
+      '**/.agents/**',
+      '**/.claude/**',
     ],
   },
 ]

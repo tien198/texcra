@@ -1,0 +1,241 @@
+import { defineRelations } from 'drizzle-orm'
+
+import * as schema from './schema/index'
+
+export const relations = defineRelations(schema, (h) => ({
+  posts: {
+    heroImage: h.one.media({
+      from: h.posts.heroImageId,
+      to: h.media.id,
+    }),
+    metaImage: h.one.media({
+      from: h.posts.metaImageId,
+      to: h.media.id,
+    }),
+    postsCategories: h.many.postsCategories({
+      from: h.posts.id,
+      to: h.postsCategories.parentId,
+    }),
+    categories: h.many.categories({
+      from: h.posts.id.through(h.postsCategories.parentId),
+      to: h.categories.id.through(h.postsCategories.categoryId),
+    }),
+    postsUsers: h.many.postsUsers({
+      from: h.posts.id,
+      to: h.postsUsers.parentId,
+    }),
+    authors: h.many.users({
+      from: h.posts.id.through(h.postsUsers.parentId),
+      to: h.users.id.through(h.postsUsers.userId),
+    }),
+    postsRelatedPosts: h.many.postsRelatedPosts({
+      from: h.posts.id,
+      to: h.postsRelatedPosts.parentId,
+    }),
+    relatedPosts: h.many.posts({
+      from: h.posts.id.through(h.postsRelatedPosts.parentId),
+      to: h.posts.id.through(h.postsRelatedPosts.relatedPostId),
+    }),
+    postsPopulatedAuthors: h.many.postsPopulatedAuthors({
+      from: h.posts.id,
+      to: h.postsPopulatedAuthors.parentId,
+    }),
+  },
+  postsCategories: {
+    post: h.one.posts({
+      from: h.postsCategories.parentId,
+      to: h.posts.id,
+    }),
+    category: h.one.categories({
+      from: h.postsCategories.categoryId,
+      to: h.categories.id,
+    }),
+  },
+  postsUsers: {
+    post: h.one.posts({
+      from: h.postsUsers.parentId,
+      to: h.posts.id,
+    }),
+    user: h.one.users({
+      from: h.postsUsers.userId,
+      to: h.users.id,
+    }),
+  },
+  postsRelatedPosts: {
+    post: h.one.posts({
+      from: h.postsRelatedPosts.parentId,
+      to: h.posts.id,
+    }),
+    relatedPost: h.one.posts({
+      from: h.postsRelatedPosts.relatedPostId,
+      to: h.posts.id,
+    }),
+  },
+  categories: {
+    postsCategories: h.many.postsCategories({
+      from: h.categories.id,
+      to: h.postsCategories.categoryId,
+    }),
+    posts: h.many.posts({
+      from: h.categories.id.through(h.postsCategories.categoryId),
+      to: h.posts.id.through(h.postsCategories.parentId),
+    }),
+    postsVCategories: h.many.postsVCategories({
+      from: h.categories.id,
+      to: h.postsVCategories.categoryId,
+    }),
+    postVersions: h.many.postsV({
+      from: h.categories.id.through(h.postsVCategories.categoryId),
+      to: h.postsV.id.through(h.postsVCategories.parentId),
+    }),
+  },
+  users: {
+    postsUsers: h.many.postsUsers({
+      from: h.users.id,
+      to: h.postsUsers.userId,
+    }),
+    posts: h.many.posts({
+      from: h.users.id.through(h.postsUsers.userId),
+      to: h.posts.id.through(h.postsUsers.parentId),
+    }),
+    postsVUsers: h.many.postsVUsers({
+      from: h.users.id,
+      to: h.postsVUsers.userId,
+    }),
+    postVersions: h.many.postsV({
+      from: h.users.id.through(h.postsVUsers.userId),
+      to: h.postsV.id.through(h.postsVUsers.parentId),
+    }),
+    authors: h.many.authors({
+      from: h.users.id,
+      to: h.authors.userId,
+    }),
+  },
+  postsV: {
+    postsVCategories: h.many.postsVCategories({
+      from: h.postsV.id,
+      to: h.postsVCategories.parentId,
+    }),
+    categories: h.many.categories({
+      from: h.postsV.id.through(h.postsVCategories.parentId),
+      to: h.categories.id.through(h.postsVCategories.categoryId),
+    }),
+    postsVUsers: h.many.postsVUsers({
+      from: h.postsV.id,
+      to: h.postsVUsers.parentId,
+    }),
+    authors: h.many.users({
+      from: h.postsV.id.through(h.postsVUsers.parentId),
+      to: h.users.id.through(h.postsVUsers.userId),
+    }),
+    postsVRelatedPosts: h.many.postsVRelatedPosts({
+      from: h.postsV.id,
+      to: h.postsVRelatedPosts.parentId,
+    }),
+    relatedPosts: h.many.posts({
+      from: h.postsV.id.through(h.postsVRelatedPosts.parentId),
+      to: h.posts.id.through(h.postsVRelatedPosts.relatedPostId),
+    }),
+    postsVVersionPopulatedAuthors: h.many.postsVVersionPopulatedAuthors({
+      from: h.postsV.id,
+      to: h.postsVVersionPopulatedAuthors.parentId,
+    }),
+  },
+  postsVCategories: {
+    version: h.one.postsV({
+      from: h.postsVCategories.parentId,
+      to: h.postsV.id,
+    }),
+    category: h.one.categories({
+      from: h.postsVCategories.categoryId,
+      to: h.categories.id,
+    }),
+  },
+  postsVUsers: {
+    version: h.one.postsV({
+      from: h.postsVUsers.parentId,
+      to: h.postsV.id,
+    }),
+    user: h.one.users({
+      from: h.postsVUsers.userId,
+      to: h.users.id,
+    }),
+  },
+  postsVRelatedPosts: {
+    version: h.one.postsV({
+      from: h.postsVRelatedPosts.parentId,
+      to: h.postsV.id,
+    }),
+    relatedPost: h.one.posts({
+      from: h.postsVRelatedPosts.relatedPostId,
+      to: h.posts.id,
+    }),
+  },
+  search: {
+    searchPosts: h.many.searchPosts({
+      from: h.search.id,
+      to: h.searchPosts.searchId,
+    }),
+    posts: h.many.posts({
+      from: h.search.id.through(h.searchPosts.searchId),
+      to: h.posts.id.through(h.searchPosts.postId),
+    }),
+  },
+  searchPosts: {
+    search: h.one.search({
+      from: h.searchPosts.searchId,
+      to: h.search.id,
+    }),
+    post: h.one.posts({
+      from: h.searchPosts.postId,
+      to: h.posts.id,
+    }),
+  },
+  postsPopulatedAuthors: {
+    post: h.one.posts({
+      from: h.postsPopulatedAuthors.parentId,
+      to: h.posts.id,
+    }),
+    author: h.one.authors({
+      from: h.postsPopulatedAuthors.authorId,
+      to: h.authors.id,
+    }),
+  },
+  postsVVersionPopulatedAuthors: {
+    version: h.one.postsV({
+      from: h.postsVVersionPopulatedAuthors.parentId,
+      to: h.postsV.id,
+    }),
+    author: h.one.authors({
+      from: h.postsVVersionPopulatedAuthors.authorId,
+      to: h.authors.id,
+    }),
+  },
+  authors: {
+    user: h.one.users({
+      from: h.authors.userId,
+      to: h.users.id,
+    }),
+    avatar: h.one.media({
+      from: h.authors.avatarId,
+      to: h.media.id,
+    }),
+    postsPopulatedAuthors: h.many.postsPopulatedAuthors({
+      from: h.authors.id,
+      to: h.postsPopulatedAuthors.authorId,
+    }),
+    postsVVersionPopulatedAuthors: h.many.postsVVersionPopulatedAuthors({
+      from: h.authors.id,
+      to: h.postsVVersionPopulatedAuthors.authorId,
+    }),
+  },
+  media: {
+    authors: h.many.authors({
+      from: h.media.id,
+      to: h.authors.avatarId,
+    }),
+  },
+}))
+
+export * from './schema/index'
+export { schema }

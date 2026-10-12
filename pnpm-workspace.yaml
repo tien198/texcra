@@ -1,5 +1,9 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
 allowBuilds:
   esbuild: true
-  oracledb: set this to true or false
+  oracledb: true
   unrs-resolver: true
   workerd: true
