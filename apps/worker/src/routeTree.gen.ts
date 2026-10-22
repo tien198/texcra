@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as home_rootRouteImport } from './routes/(home)/__root'
 import { Route as homeIndexRouteImport } from './routes/(home)/index'
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as AdminPostsPostIdRouteImport } from './routes/admin/posts/$postId'
 
 const home_rootRoute = home_rootRouteImport.update({
@@ -22,6 +23,11 @@ const homeIndexRoute = homeIndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPostsPostIdRoute = AdminPostsPostIdRouteImport.update({
   id: '/admin/posts/$postId',
   path: '/admin/posts/$postId',
@@ -29,29 +35,38 @@ const AdminPostsPostIdRoute = AdminPostsPostIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/api/upload': typeof ApiUploadRoute
   '/': typeof homeIndexRoute
   '/admin/posts/$postId': typeof AdminPostsPostIdRoute
 }
 export interface FileRoutesByTo {
+  '/api/upload': typeof ApiUploadRoute
   '/': typeof homeIndexRoute
   '/admin/posts/$postId': typeof AdminPostsPostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(home)/__root': typeof home_rootRoute
+  '/api/upload': typeof ApiUploadRoute
   '/(home)/': typeof homeIndexRoute
   '/admin/posts/$postId': typeof AdminPostsPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/posts/$postId'
+  fullPaths: '/api/upload' | '/' | '/admin/posts/$postId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/posts/$postId'
-  id: '__root__' | '/(home)/__root' | '/(home)/' | '/admin/posts/$postId'
+  to: '/api/upload' | '/' | '/admin/posts/$postId'
+  id:
+    | '__root__'
+    | '/(home)/__root'
+    | '/api/upload'
+    | '/(home)/'
+    | '/admin/posts/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   home_rootRoute: typeof home_rootRoute
+  ApiUploadRoute: typeof ApiUploadRoute
   homeIndexRoute: typeof homeIndexRoute
   AdminPostsPostIdRoute: typeof AdminPostsPostIdRoute
 }
@@ -72,6 +87,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof homeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/upload': {
+      id: '/api/upload'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/posts/$postId': {
       id: '/admin/posts/$postId'
       path: '/admin/posts/$postId'
@@ -84,6 +106,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   home_rootRoute: home_rootRoute,
+  ApiUploadRoute: ApiUploadRoute,
   homeIndexRoute: homeIndexRoute,
   AdminPostsPostIdRoute: AdminPostsPostIdRoute,
 }

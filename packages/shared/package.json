@@ -3,15 +3,18 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./image-processing": "./src/image-processing/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "1.0.0-rc.4"
   },
   "devDependencies": {
+    "tsx": "4.23.15",
     "@types/node": "^22.10.2",
     "typescript": "^6.0.2"
   }

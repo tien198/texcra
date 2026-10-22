@@ -10,6 +10,7 @@
     "check": "prettier --check .",
     "typecheck": "pnpm -r run typecheck",
     "worker:dev": "pnpm --filter worker run dev",
+    "worker:types": "pnpm --filter worker types",
     "worker:generate-routes": "pnpm --filter worker run generate-routes",
     "worker:build": "pnpm --filter worker run build",
     "worker:preview": "pnpm --filter worker run preview",
@@ -23,11 +24,13 @@
     "worker:db:migrate:remote": "pnpm --filter worker run db:migrate:remote",
     "worker:db:seed:local": "pnpm --filter worker run db:seed:local",
     "worker:test:db": "pnpm --filter worker run test:db",
+    "worker:smoke:upload": "pnpm --filter worker run smoke:upload",
     "worker:paraglide": "pnpm --filter worker run paraglide",
     "worker:paraglide:watch": "pnpm --filter worker run paraglide:watch",
     "shared:typecheck": "pnpm --filter shared run typecheck"
   },
   "devDependencies": {
+    "bun": "1.4.3",
     "@tanstack/eslint-config": "latest",
     "eslint": "^9.20.0",
     "prettier": "^3.8.1",

@@ -3,6 +3,8 @@ packages:
   - 'packages/*'
 
 allowBuilds:
+  bun: true
+  sharp: true
   esbuild: true
   oracledb: true
   unrs-resolver: true

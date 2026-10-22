@@ -126,6 +126,12 @@
         "schemaName": "public",
         "x": 567.21630859375,
         "y": 2452
+      },
+      {
+        "name": "authors",
+        "schemaName": "public",
+        "x": 12,
+        "y": 2694
       }
     ],
     "tableGroupCollapseStates": [],
@@ -577,6 +583,66 @@
           "parent_id"
         ],
         "secondTableName": "users_sessions",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "media",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "avatar_id"
+        ],
+        "secondTableName": "authors",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "users",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "user_id"
+        ],
+        "secondTableName": "authors",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "authors",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "author_id"
+        ],
+        "secondTableName": "posts_populated_authors",
+        "secondSchemaName": "public",
+        "secondRelation": "0..*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "id"
+        ],
+        "firstTableName": "authors",
+        "firstSchemaName": "public",
+        "firstRelation": "0..1",
+        "secondFieldNames": [
+          "author_id"
+        ],
+        "secondTableName": "_posts_v_version_populated_authors",
         "secondSchemaName": "public",
         "secondRelation": "0..*",
         "checkPoints": []

@@ -19,7 +19,9 @@ const config = defineConfig({
     }),
     nitro({
       rollupConfig: { external: [/^@sentry\//] },
-      preset: 'cloudflare-module',
+      // Keep Nitro as the adapter for both Cloudflare and future Node.js deployments.
+      preset: process.env.NITRO_PRESET || 'cloudflare-module',
+      cloudflare: { deployConfig: false },
     }),
     tailwindcss(),
     tanstackStart(),

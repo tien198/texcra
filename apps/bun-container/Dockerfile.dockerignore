@@ -1,0 +1,18 @@
+# This Dockerfile builds from the repository root; keep the context allowlisted.
+**
+!package.json
+!pnpm-workspace.yaml
+!pnpm-lock.yaml
+!packages/
+!packages/shared/
+!packages/shared/package.json
+!packages/shared/src/
+!packages/shared/src/**
+!apps/
+!apps/bun-container/
+!apps/bun-container/package.json
+!apps/bun-container/src/
+!apps/bun-container/src/**
+**/agent-do-not-touch/**
+**/node_modules/**
+**/.env*

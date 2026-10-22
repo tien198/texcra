@@ -1,13 +1,12 @@
 import { Button } from '#/components/ui/button'
-import { UploadCloud } from 'lucide-react'
+import { LoaderCircle, UploadCloud } from 'lucide-react'
+import { useId } from 'react'
 import { cn } from '#/lib/utils'
 import { useImageUpload } from './use-image-upload'
+import type { UseImageUploadOptions } from './use-image-upload'
 
-export interface ImageUploadProps {
+export interface ImageUploadProps extends UseImageUploadOptions {
   label?: string
-  value?: string | null // URL of the uploaded image
-  onChange?: (value: string | null) => void
-  onUpload?: (file: File) => Promise<string> // Optional: override the upload action
 }
 
 export function ImageUpload({
@@ -15,23 +14,28 @@ export function ImageUpload({
   value,
   onChange,
   onUpload,
+  onComplete,
+  crop,
+  focalPoint,
 }: ImageUploadProps) {
+  const labelId = useId()
   const {
     fileInputRef,
     isDragging,
     isUploading,
-    progress,
+    error,
+    previewUrl,
     openFileDialog,
     handleRemove,
     handleDragOver,
     handleDragLeave,
     handleDrop,
     handleFileChange,
-  } = useImageUpload({ value, onChange, onUpload })
+  } = useImageUpload({ value, onChange, onUpload, onComplete, crop, focalPoint })
 
   return (
     <div className="grid gap-[8px] mb-[26px]">
-      <span id="hero-image-label" className="text-sm font-medium">
+      <span id={labelId} className="text-sm font-medium">
         {label}
       </span>
 
@@ -40,23 +44,29 @@ export function ImageUpload({
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/avif"
+        disabled={isUploading}
         className="hidden"
       />
 
-      {value ? (
+      {isUploading ? (
+        <div role="status" aria-live="polite" className="flex min-h-[120px] items-center justify-center gap-2 rounded-md border border-border text-sm text-muted-foreground">
+          <LoaderCircle aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
+          Uploading and processing image…
+        </div>
+      ) : previewUrl ? (
         // Preview State (Single Image)
         <div className="relative group overflow-hidden rounded-md border border-border">
           <img
-            src={value}
+            src={previewUrl}
             alt="Hero preview"
             className="w-full h-auto max-h-[300px] object-cover"
           />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-            <Button variant="secondary" onClick={openFileDialog}>
+            <Button type="button" variant="secondary" onClick={openFileDialog}>
               Change
             </Button>
-            <Button variant="destructive" onClick={handleRemove}>
+            <Button type="button" variant="destructive" onClick={handleRemove}>
               Remove
             </Button>
           </div>
@@ -67,35 +77,28 @@ export function ImageUpload({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => !isUploading && openFileDialog()}
+          onClick={openFileDialog}
           className={cn(
             'flex flex-col items-center justify-center min-h-[120px] gap-[10px] border-2 border-dashed px-[18px] py-[16px] rounded-md transition-colors cursor-pointer',
             isDragging
               ? 'border-primary bg-primary/10'
               : 'border-border hover:border-ring/50 hover:bg-accent/50',
-            isUploading && 'pointer-events-none opacity-80',
           )}
           role="button"
           tabIndex={0}
-          aria-labelledby="hero-image-label"
+          onKeyDown={(event) => {
+            if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+              event.preventDefault()
+              openFileDialog()
+            }
+          }}
+          aria-labelledby={labelId}
         >
-          {isUploading ? (
-            <div className="w-full max-w-xs space-y-2 text-center">
-              <span className="text-sm text-muted-foreground">
-                Uploading...
-              </span>
-              <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                <div
-                  className="bg-primary h-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-          ) : (
             <>
               <UploadCloud className="w-8 h-8 text-muted-foreground mb-2" />
               <div className="flex items-center gap-2 text-sm">
                 <Button
+                  type="button"
                   variant="secondary"
                   size="xs"
                   onClick={(e) => {
@@ -108,12 +111,12 @@ export function ImageUpload({
                 <span className="text-muted-foreground">or drag and drop</span>
               </div>
               <span className="text-xs text-muted-foreground mt-1">
-                Single image supported (JPEG, PNG, WebP)
+                Single image supported (JPEG, PNG, WebP, AVIF)
               </span>
             </>
-          )}
         </div>
       )}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     </div>
   )
 }

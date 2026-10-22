@@ -1,126 +1,118 @@
 import type { DragEvent, ChangeEvent } from 'react'
-import { useState, useRef, useCallback } from 'react'
-import { uploadImageServerFn } from '#/server/upload.functions'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import type { CropData, FocalPoint, UploadImageResponse } from 'shared/image-processing'
+import { uploadImage } from '#/lib/upload-image'
 
 export interface UseImageUploadOptions {
   value?: string | null
   onChange?: (value: string | null) => void
   onUpload?: (file: File) => Promise<string>
+  onComplete?: (result: UploadImageResponse) => void
+  crop?: CropData
+  focalPoint?: FocalPoint
 }
 
 export function useImageUpload({
-  onChange,
-  onUpload,
+  value, onChange, onUpload, onComplete, crop, focalPoint,
 }: UseImageUploadOptions = {}) {
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const [completed, setCompleted] = useState<UploadImageResponse | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const active = useRef<AbortController | null>(null)
+  const mounted = useRef(true)
+  // Keep identity for an explicit retry of the same File and processing options.
+  const attempt = useRef<{ file: File; options: string; uploadId: string } | null>(null)
 
-  const handleDragOver = useCallback((e: DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }, [])
-
-  const handleDragLeave = useCallback((e: DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+      active.current?.abort()
+      active.current = null
+    }
   }, [])
 
   const openFileDialog = useCallback(() => {
-    fileInputRef.current?.click()
+    if (!active.current) fileInputRef.current?.click()
   }, [])
 
   const handleRemove = useCallback(() => {
+    active.current?.abort()
+    active.current = null
+    attempt.current = null
+    setIsUploading(false)
+    setCompleted(null)
+    setError(null)
     onChange?.(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }, [onChange])
 
-  const processFile = useCallback(
-    async (file: File) => {
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file.')
-        return
-      }
-
-      setIsUploading(true)
-      setProgress(0)
-
-      // Simulate progress updates while upload is in progress
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          const next = prev + 15
-          return next >= 90 ? 90 : next
-        })
-      }, 120)
-
-      try {
-        let finalUrl: string
-        if (onUpload) {
-          finalUrl = await onUpload(file)
-        } else {
-          const formData = new FormData()
-          formData.append('file', file)
-          finalUrl = await uploadImageServerFn({ data: formData })
+  const processFile = useCallback(async (file: File) => {
+    if (active.current) return
+    const controller = new AbortController()
+    active.current = controller
+    setIsUploading(true)
+    setError(null)
+    try {
+      if (onUpload) {
+        const url = await onUpload(file)
+        if (!mounted.current || controller.signal.aborted) return
+        setCompleted(null)
+        onChange?.(url)
+      } else {
+        const options = JSON.stringify({ crop, focalPoint })
+        if (attempt.current?.file !== file || attempt.current.options !== options) {
+          attempt.current = { file, options, uploadId: crypto.randomUUID() }
         }
-        clearInterval(interval)
-        setProgress(100)
-        onChange?.(finalUrl)
-      } catch (error) {
-        clearInterval(interval)
-        console.error('Upload failed', error)
-        alert('Failed to upload image.')
-      } finally {
-        clearInterval(interval)
-        setTimeout(() => {
-          setIsUploading(false)
-          setProgress(0)
-        }, 300)
+        const result = await uploadImage(file, {
+          uploadId: attempt.current.uploadId, crop, focalPoint, signal: controller.signal,
+        })
+        if (!mounted.current || controller.signal.aborted) return
+        setCompleted(result)
+        onChange?.(result.url)
+        onComplete?.(result)
       }
-    },
-    [onChange, onUpload],
-  )
-
-  const handleDrop = useCallback(
-    (e: DragEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      setIsDragging(false)
-
-      // Support single file only
-      const files = e.dataTransfer.files
-      if (files.length > 0) {
-        processFile(files[0])
+    } catch (cause) {
+      if (mounted.current && !controller.signal.aborted) {
+        setError(cause instanceof Error ? cause.message : 'Failed to upload image.')
       }
-    },
-    [processFile],
-  )
-
-  const handleFileChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (file) {
-        processFile(file)
+    } finally {
+      if (active.current === controller) {
+        active.current = null
+        if (mounted.current) setIsUploading(false)
       }
-    },
-    [processFile],
-  )
+    }
+  }, [onChange, onUpload, onComplete, crop, focalPoint])
+
+  const handleDragOver = useCallback((event: DragEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (!active.current) setIsDragging(true)
+  }, [])
+  const handleDragLeave = useCallback((event: DragEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDragging(false)
+  }, [])
+  const handleDrop = useCallback((event: DragEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsDragging(false)
+    const file = event.dataTransfer.files.item(0)
+    if (file) void processFile(file)
+  }, [processFile])
+  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (file) void processFile(file)
+  }, [processFile])
 
   return {
-    fileInputRef,
-    isDragging,
-    isUploading,
-    progress,
-    openFileDialog,
-    handleRemove,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-    handleFileChange,
-    processFile,
+    fileInputRef, isDragging, isUploading, error,
+    previewUrl: completed && value === completed.url ? completed.variants.large.url : value,
+    openFileDialog, handleRemove, handleDragOver, handleDragLeave,
+    handleDrop, handleFileChange, processFile,
   }
 }
