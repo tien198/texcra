@@ -70,7 +70,11 @@ async function main() {
     headers: {
       Origin: url.origin,
       'Content-Type': metadata.mimeType,
-      'x-image-metadata': encodeImageMetadata(metadata),
+      'Idempotency-Key': metadata.uploadId,
+      'x-image-metadata': encodeImageMetadata({
+        ...metadata,
+        draft_id: metadata.uploadId,
+      }),
     },
     body: input,
     signal: AbortSignal.timeout(180_000),

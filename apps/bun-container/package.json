@@ -10,8 +10,14 @@
     "test:large": "bun tests/measure-large-upload.ts"
   },
   "dependencies": {
+    "deuri": "^3.0.1",
+    "elysia": "2.0.0-beta.32",
+    "exact-mirror": "^1.2.6",
+    "memoirist": "1.2.3",
+    "openapi-types": "^12.1.3",
     "shared": "workspace:*",
-    "sharp": "0.35.5"
+    "sharp": "0.35.5",
+    "typebox": "^1.3.0"
   },
   "devDependencies": {
     "@types/bun": "^1.3.10",

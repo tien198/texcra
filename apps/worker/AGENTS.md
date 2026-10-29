@@ -2,17 +2,6 @@
 
 This is the notes for Programmers who work on this project. Do NOT touch on that!.
 
-## Plan
-
-When the user mentions "plan", you should:
-
-1. Analyze and split to small tasks, involke subagents foreach task if neccessary
-2. Write the plan in `/plans` directory as `.md` file (file name should be `[TASK].md`)
-3. Ask user to clarify
-4. Use `codeblock` to show code (including inline code)
-5. The plan MUST BE SHORT, ONLY MENTION CRUCIAL DETERMINANTS
-6. DO NOT PROCEED UNLESS USER APPROVE THE PLAN!
-
 ## Process
 
 - Before proceed or execute, analyze and split to small tasks, involke subagents foreach task if neccessary

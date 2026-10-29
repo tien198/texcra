@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'bun:test'
+import { afterEach, expect, spyOn, test } from 'bun:test'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -10,20 +10,25 @@ import {
   parseUploadErrorResponse,
 } from 'shared/image-processing'
 import type {
-  IImageProcessor,
   ProcessImageMetadata,
   ProcessImageResult,
   StorageWrite,
 } from 'shared/image-processing'
-import { startImageServer } from '../src/server'
-import { SharpImageProcessor } from '../src/processor'
-import { R2BridgeStorage } from '../src/storage'
+import { app } from '../src/app'
+import { APP_CONFIG } from '../src/config'
+import { processor, SharpImageProcessor } from '../src/processor'
+import { R2BridgeStorage, storage } from '../src/storage'
 import { DiskStorage, fixture, imageMetadata } from './helpers'
 
-const servers: ReturnType<typeof startImageServer>[] = []
+const extraServers: ReturnType<typeof Bun.serve>[] = []
 const directories: string[] = []
+const mocks: Array<{ mockRestore: () => void }> = []
+
 afterEach(async () => {
-  await Promise.all(servers.splice(0).map((server) => server.stop(true)))
+  mocks.splice(0).forEach((m) => m.mockRestore())
+  APP_CONFIG.server.processingMs = 120_000
+  await app.stop(true)
+  await Promise.all(extraServers.splice(0).map((s) => s.stop(true)))
   await Promise.all(
     directories
       .splice(0)
@@ -31,15 +36,9 @@ afterEach(async () => {
   )
 })
 
-function start(processor?: IImageProcessor, processingMs?: number) {
-  const server = startImageServer({
-    port: 0,
-    hostname: '127.0.0.1',
-    processor,
-    processingMs,
-  })
-  servers.push(server)
-  return server
+function start() {
+  app.listen({ hostname: '127.0.0.1', port: 0 })
+  return app.server!
 }
 
 async function input() {
@@ -58,8 +57,14 @@ function headers(metadata: ProcessImageMetadata) {
 
 test('real Bun HTTP server runs native Sharp and resolves the shared package', async () => {
   const { directory, source, metadata } = await input()
-  const storage = new DiskStorage(directory)
-  const server = start(new SharpImageProcessor(storage))
+  const diskStorage = new DiskStorage(directory)
+  mocks.push(
+    spyOn(storage, 'putObject').mockImplementation((obj, sig) =>
+      diskStorage.putObject(obj, sig),
+    ),
+  )
+  expect(processor).toBeInstanceOf(SharpImageProcessor)
+  const server = start()
   expect(await (await fetch(new URL('/healthz', server.url))).json()).toEqual({
     ok: true,
     busy: false,
@@ -73,19 +78,20 @@ test('real Bun HTTP server runs native Sharp and resolves the shared package', a
   expect(response.status).toBe(200)
   const result = parseProcessImageResult(await response.json(), metadata)
   expect(result.original.width).toBe(80)
-  expect(storage.paths.size).toBe(8)
+  expect(diskStorage.paths.size).toBe(8)
   expect((await fetch(new URL('/missing', server.url))).status).toBe(404)
 })
 
 test('malformed, oversized, and mismatched transport metadata never reach processing', async () => {
   const { source, metadata } = await input()
   let calls = 0
-  const server = start({
-    async processImage() {
+  mocks.push(
+    spyOn(processor, 'processImage').mockImplementation(async () => {
       calls++
       throw new Error('Should not process')
-    },
-  })
+    }),
+  )
+  const server = start()
   for (const value of [
     undefined,
     '%broken',
@@ -110,6 +116,7 @@ test('malformed, oversized, and mismatched transport metadata never reach proces
     headers: { ...headers(metadata), 'content-type': 'image/jpeg' },
     body: Bun.file(source),
   })
+  expect(mismatch.status).toBe(400)
   const mismatchStream = new ReadableStream<Uint8Array>({
     start(controller) {
       controller.enqueue(new Uint8Array(metadata.filesize + 10))
@@ -141,16 +148,17 @@ test('busy requests are rejected and health exposes the active upload until clea
   const gate = new Promise<void>((resolve) => {
     finish = resolve
   })
-  const server = start({
-    async processImage() {
+  mocks.push(
+    spyOn(processor, 'processImage').mockImplementation(async () => {
       started()
       await gate
       throw new ImageProcessingError(
         'INVALID_INPUT',
         'Intentional test failure',
       )
-    },
-  })
+    }),
+  )
+  const server = start()
   const first = fetch(new URL('/process', server.url), {
     method: 'POST',
     headers: headers(metadata),
@@ -178,21 +186,23 @@ test('busy requests are rejected and health exposes the active upload until clea
 test('processing deadline aborts the job and permits the next request after settlement', async () => {
   const { source, metadata } = await input()
   let aborted = 0
-  const processor: IImageProcessor = {
-    processImage(_body, _metadata, signal) {
-      return new Promise<ProcessImageResult>((_resolve, reject) => {
-        signal!.addEventListener(
-          'abort',
-          () => {
-            aborted++
-            reject(signal!.reason)
-          },
-          { once: true },
-        )
-      })
-    },
-  }
-  const server = start(processor, 20)
+  mocks.push(
+    spyOn(processor, 'processImage').mockImplementation(
+      (_body, _metadata, signal) =>
+        new Promise<ProcessImageResult>((_resolve, reject) => {
+          signal!.addEventListener(
+            'abort',
+            () => {
+              aborted++
+              reject(signal!.reason)
+            },
+            { once: true },
+          )
+        }),
+    ),
+  )
+  APP_CONFIG.server.processingMs = 20
+  const server = start()
   for (let attempt = 0; attempt < 2; attempt++) {
     const response = await fetch(new URL('/process', server.url), {
       method: 'POST',
@@ -217,21 +227,24 @@ test('disconnecting the Bun client cancels active work', async () => {
   const cancelled = new Promise<void>((resolve) => {
     aborted = resolve
   })
-  const server = start({
-    processImage(_body, _metadata, signal) {
-      started()
-      return new Promise<ProcessImageResult>((_resolve, reject) => {
-        signal!.addEventListener(
-          'abort',
-          () => {
-            aborted()
-            reject(signal!.reason)
-          },
-          { once: true },
-        )
-      })
-    },
-  })
+  mocks.push(
+    spyOn(processor, 'processImage').mockImplementation(
+      (_body, _metadata, signal) => {
+        started()
+        return new Promise<ProcessImageResult>((_resolve, reject) => {
+          signal!.addEventListener(
+            'abort',
+            () => {
+              aborted()
+              reject(signal!.reason)
+            },
+            { once: true },
+          )
+        })
+      },
+    ),
+  )
+  const server = start()
   const controller = new AbortController()
   const pending = fetch(new URL('/process', server.url), {
     method: 'POST',
@@ -249,7 +262,7 @@ test('disconnecting the Bun client cancels active work', async () => {
 
 test('bridge client streams exact bytes and length over Bun HTTP', async () => {
   const { directory, source, metadata } = await input()
-  const storage = new DiskStorage(directory)
+  const diskStorage = new DiskStorage(directory)
   let received = false
   const bridge = Bun.serve({
     port: 0,
@@ -267,12 +280,12 @@ test('bridge client streams exact bytes and length over Bun HTTP', async () => {
         contentType: 'image/png',
         contentLength: metadata.filesize,
       }
-      await storage.putObject(object)
+      await diskStorage.putObject(object)
       received = true
       return new Response(null, { status: 204 })
     },
   })
-  servers.push(bridge)
+  extraServers.push(bridge)
   const fetcher = (url: string | URL | Request, init?: RequestInit) =>
     fetch(new URL(new URL(String(url)).pathname, bridge.url), init)
   await new R2BridgeStorage(fetcher).putObject({
@@ -282,7 +295,7 @@ test('bridge client streams exact bytes and length over Bun HTTP', async () => {
     body: Bun.file(source).stream(),
   })
   expect(received).toBe(true)
-  expect(storage.lengths.get(metadata.objectKeys.original)).toBe(
+  expect(diskStorage.lengths.get(metadata.objectKeys.original)).toBe(
     metadata.filesize,
   )
 })

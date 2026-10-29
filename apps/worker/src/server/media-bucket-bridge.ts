@@ -38,8 +38,8 @@ export class MediaBucketBridge extends WorkerEntrypoint<Env, MediaBridgeProps> {
         )
       const length = Number(rawLength)
       const contentType = request.headers.get('Content-Type') ?? ''
-      const owner = this.env.IMAGE_PROCESSOR.get(
-        this.env.IMAGE_PROCESSOR.idFromString(props.ownerId),
+      const owner = this.env.CONTAINER_SIDECAR.get(
+        this.env.CONTAINER_SIDECAR.idFromString(props.ownerId),
       )
       const token = await owner.beginObjectWrite(
         props.attemptId,
