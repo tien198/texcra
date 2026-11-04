@@ -1,5 +1,4 @@
-import { MessageUI } from '#/lib/paraglide-message/message-ui'
-import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
+import { MessageUI, useLocale  } from '#/lib/i18n'
 import { m } from '#/paraglide/messages.js'
 import { FooterNavigation } from './FooterNavigation'
 import { FooterLegal } from './FooterLegal'

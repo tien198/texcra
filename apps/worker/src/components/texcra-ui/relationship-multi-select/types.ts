@@ -1,11 +1,8 @@
 import type * as React from 'react'
 import type { GroupBase, OptionsOrGroups } from 'react-select'
+import type { Option } from '#/lib/types/option'
 
-export type Option = {
-  value: string
-  label: string
-  [key: string]: any
-}
+export type { Option }
 
 /** The loadOptions signature expected by react-select-async-paginate */
 export type LoadOptionsFn<TAdditional = { page: number }> = (

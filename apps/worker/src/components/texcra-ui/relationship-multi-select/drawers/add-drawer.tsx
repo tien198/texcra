@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
-import { DocumentDrawer } from './document-drawer'
+import { DocumentDrawer } from '#/components/texcra-ui/document-drawer'
 import type { AddDrawerProps, Option } from '../types'
 import { generateSlug } from '../utils'
 

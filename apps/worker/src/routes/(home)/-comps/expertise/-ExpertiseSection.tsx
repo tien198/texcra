@@ -1,5 +1,4 @@
-import { MessageUI } from '#/lib/paraglide-message/message-ui'
-import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
+import { MessageUI, useLocale  } from '#/lib/i18n'
 import { clsx } from 'clsx'
 import { m } from '#/paraglide/messages.js'
 import { Atmosphere } from '#/components/atmosphere/Atmosphere'

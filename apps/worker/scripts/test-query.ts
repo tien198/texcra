@@ -1,4 +1,4 @@
-import { getDb } from '../src/db'
+import { getDb } from '../src/cloudflare/db'
 
 const mockD1: any = {
   prepare: () => ({

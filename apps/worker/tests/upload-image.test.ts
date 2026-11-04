@@ -6,7 +6,7 @@ import {
   VARIANT_IDS,
   parseUploadImageResponse,
 } from 'shared/image-processing'
-import { ImageUploadError, uploadImage } from '../src/lib/upload-image'
+import { ImageUploadError, uploadImage } from '../src/features/image-upload'
 
 const uploadId = 'a8a73f4f-8d65-4b3a-a456-426614174000'
 const draftId = 'draft-post-2026-001'

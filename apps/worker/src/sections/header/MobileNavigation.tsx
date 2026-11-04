@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
+import { useLocale } from '#/lib/i18n'
 import { NavigationLinks } from './NavigationLinks'
 import { clsx } from 'clsx'
 

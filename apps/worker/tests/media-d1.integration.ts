@@ -11,10 +11,9 @@ import {
   VARIANT_IDS,
 } from 'shared/image-processing'
 import {
-  findMediaByOriginalFilename,
-  persistMedia,
-  resultToUploadResponse,
-} from '../src/server/media'
+  D1MediaRepository,
+  MediaRecordMapper,
+} from '../src/modules/media/infrastructure'
 
 test('persists and recovers all image metadata through a real local D1 binding', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'texcra-image-d1-'))
@@ -94,22 +93,22 @@ test('persists and recovers all image metadata through a real local D1 binding',
       metadata,
     )
     const publicBase = 'https://media.example.test'
-    const inserted = await persistMedia(proxy.env.DB, result, publicBase)
+    const mapper = new MediaRecordMapper(publicBase)
+    const repo = new D1MediaRepository(proxy.env.DB, publicBase, mapper)
+    const inserted = await repo.persist(result)
     assert.deepEqual(
       inserted,
-      resultToUploadResponse(result, inserted.mediaId, publicBase),
+      mapper.toUploadResponse(result, inserted.mediaId),
     )
     assert.deepEqual(
-      await findMediaByOriginalFilename(
-        proxy.env.DB,
+      await repo.findByOriginalFilename(
         result.original.filename,
         uploadId,
-        publicBase,
       ),
       inserted,
     )
     assert.deepEqual(
-      await persistMedia(proxy.env.DB, result, publicBase),
+      await repo.persist(result),
       inserted,
     )
     const count = await proxy.env.DB.prepare(
@@ -117,11 +116,9 @@ test('persists and recovers all image metadata through a real local D1 binding',
     ).first<number>('count')
     assert.equal(count, 1)
     assert.equal(
-      await findMediaByOriginalFilename(
-        proxy.env.DB,
+      await repo.findByOriginalFilename(
         'missing.jpg',
         uploadId,
-        publicBase,
       ),
       null,
     )

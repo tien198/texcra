@@ -6,6 +6,7 @@ import {
   decodeImageMetadata,
   DEFAULT_VARIANTS,
   encodeImageMetadata,
+  ImageProcessingError,
   VARIANT_IDS,
 } from 'shared/image-processing'
 import type {
@@ -15,20 +16,23 @@ import type {
 import type {
   AcquireLeaseInput,
   LeaseTicket,
-} from '../src/durable-objects/coordinator-shard.do'
-import { AuthorizationMiddleware } from '../src/middleware/auth.middleware'
+} from '../src/cloudflare/durable-objects/coordinator-shard.do'
 import {
+  createUploadAuthMiddleware,
   handleImageUpload,
   IDEMPOTENCY_KEY_HEADER,
   LEASE_TICKET_HEADER,
+  Route,
+  uploadAuthMiddleware,
 } from '../src/routes/api/upload'
 import type { UploadRouteBindings } from '../src/routes/api/upload'
 import {
-  boundedImageStream,
-  readImageJson,
-} from '../src/server/image-http'
-import { resultToUploadResponse } from '../src/server/media'
-import type { WorkflowStepRunner } from '../src/workflows/image-upload.workflow'
+  BoundedByteStream,
+  BoundedJsonReader,
+  ImageHttpResponder,
+} from '../src/modules/media/http'
+import { MediaRecordMapper } from '../src/modules/media/infrastructure'
+import type { WorkflowStepRunner } from '../src/cloudflare/workflows/image-upload.workflow'
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -42,15 +46,12 @@ registerHooks({
   },
 })
 
-const { executeSagaSteps } = await import(
-  '../src/workflows/image-upload.workflow'
-)
-const { CoordinatorShardDO } = await import(
-  '../src/durable-objects/coordinator-shard.do'
-)
-const { ContainerSidecarDO } = await import(
-  '../src/durable-objects/container-sidecar.do'
-)
+const { executeSagaSteps } =
+  await import('../src/cloudflare/workflows/image-upload.workflow')
+const { CoordinatorShardDO } =
+  await import('../src/cloudflare/durable-objects/coordinator-shard.do')
+const { ContainerSidecarDO } =
+  await import('../src/cloudflare/durable-objects/container-sidecar.do')
 
 const uploadId = 'a8a73f4f-8d65-4b3a-a456-426614174000'
 const draftId = 'draft-article-42'
@@ -114,10 +115,9 @@ function createSampleTicket(shardName = 'coordinator-shard-0'): LeaseTicket {
 
 test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket handoff, streaming to sidecar, and synchronous workflow completion', async () => {
   const expectedResult = createSampleProcessResult()
-  const expectedResponse = resultToUploadResponse(
+  const expectedResponse = new MediaRecordMapper(publicBase).toUploadResponse(
     expectedResult,
     12,
-    publicBase,
   )
   let capturedAcquireInput: AcquireLeaseInput | undefined
   let capturedSidecarHeaders: Headers | undefined
@@ -127,12 +127,15 @@ test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket ha
   const env: UploadRouteBindings = {
     MEDIA_PUBLIC_BASE_URL: publicBase,
     COORDINATOR_SHARD: {
-      getByName: (name) => ({
-        acquireLease: async (input) => {
+      getByName: (name: string) => ({
+        acquireLease: async (input: AcquireLeaseInput) => {
           capturedAcquireInput = input
           return {
             status: 'LEASED',
-            ticket: { ...createSampleTicket(name), semanticHash: input.semanticHash },
+            ticket: {
+              ...createSampleTicket(name),
+              semanticHash: input.semanticHash,
+            },
           }
         },
         completeLease: async () => undefined,
@@ -140,10 +143,10 @@ test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket ha
       }),
     },
     CONTAINER_SIDECAR: {
-      getByName: (sidecarName) => {
+      getByName: (sidecarName: string) => {
         assert.equal(sidecarName, 'container-sidecar-0')
         return {
-          fetch: async (_url, init) => {
+          fetch: async (_url: any, init?: any) => {
             capturedSidecarHeaders = new Headers(init?.headers)
             capturedSidecarBody = await new Response(init?.body).text()
             return Response.json(expectedResult)
@@ -152,7 +155,7 @@ test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket ha
       },
     },
     IMAGE_UPLOAD_WORKFLOW: {
-      create: async ({ id, params }) => {
+      create: async ({ id, params }: any) => {
         workflowCreatedId = id
         assert.equal(params.result.uploadId, uploadId)
         return {
@@ -164,7 +167,7 @@ test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket ha
         }
       },
     },
-  }
+  } as unknown as UploadRouteBindings
 
   const request = new Request('https://texcra.example.com/api/upload', {
     method: 'POST',
@@ -200,21 +203,22 @@ test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket ha
   assert.ok(capturedSidecarHeaders)
   const rawMetadataHeader = capturedSidecarHeaders.get('x-image-metadata')
   assert.ok(rawMetadataHeader)
-  const forwardedMetadata = decodeImageMetadata(
-    rawMetadataHeader,
-  ) as Record<string, unknown>
+  const forwardedMetadata = decodeImageMetadata(rawMetadataHeader) as Record<
+    string,
+    unknown
+  >
   assert.equal('draft_id' in forwardedMetadata, false)
   assert.ok(capturedSidecarHeaders.get(LEASE_TICKET_HEADER))
   assert.equal(capturedSidecarBody, 'abcd')
-  assert.equal(
-    workflowCreatedId,
-    'upload-11111111-1111-4111-8111-111111111111',
-  )
+  assert.equal(workflowCreatedId, 'upload-11111111-1111-4111-8111-111111111111')
 })
 
 test('handleImageUpload short-circuits immediately when CoordinatorShardDO returns COMPLETED idempotent response', async () => {
   const expectedResult = createSampleProcessResult()
-  const expectedResponse = resultToUploadResponse(expectedResult, 9, publicBase)
+  const expectedResponse = new MediaRecordMapper(publicBase).toUploadResponse(
+    expectedResult,
+    9,
+  )
   let sidecarCalled = false
 
   const env: UploadRouteBindings = {
@@ -242,7 +246,7 @@ test('handleImageUpload short-circuits immediately when CoordinatorShardDO retur
         throw new Error('Workflow should not be created on idempotent replay')
       },
     },
-  }
+  } as unknown as UploadRouteBindings
 
   const request = new Request('https://texcra.example.com/api/upload', {
     method: 'POST',
@@ -268,19 +272,19 @@ test('handleImageUpload short-circuits immediately when CoordinatorShardDO retur
   assert.deepEqual(await response.json(), expectedResponse)
 })
 
-test('handleImageUpload releases lease via failLease when ContainerSidecarDO fails and enforces auth middleware', async () => {
+test('handleImageUpload releases lease via failLease when ContainerSidecarDO fails', async () => {
   let failedLeaseTicketId: string | undefined
 
   const env: UploadRouteBindings = {
     MEDIA_PUBLIC_BASE_URL: publicBase,
     COORDINATOR_SHARD: {
-      getByName: (name) => ({
+      getByName: (name: string) => ({
         acquireLease: async () => ({
           status: 'LEASED',
           ticket: createSampleTicket(name),
         }),
         completeLease: async () => undefined,
-        failLease: async (ticketId) => {
+        failLease: async (ticketId: string) => {
           failedLeaseTicketId = ticketId
         },
       }),
@@ -306,7 +310,7 @@ test('handleImageUpload releases lease via failLease when ContainerSidecarDO fai
         throw new Error('Should not be reached')
       },
     },
-  }
+  } as unknown as UploadRouteBindings
 
   const makeRequest = () =>
     new Request('https://texcra.example.com/api/upload', {
@@ -328,21 +332,7 @@ test('handleImageUpload releases lease via failLease when ContainerSidecarDO fai
 
   const busyResponse = await handleImageUpload(makeRequest(), env)
   assert.equal(busyResponse.status, 503)
-  assert.equal(
-    failedLeaseTicketId,
-    '11111111-1111-4111-8111-111111111111',
-  )
-
-  // Verify custom AuthorizationMiddleware denial
-  class DenyAuthMiddleware extends AuthorizationMiddleware {
-    public override async authorize() {
-      return { authenticated: false }
-    }
-  }
-  const unauthorized = await handleImageUpload(makeRequest(), env, {
-    auth: new DenyAuthMiddleware(),
-  })
-  assert.equal(unauthorized.status, 401)
+  assert.equal(failedLeaseTicketId, '11111111-1111-4111-8111-111111111111')
 })
 
 test('executeSagaSteps compensates by deleting 8 R2 objects and failing lease when R2 verification fails and D1 has no committed row', async () => {
@@ -414,16 +404,59 @@ test('executeSagaSteps compensates by deleting 8 R2 objects and failing lease wh
 })
 
 test('boundedImageStream and readImageJson enforce exact byte boundaries', async () => {
+  assert.equal(BoundedByteStream.getInstance(), BoundedByteStream.getInstance())
+  assert.equal(
+    BoundedByteStream.getInstance(128),
+    BoundedByteStream.getInstance(128),
+  )
+  assert.notEqual(
+    BoundedByteStream.getInstance(128),
+    BoundedByteStream.getInstance(256),
+  )
+  assert.equal(BoundedJsonReader.getInstance(), BoundedJsonReader.getInstance())
+  assert.equal(
+    BoundedJsonReader.getInstance(32),
+    BoundedJsonReader.getInstance(32),
+  )
+  assert.notEqual(
+    BoundedJsonReader.getInstance(32),
+    BoundedJsonReader.getInstance(64),
+  )
+  assert.equal(
+    ImageHttpResponder.getInstance(),
+    ImageHttpResponder.getInstance(),
+  )
+
   const source = new Response('abcd').body!
-  const text = await new Response(boundedImageStream(source, 4)).text()
+  const text = await new Response(
+    BoundedByteStream.getInstance().wrap(source, 4),
+  ).text()
   assert.equal(text, 'abcd')
 
   await assert.rejects(
-    new Response(boundedImageStream(new Response('abc').body!, 4)).text(),
+    new Response(
+      BoundedByteStream.getInstance().wrap(new Response('abc').body!, 4),
+    ).text(),
   )
   await assert.rejects(
-    readImageJson(new Response(JSON.stringify({ data: 'x'.repeat(200) })), 32),
+    BoundedJsonReader.getInstance().read(
+      new Response(JSON.stringify({ data: 'x'.repeat(200) })),
+      32,
+    ),
   )
+
+  const responder = ImageHttpResponder.getInstance()
+  const okResp = responder.toJsonResponse({ ok: true })
+  assert.equal(okResp.status, 200)
+  assert.equal(okResp.headers.get('Cache-Control'), 'no-store')
+
+  const errResp = responder.toErrorResponse(
+    new ImageProcessingError('PROCESSOR_BUSY', 'Busy'),
+    uploadId,
+  )
+  assert.equal(errResp.status, 503)
+  assert.equal(errResp.headers.get('Retry-After'), '5')
+  assert.equal(errResp.headers.get('Cache-Control'), 'no-store')
 })
 
 test('ContainerSidecarDO enforces slot reservation and R2 write-lease fencing', () => {
@@ -604,7 +637,7 @@ test('CoordinatorShardDO prevents conflicting idempotency keys and allocates fro
     },
   } as unknown as DurableObjectState
 
-  const env = {
+  const env: Env = {
     MEDIA_PUBLIC_BASE_URL: publicBase,
     DB: {
       prepare: () => ({
@@ -652,4 +685,70 @@ test('CoordinatorShardDO prevents conflicting idempotency keys and allocates fro
     }),
     /idempotency key was already used/,
   )
+})
+
+async function runMiddleware(
+  mw: ReturnType<typeof createUploadAuthMiddleware>,
+  request: Request,
+) {
+  let nextArgs: unknown
+  let nextCalled = false
+  const serverFn = mw.options.server
+  assert.ok(serverFn, 'server middleware function must be defined')
+  const result = await serverFn({
+    request,
+    pathname: '/api/upload',
+    context: undefined,
+    handlerType: 'router',
+    next: (async (args?: unknown) => {
+      nextCalled = true
+      nextArgs = args
+      return {
+        request,
+        pathname: '/api/upload',
+        context: {},
+        response: new Response(null, { status: 204 }),
+      }
+    }) as never,
+  } as never)
+  return { result, nextCalled, nextArgs }
+}
+
+test('Route /api/upload has uploadAuthMiddleware attached at the route level', () => {
+  const middleware = Route.options.server?.middleware
+  assert.ok(
+    Array.isArray(middleware),
+    'Route server.middleware must be an array',
+  )
+  assert.ok(
+    middleware.includes(uploadAuthMiddleware),
+    'uploadAuthMiddleware must be registered on /api/upload Route',
+  )
+})
+
+test('createUploadAuthMiddleware constructs a valid TanStack request middleware', () => {
+  const mw = createUploadAuthMiddleware()
+  assert.equal(typeof mw.options.server, 'function')
+})
+
+test('uploadAuthMiddleware authorizes caller with placeholder identity and passes context.auth to next()', async () => {
+  const req = new Request('https://texcra.example.com/api/upload', {
+    method: 'POST',
+  })
+  const { result, nextCalled, nextArgs } = await runMiddleware(
+    uploadAuthMiddleware,
+    req,
+  )
+
+  assert.equal(nextCalled, true)
+  assert.deepEqual(nextArgs, {
+    context: {
+      auth: {
+        authenticated: true,
+      },
+    },
+  })
+  const nextResult = result as { response?: Response }
+  assert.ok(nextResult.response instanceof Response)
+  assert.equal(nextResult.response.status, 204)
 })

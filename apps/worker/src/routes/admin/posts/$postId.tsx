@@ -1,14 +1,14 @@
 import { lazy, Suspense, useState } from 'react'
 import { Await, ClientOnly, createFileRoute } from '@tanstack/react-router'
 import { Menu, UserRound } from 'lucide-react'
-import { Breadcrumb } from './-comps/editor-workspace/layout/-breadcrumb'
-import { NavSidebar } from './-comps/editor-workspace/layout/-nav-sidebar'
-import { EditorFallback } from './-comps/editor-workspace/layout/-editor-fallback'
+import { Breadcrumb } from '#/features/post-editor/components/layout/Breadcrumb'
+import { NavSidebar } from '#/features/post-editor/components/layout/NavSidebar'
+import { EditorFallback } from '#/features/post-editor/components/layout/EditorFallback'
 import { Button } from '#/components/ui/button'
-import { getPostByIdServerFn } from '#/server/post/functions'
+import { getPostByIdServerFn } from '#/modules/post'
 
 const EditorWorkspace = lazy(
-  () => import('./-comps/editor-workspace/-editor-workspace'),
+  () => import('#/features/post-editor/components/EditorWorkspace'),
 )
 
 const description =

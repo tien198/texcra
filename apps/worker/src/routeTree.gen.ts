@@ -9,15 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as home_rootRouteImport } from './routes/(home)/__root'
 import { Route as homeIndexRouteImport } from './routes/(home)/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as AdminPostsPostIdRouteImport } from './routes/admin/posts/$postId'
 
-const home_rootRoute = home_rootRouteImport.update({
-  id: '/(home)/__root',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const homeIndexRoute = homeIndexRouteImport.update({
   id: '/(home)/',
   path: '/',
@@ -46,7 +41,6 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/(home)/__root': typeof home_rootRoute
   '/api/upload': typeof ApiUploadRoute
   '/(home)/': typeof homeIndexRoute
   '/admin/posts/$postId': typeof AdminPostsPostIdRoute
@@ -56,16 +50,10 @@ export interface FileRouteTypes {
   fullPaths: '/api/upload' | '/' | '/admin/posts/$postId'
   fileRoutesByTo: FileRoutesByTo
   to: '/api/upload' | '/' | '/admin/posts/$postId'
-  id:
-    | '__root__'
-    | '/(home)/__root'
-    | '/api/upload'
-    | '/(home)/'
-    | '/admin/posts/$postId'
+  id: '__root__' | '/api/upload' | '/(home)/' | '/admin/posts/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  home_rootRoute: typeof home_rootRoute
   ApiUploadRoute: typeof ApiUploadRoute
   homeIndexRoute: typeof homeIndexRoute
   AdminPostsPostIdRoute: typeof AdminPostsPostIdRoute
@@ -73,13 +61,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/(home)/__root': {
-      id: '/(home)/__root'
-      path: '/'
-      fullPath: ''
-      preLoaderRoute: typeof home_rootRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(home)/': {
       id: '/(home)/'
       path: '/'
@@ -105,7 +86,6 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  home_rootRoute: home_rootRoute,
   ApiUploadRoute: ApiUploadRoute,
   homeIndexRoute: homeIndexRoute,
   AdminPostsPostIdRoute: AdminPostsPostIdRoute,

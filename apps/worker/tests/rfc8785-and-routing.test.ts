@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { FillFirstBinPackerAdapter } from '../src/core/adapters/fill-first-bin-packer.adapter'
-import { SemanticShardRouterAdapter } from '../src/core/adapters/semantic-shard-router.adapter'
-import { Rfc8785Canonicalizer } from '../src/core/idempotency/rfc8785-canonicalizer'
-import type { SidecarNodeState } from '../src/core/ports/bin-packer.port'
+import { FillFirstBinPackerAdapter } from '../src/modules/media/domain/services/fill-first-bin-packer'
+import { SemanticShardRouterAdapter } from '../src/modules/media/domain/services/semantic-shard-router'
+import { Rfc8785Canonicalizer } from '../src/modules/media/domain/services/rfc8785-canonicalizer'
+import type { SidecarNodeState } from '../src/modules/media/domain/ports/bin-packer.port'
 
 test('Rfc8785Canonicalizer canonicalizes keys in UTF-16 code unit order and normalizes -0', async () => {
   const canonicalizer = new Rfc8785Canonicalizer()

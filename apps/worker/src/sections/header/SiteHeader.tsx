@@ -1,4 +1,4 @@
-import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
+import { useLocale } from '#/lib/i18n'
 import { BrandWordmark } from '#/routes/(home)/-comps/shared/-BrandWordmark'
 import { ProjectLink } from '#/routes/(home)/-comps/shared/-ProjectLink'
 import { LanguageSelect } from './LanguageSelect'

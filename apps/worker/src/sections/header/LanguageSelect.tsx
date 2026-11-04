@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#/components/ui/select'
-import { setLocale, useLocale } from '#/lib/paraglide-message/hooks/useLocale'
+import { setLocale, useLocale } from '#/lib/i18n'
 
 export function LanguageSelect() {
   const locale = useLocale()

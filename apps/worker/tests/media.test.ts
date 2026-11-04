@@ -4,7 +4,11 @@ import { getTableColumns } from 'drizzle-orm'
 import { media } from 'shared'
 import { createObjectKeyPlan, DEFAULT_VARIANTS, VARIANT_IDS } from 'shared/image-processing'
 import type { ProcessImageResult, ProcessedVariants, VariantId } from 'shared/image-processing'
-import { findMediaByOriginalFilename, mediaToUploadResponse, persistMedia, resultToUploadResponse, toMediaValues } from '../src/server/media'
+import {
+  D1MediaRepository,
+  MediaRecordMapper,
+  MediaUrlResolver,
+} from '../src/modules/media/infrastructure'
 
 const uploadId = 'a8a73f4f-8d65-4b3a-a456-426614174000'
 const publicBase = 'https://media.example.com'
@@ -30,16 +34,18 @@ function fixture(): ProcessImageResult {
   }
 }
 
-function row() {
+function row(): typeof media.$inferSelect {
+  const mapper = new MediaRecordMapper(publicBase)
   return {
-    ...toMediaValues(fixture(), publicBase), id: 42,
+    ...mapper.toInsertValues(fixture()), id: 42,
     alt: null, caption: null, folderId: null, createdAt: new Date(0), updatedAt: new Date(0),
-  } satisfies typeof media.$inferSelect
+  } as typeof media.$inferSelect
 }
 
 test('maps all seven variants into all 42 flattened columns using numeric strings', () => {
   const input = fixture()
-  const values = toMediaValues(input, `${publicBase}/`)
+  const mapper = new MediaRecordMapper(`${publicBase}/`)
+  const values = mapper.toInsertValues(input)
   const columns = getTableColumns(media)
   assert.equal(columns.filesize.dataType, 'string numeric')
   assert.equal(columns.filesize.columnType, 'SQLiteNumeric')
@@ -61,24 +67,33 @@ test('maps all seven variants into all 42 flattened columns using numeric string
 })
 
 test('recovery round trips all measured metadata as numbers and excludes internal keys', () => {
-  const response = resultToUploadResponse(fixture(), 42, publicBase)
-  assert.deepEqual(mediaToUploadResponse(row(), uploadId, publicBase), response)
+  const mapper = new MediaRecordMapper(publicBase)
+  const response = mapper.toUploadResponse(fixture(), 42)
+  assert.deepEqual(mapper.fromRowToUploadResponse(row(), uploadId), response)
   assert.equal(response.thumbnailURL, response.variants.thumbnail.url)
   assert.equal(response.variants.og.mimeType, 'image/webp')
   assert.equal(JSON.stringify(response).includes('r2Key'), false)
 })
 
 test('rejects incomplete, mismatched and unsafe metadata before persistence', () => {
+  const mapper = new MediaRecordMapper(publicBase)
   const result = fixture()
   result.variants.square.width = 501
-  assert.throws(() => toMediaValues(result, publicBase))
+  assert.throws(() => mapper.toInsertValues(result))
   result.variants.square.width = 500
   result.original.r2Key = '../outside.jpg'
-  assert.throws(() => toMediaValues(result, publicBase))
-  assert.throws(() => toMediaValues(fixture(), 'https://user:pass@example.com'))
-  assert.throws(() => mediaToUploadResponse({ ...row(), sizesOgFilesize: null }, uploadId, publicBase))
-  assert.throws(() => mediaToUploadResponse(row(), uploadId, 'https://other.example.com'))
-  assert.throws(() => mediaToUploadResponse(row(), 'b8a73f4f-8d65-4b3a-a456-426614174000', publicBase))
+  assert.throws(() => mapper.toInsertValues(result))
+  assert.throws(() => new MediaRecordMapper('https://user:pass@example.com'))
+  assert.throws(() => mapper.fromRowToUploadResponse({ ...row(), sizesOgFilesize: null }, uploadId))
+  assert.throws(() => new MediaRecordMapper('https://other.example.com').fromRowToUploadResponse(row(), uploadId))
+  assert.throws(() => mapper.fromRowToUploadResponse(row(), 'b8a73f4f-8d65-4b3a-a456-426614174000'))
+})
+
+test('MediaUrlResolver validates and resolves clean URLs', () => {
+  const resolver = new MediaUrlResolver(publicBase)
+  assert.equal(resolver.resolveObjectUrl('media/photo.jpg'), `${publicBase}/media/photo.jpg`)
+  assert.throws(() => resolver.resolveObjectUrl('media/../hack.jpg'), /Invalid media object key/)
+  assert.throws(() => resolver.assertOwnedUrl('https://evil.com/media/photo.jpg'), /does not belong/)
 })
 
 /** D1 protocol stub: exercises Drizzle SQL/binding and result mapping without a Worker runtime. */
@@ -109,22 +124,59 @@ function database(insertId: number | null, stored: ReturnType<typeof row> | null
 
 test('persists and returns the inserted ID using a unique-filename conflict guard', async () => {
   const db = database(42, null)
-  assert.deepEqual(await persistMedia(db.binding, fixture(), publicBase), resultToUploadResponse(fixture(), 42, publicBase))
+  const repo = new D1MediaRepository(db.binding, publicBase)
+  const mapper = new MediaRecordMapper(publicBase)
+  assert.deepEqual(await repo.persist(fixture()), mapper.toUploadResponse(fixture(), 42))
   assert.match(db.calls[0].sql, /on conflict \("media"\."filename"\) do nothing/)
   assert.ok(db.calls[0].params.includes(fixture().original.filename))
 })
 
 test('duplicate insert recovers a committed row by unique original filename', async () => {
   const db = database(null, row())
-  const response = await persistMedia(db.binding, fixture(), publicBase)
+  const repo = new D1MediaRepository(db.binding, publicBase)
+  const response = await repo.persist(fixture())
   assert.equal(response.mediaId, 42)
   assert.match(db.calls[1].sql, /where "media"\."filename" = \?/)
   assert.deepEqual(db.calls[1].params, [fixture().original.filename])
-  assert.deepEqual(await findMediaByOriginalFilename(db.binding, fixture().original.filename, uploadId, publicBase), response)
+  assert.deepEqual(await repo.findByOriginalFilename(fixture().original.filename, uploadId), response)
 })
 
 test('missing filename returns null and unresolved conflicts fail', async () => {
   const db = database(null, null)
-  assert.equal(await findMediaByOriginalFilename(db.binding, fixture().original.filename, uploadId, publicBase), null)
-  await assert.rejects(persistMedia(db.binding, fixture(), publicBase), /could not be recovered/)
+  const repo = new D1MediaRepository(db.binding, publicBase)
+  assert.equal(await repo.findByOriginalFilename(fixture().original.filename, uploadId), null)
+  await assert.rejects(repo.persist(fixture()), /could not be recovered/)
+})
+
+test('getInstance reuses singletons per (binding, publicBase) and isolates distinct bindings', () => {
+  const dbA = database(1, null)
+  const dbB = database(2, null)
+  const otherBase = 'https://cdn.example.com'
+
+  assert.equal(
+    MediaUrlResolver.getInstance(publicBase),
+    MediaUrlResolver.getInstance(publicBase),
+  )
+  assert.notEqual(
+    MediaUrlResolver.getInstance(publicBase),
+    MediaUrlResolver.getInstance(otherBase),
+  )
+
+  assert.equal(
+    MediaRecordMapper.getInstance(publicBase),
+    MediaRecordMapper.getInstance(publicBase),
+  )
+  assert.notEqual(
+    MediaRecordMapper.getInstance(publicBase),
+    MediaRecordMapper.getInstance(otherBase),
+  )
+
+  const repoA1 = D1MediaRepository.getInstance(dbA.binding, publicBase)
+  const repoA2 = D1MediaRepository.getInstance(dbA.binding, publicBase)
+  const repoAOtherBase = D1MediaRepository.getInstance(dbA.binding, otherBase)
+  const repoB = D1MediaRepository.getInstance(dbB.binding, publicBase)
+
+  assert.equal(repoA1, repoA2)
+  assert.notEqual(repoA1, repoAOtherBase)
+  assert.notEqual(repoA1, repoB)
 })

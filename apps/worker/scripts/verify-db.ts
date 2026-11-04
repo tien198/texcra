@@ -9,7 +9,7 @@ import {
 } from 'drizzle-orm/_relations'
 import { drizzle } from 'drizzle-orm/d1'
 import { schema, relations } from 'shared'
-import { getDb } from '../src/db'
+import { getDb } from '../src/cloudflare/db'
 
 console.log('Testing Drizzle schema and D1 connection setup...')
 

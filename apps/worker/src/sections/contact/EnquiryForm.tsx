@@ -1,5 +1,4 @@
-import { MessageUI } from '#/lib/paraglide-message/message-ui'
-import { useLocale } from '#/lib/paraglide-message/hooks/useLocale'
+import { MessageUI, useLocale } from '#/lib/i18n'
 import { useState } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import type { FormEvent } from 'react'
