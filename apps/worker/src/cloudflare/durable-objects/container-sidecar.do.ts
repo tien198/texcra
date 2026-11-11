@@ -12,10 +12,13 @@ import type {
   ProcessImageMetadata,
   ProcessImageResult,
 } from 'shared/image-processing'
-import type { LeaseTicket } from './coordinator-shard.do'
+import type { LeaseTicket } from './coordinator-shard.types'
 import type { IMediaRepository } from '#/modules/media/domain/ports/media-repository.port'
 import { BoundedJsonReader, ImageHttpResponder } from '#/modules/media/http'
-import { D1MediaRepository, MediaUrlResolver } from '#/modules/media/infrastructure'
+import {
+  D1MediaRepository,
+  MediaUrlResolver,
+} from '#/modules/media/infrastructure'
 
 export const LEASE_TICKET_HEADER = 'x-lease-ticket'
 
@@ -410,10 +413,7 @@ export class ContainerSidecarDO extends DurableObject<Env> {
         'Some image writes are still in progress.',
       )
     }
-    for (const object of [
-      result.original,
-      ...Object.values(result.variants),
-    ]) {
+    for (const object of [result.original, ...Object.values(result.variants)]) {
       const receipt = job.written[object.r2Key]
       if (
         !receipt ||

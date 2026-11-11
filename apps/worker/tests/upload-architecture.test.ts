@@ -130,12 +130,23 @@ test('handleImageUpload orchestrates RFC 8785 semantic sharding, lease ticket ha
       getByName: (name: string) => ({
         acquireLease: async (input: AcquireLeaseInput) => {
           capturedAcquireInput = input
+          const assignedId = input.uploadId ?? uploadId
+          const processMetadata = {
+            ...input.metadata,
+            uploadId: assignedId,
+            objectKeys: createObjectKeyPlan(
+              assignedId,
+              input.metadata.mimeType,
+            ),
+          }
           return {
             status: 'LEASED',
             ticket: {
               ...createSampleTicket(name),
+              uploadId: assignedId,
               semanticHash: input.semanticHash,
             },
+            metadata: processMetadata,
           }
         },
         completeLease: async () => undefined,
@@ -279,9 +290,14 @@ test('handleImageUpload releases lease via failLease when ContainerSidecarDO fai
     MEDIA_PUBLIC_BASE_URL: publicBase,
     COORDINATOR_SHARD: {
       getByName: (name: string) => ({
-        acquireLease: async () => ({
+        acquireLease: async (input: AcquireLeaseInput) => ({
           status: 'LEASED',
           ticket: createSampleTicket(name),
+          metadata: {
+            ...input.metadata,
+            uploadId,
+            objectKeys: createObjectKeyPlan(uploadId, input.metadata.mimeType),
+          },
         }),
         completeLease: async () => undefined,
         failLease: async (ticketId: string) => {
@@ -547,7 +563,7 @@ test('ContainerSidecarDO enforces slot reservation and R2 write-lease fencing', 
   assert.equal(kv.has('active'), false)
 })
 
-test('CoordinatorShardDO prevents conflicting idempotency keys and allocates from the shared 5-sidecar pool', async () => {
+function createMockCoordinatorStorage() {
   const idempotencyMap = new Map<string, Record<string, unknown>>()
   const poolMap = new Map<string, Record<string, unknown>>()
 
@@ -585,6 +601,16 @@ test('CoordinatorShardDO prevents conflicting idempotency keys and allocates fro
               updated_at: params[2],
             })
           }
+        } else if (params.length === 3) {
+          const nodeId = String(params[2])
+          const existing = poolMap.get(nodeId)
+          if (existing) {
+            poolMap.set(nodeId, {
+              ...existing,
+              active_load: params[0],
+              updated_at: params[1],
+            })
+          }
         }
         return { toArray: () => [] }
       }
@@ -597,29 +623,85 @@ test('CoordinatorShardDO prevents conflicting idempotency keys and allocates fro
         return { toArray: () => (row ? [row] : []) }
       }
       if (
-        normalized.startsWith(
-          'SELECT * FROM idempotency_records WHERE semantic_hash = ?',
+        normalized.includes('FROM idempotency_records WHERE semantic_hash = ?')
+      ) {
+        const hash = params[0]
+        const rows = Array.from(idempotencyMap.values()).filter(
+          (r) => r.semantic_hash === hash,
+        )
+        if (normalized.includes("status = 'COMPLETED'")) {
+          const completed = rows
+            .filter((r) => r.status === 'COMPLETED')
+            .sort((a, b) => Number(b.updated_at) - Number(a.updated_at))
+          return { toArray: () => completed.slice(0, 1) }
+        }
+        if (normalized.includes("status = 'LEASED'")) {
+          const nowParam = Number(params[1])
+          const leased = rows.filter(
+            (r) =>
+              r.status === 'LEASED' &&
+              r.expires_at !== null &&
+              Number(r.expires_at) > nowParam,
+          )
+          return { toArray: () => leased.slice(0, 1) }
+        }
+        return { toArray: () => rows.slice(0, 1) }
+      }
+      if (
+        normalized.includes(
+          "WHERE status = 'LEASED' AND expires_at IS NOT NULL AND expires_at <=",
         )
       ) {
-        const found = Array.from(idempotencyMap.values()).find(
-          (r) => r.semantic_hash === params[0],
+        const nowParam = Number(params[0])
+        const expired = Array.from(idempotencyMap.values()).filter(
+          (r) =>
+            r.status === 'LEASED' &&
+            r.expires_at !== null &&
+            Number(r.expires_at) <= nowParam,
         )
-        return { toArray: () => (found ? [found] : []) }
+        return { toArray: () => expired }
+      }
+      if (normalized.startsWith('SELECT * FROM idempotency_records')) {
+        return { toArray: () => Array.from(idempotencyMap.values()) }
       }
       if (normalized.startsWith('INSERT INTO idempotency_records')) {
         const key = String(params[0])
+        const isCompleted = normalized.includes("'COMPLETED'")
         idempotencyMap.set(key, {
           idempotency_key: key,
           semantic_hash: params[1],
           upload_id: params[2],
           draft_id: params[3],
           metadata_json: params[4],
-          status: 'LEASED',
-          ticket_json: params[5],
-          response_json: null,
-          expires_at: params[6],
-          updated_at: params[7],
+          status: isCompleted ? 'COMPLETED' : 'LEASED',
+          ticket_json: isCompleted ? null : params[5],
+          response_json: isCompleted ? params[5] : null,
+          expires_at: isCompleted ? null : params[6],
+          updated_at: isCompleted ? params[6] : params[7],
         })
+        return { toArray: () => [] }
+      }
+      if (normalized.startsWith('UPDATE idempotency_records')) {
+        if (normalized.includes("status = 'FAILED'")) {
+          const key = String(params[1])
+          const row = idempotencyMap.get(key)
+          if (row) {
+            row.status = 'FAILED'
+            row.ticket_json = null
+            row.expires_at = null
+            row.updated_at = params[0]
+          }
+        } else if (normalized.includes("status = 'COMPLETED'")) {
+          const key = String(params[2])
+          const row = idempotencyMap.get(key)
+          if (row) {
+            row.status = 'COMPLETED'
+            row.response_json = params[0]
+            row.ticket_json = null
+            row.expires_at = null
+            row.updated_at = params[1]
+          }
+        }
         return { toArray: () => [] }
       }
       if (normalized.startsWith('SELECT MIN(expires_at)')) {
@@ -657,6 +739,11 @@ test('CoordinatorShardDO prevents conflicting idempotency keys and allocates fro
     },
   } as unknown as Env
 
+  return { idempotencyMap, poolMap, ctx, env }
+}
+
+test('CoordinatorShardDO prevents conflicting idempotency keys and allocates from the shared 5-sidecar pool', async () => {
+  const { ctx, env } = createMockCoordinatorStorage()
   const shard = new CoordinatorShardDO(ctx, env)
   const metadata = createSampleProcessMetadata()
 
@@ -685,6 +772,170 @@ test('CoordinatorShardDO prevents conflicting idempotency keys and allocates fro
     }),
     /idempotency key was already used/,
   )
+})
+
+test('CoordinatorShardDO generates server uploadId when client metadata omits uploadId', async () => {
+  const { ctx, env } = createMockCoordinatorStorage()
+  const shard = new CoordinatorShardDO(ctx, env)
+
+  const leaseOutcome = await shard.acquireLease({
+    idempotencyKey: 'transport-key-1',
+    semanticHash: 'e'.repeat(64),
+    shardName: 'coordinator-shard-0',
+    metadata: {
+      filename: 'sample.png',
+      mimeType: 'image/png',
+      filesize: 10,
+    },
+  })
+
+  assert.equal(leaseOutcome.status, 'LEASED')
+  assert.match(leaseOutcome.ticket.uploadId, /^[0-9a-f-]{36}$/)
+  assert.equal(leaseOutcome.metadata.uploadId, leaseOutcome.ticket.uploadId)
+  assert.ok(
+    leaseOutcome.metadata.objectKeys.original.includes(
+      leaseOutcome.ticket.uploadId,
+    ),
+  )
+})
+
+test('CoordinatorShardDO returns COMPLETED on semantic deduplication hit and records new idempotency key', async () => {
+  const { idempotencyMap, ctx, env } = createMockCoordinatorStorage()
+  const shard = new CoordinatorShardDO(ctx, env)
+  const canonicalUploadId = 'c1111111-1111-4111-8111-111111111111'
+  const cachedResponse = new MediaRecordMapper(publicBase).toUploadResponse(
+    createSampleProcessResult(canonicalUploadId),
+    99,
+  )
+
+  // Seed an existing completed record
+  idempotencyMap.set('first-key', {
+    idempotency_key: 'first-key',
+    semantic_hash: 'f'.repeat(64),
+    upload_id: canonicalUploadId,
+    draft_id: null,
+    metadata_json: JSON.stringify({
+      filename: 'photo.png',
+      mimeType: 'image/png',
+      filesize: 4,
+    }),
+    status: 'COMPLETED',
+    ticket_json: null,
+    response_json: JSON.stringify(cachedResponse),
+    expires_at: null,
+    updated_at: Date.now() - 1000,
+  })
+
+  // Second upload with a DIFFERENT idempotencyKey but identical semantic hash
+  const dedupOutcome = await shard.acquireLease({
+    idempotencyKey: 'second-key',
+    semanticHash: 'f'.repeat(64),
+    shardName: 'coordinator-shard-0',
+    metadata: {
+      filename: 'photo.png',
+      mimeType: 'image/png',
+      filesize: 4,
+    },
+  })
+
+  assert.equal(dedupOutcome.status, 'COMPLETED')
+  assert.deepEqual(dedupOutcome.response, cachedResponse)
+
+  // Verify the new idempotencyKey was recorded as COMPLETED with the canonical upload_id
+  const recorded = idempotencyMap.get('second-key')
+  assert.ok(recorded)
+  assert.equal(recorded.status, 'COMPLETED')
+  assert.equal(recorded.upload_id, canonicalUploadId)
+})
+
+test('CoordinatorShardDO failLease transitions status to FAILED and retry reuses original upload_id', async () => {
+  const { idempotencyMap, ctx, env } = createMockCoordinatorStorage()
+  const shard = new CoordinatorShardDO(ctx, env)
+
+  const firstOutcome = await shard.acquireLease({
+    idempotencyKey: 'retry-test-key',
+    semanticHash: '1'.repeat(64),
+    shardName: 'coordinator-shard-0',
+    metadata: {
+      filename: 'photo.png',
+      mimeType: 'image/png',
+      filesize: 4,
+    },
+  })
+
+  assert.equal(firstOutcome.status, 'LEASED')
+  const originalUploadId = firstOutcome.ticket.uploadId
+
+  // Fail the lease
+  await shard.failLease(
+    firstOutcome.ticket.ticketId,
+    firstOutcome.ticket.attemptId,
+  )
+
+  const failedRow = idempotencyMap.get('retry-test-key')
+  assert.ok(failedRow)
+  assert.equal(failedRow.status, 'FAILED')
+  assert.equal(failedRow.ticket_json, null)
+
+  // Retry with the same idempotency key: must reuse originalUploadId instead of generating a new one
+  const retryOutcome = await shard.acquireLease({
+    idempotencyKey: 'retry-test-key',
+    semanticHash: '1'.repeat(64),
+    shardName: 'coordinator-shard-0',
+    metadata: {
+      filename: 'photo.png',
+      mimeType: 'image/png',
+      filesize: 4,
+    },
+  })
+
+  assert.equal(retryOutcome.status, 'LEASED')
+  assert.equal(retryOutcome.ticket.uploadId, originalUploadId)
+  assert.equal(retryOutcome.metadata.uploadId, originalUploadId)
+})
+
+test('CoordinatorShardDO reconcileExpiredLeases transitions expired rows to FAILED and reuses upload_id', async () => {
+  const { idempotencyMap, ctx, env } = createMockCoordinatorStorage()
+  const shard = new CoordinatorShardDO(ctx, env)
+
+  const firstOutcome = await shard.acquireLease({
+    idempotencyKey: 'expiry-test-key',
+    semanticHash: '2'.repeat(64),
+    shardName: 'coordinator-shard-0',
+    metadata: {
+      filename: 'photo.png',
+      mimeType: 'image/png',
+      filesize: 4,
+    },
+  })
+
+  assert.equal(firstOutcome.status, 'LEASED')
+  const originalUploadId = firstOutcome.ticket.uploadId
+
+  // Manually expire the record
+  const leasedRow = idempotencyMap.get('expiry-test-key')!
+  leasedRow.expires_at = Date.now() - 5000
+
+  // Trigger alarm / expiry reconciliation
+  await shard.alarm()
+
+  assert.equal(leasedRow.status, 'FAILED')
+  assert.equal(leasedRow.ticket_json, null)
+
+  // Retry upload reuses the original uploadId
+  const retryOutcome = await shard.acquireLease({
+    idempotencyKey: 'expiry-test-key',
+    semanticHash: '2'.repeat(64),
+    shardName: 'coordinator-shard-0',
+    metadata: {
+      filename: 'photo.png',
+      mimeType: 'image/png',
+      filesize: 4,
+    },
+  })
+
+  assert.equal(retryOutcome.status, 'LEASED')
+  assert.equal(retryOutcome.ticket.uploadId, originalUploadId)
 })
 
 async function runMiddleware(

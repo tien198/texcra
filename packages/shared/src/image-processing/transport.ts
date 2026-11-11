@@ -1,12 +1,10 @@
 import { IMAGE_PROCESSING_LIMITS } from './constants'
 import { ImageProcessingError } from './errors'
 
+const ASCII_HEADER_PATTERN = /^[\x20-\x7e]+$/
+
 function checkHeaderSize(value: string): void {
-  if (
-    value.length > IMAGE_PROCESSING_LIMITS.maxMetadataBytes ||
-    new TextEncoder().encode(value).byteLength >
-      IMAGE_PROCESSING_LIMITS.maxMetadataBytes
-  ) {
+  if (value.length > IMAGE_PROCESSING_LIMITS.maxMetadataBytes) {
     throw new ImageProcessingError(
       'INVALID_INPUT',
       'The x-image-metadata header must not exceed 4096 encoded bytes.',
@@ -42,6 +40,12 @@ export function decodeImageMetadata(value: string | null | undefined): unknown {
     )
   }
   checkHeaderSize(value)
+  if (!ASCII_HEADER_PATTERN.test(value)) {
+    throw new ImageProcessingError(
+      'INVALID_INPUT',
+      'The x-image-metadata header must contain valid encoded JSON.',
+    )
+  }
   try {
     return JSON.parse(decodeURIComponent(value)) as unknown
   } catch {

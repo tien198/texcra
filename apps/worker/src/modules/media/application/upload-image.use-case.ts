@@ -1,5 +1,4 @@
 import {
-  createObjectKeyPlan,
   encodeImageMetadata,
   ImageProcessingError,
   IMAGE_PROCESSING_LIMITS,
@@ -8,7 +7,6 @@ import {
   parseUploadImageResponse,
 } from 'shared/image-processing'
 import type {
-  ProcessImageMetadata,
   ProcessImageResult,
   UploadImageResponse,
 } from 'shared/image-processing'
@@ -21,8 +19,14 @@ import {
   ImageHttpResponder,
 } from '../http'
 import { MediaUrlResolver } from '../infrastructure/media-url.resolver'
-import { parseIncomingUploadMetadata, validateIdentifier } from './upload-metadata.parser'
-import { IDEMPOTENCY_KEY_HEADER, LEASE_TICKET_HEADER } from './upload-image.types'
+import {
+  parseIncomingUploadMetadata,
+  validateIdentifier,
+} from './upload-metadata.parser'
+import {
+  IDEMPOTENCY_KEY_HEADER,
+  LEASE_TICKET_HEADER,
+} from './upload-image.types'
 import type {
   HandleImageUploadDependencies,
   UploadRouteBindings,
@@ -115,7 +119,7 @@ export async function handleImageUpload(
     const idempotencyKey =
       rawIdempotencyHeader !== null
         ? validateIdentifier(rawIdempotencyHeader, IDEMPOTENCY_KEY_HEADER)
-        : metadata.uploadId
+        : (metadata.uploadId ?? crypto.randomUUID())
 
     const contentType = request.headers
       .get('Content-Type')
@@ -150,20 +154,19 @@ export async function handleImageUpload(
     }
 
     const semanticHash = await canonicalizer.computeSemanticHash({
-      draft_id,
+      ...(draft_id !== undefined ? { draft_id } : {}),
       filename: metadata.filename,
       mimeType: metadata.mimeType,
       filesize: metadata.filesize,
+      ...(metadata.contentHash !== undefined
+        ? { contentHash: metadata.contentHash }
+        : {}),
       ...(metadata.crop ? { crop: metadata.crop } : {}),
       ...(metadata.focalPoint ? { focalPoint: metadata.focalPoint } : {}),
     })
 
     const shardName = shardRouter.resolveShardName(semanticHash)
     const coordinator = env.COORDINATOR_SHARD.getByName(shardName)
-    const processMetadata: ProcessImageMetadata = {
-      ...metadata,
-      objectKeys: createObjectKeyPlan(metadata.uploadId, metadata.mimeType),
-    }
 
     const leaseOutcome = await coordinator.acquireLease({
       idempotencyKey,
@@ -171,7 +174,7 @@ export async function handleImageUpload(
       draftId: draft_id,
       semanticHash,
       shardName,
-      metadata: processMetadata,
+      metadata,
     })
 
     if (leaseOutcome.status === 'COMPLETED') {
@@ -181,7 +184,8 @@ export async function handleImageUpload(
       )
     }
 
-    const { ticket } = leaseOutcome
+    const { ticket, metadata: processMetadata } = leaseOutcome
+    uploadId = ticket.uploadId
     const sidecar = env.CONTAINER_SIDECAR.getByName(ticket.sidecarName)
     let processedResult: ProcessImageResult
     try {

@@ -56,33 +56,28 @@ test('sends the original File with Idempotency-Key, draft_id, URI-encoded Unicod
   }
   const focalPoint = { x: 25, y: 75 }
   const signal = new AbortController().signal
-  t.mock.method(
-    globalThis,
-    'fetch',
-    async (url: string, init: RequestInit) => {
-      assert.equal(url, '/api/upload')
-      assert.equal(init.method, 'POST')
-      assert.equal(init.body, file)
-      assert.equal(init.credentials, 'same-origin')
-      assert.equal(init.signal, signal)
-      const headers = new Headers(init.headers)
-      assert.equal(headers.get('Content-Type'), 'image/png')
-      assert.equal(headers.get('Idempotency-Key'), uploadId)
-      assert.deepEqual(
-        JSON.parse(decodeURIComponent(headers.get('x-image-metadata')!)),
-        {
-          uploadId,
-          draft_id: draftId,
-          filename: 'ảnh.png',
-          mimeType: 'image/png',
-          filesize: 3,
-          crop,
-          focalPoint,
-        },
-      )
-      return Response.json(response())
-    },
-  )
+  t.mock.method(globalThis, 'fetch', async (url: string, init: RequestInit) => {
+    assert.equal(url, '/api/upload')
+    assert.equal(init.method, 'POST')
+    assert.equal(init.body, file)
+    assert.equal(init.credentials, 'same-origin')
+    assert.equal(init.signal, signal)
+    const headers = new Headers(init.headers)
+    assert.equal(headers.get('Content-Type'), 'image/png')
+    assert.equal(headers.get('Idempotency-Key'), uploadId)
+    const decodedMetadata = JSON.parse(
+      decodeURIComponent(headers.get('x-image-metadata')!),
+    )
+    assert.equal(decodedMetadata.uploadId, uploadId)
+    assert.equal(decodedMetadata.draft_id, draftId)
+    assert.equal(decodedMetadata.filename, 'ảnh.png')
+    assert.equal(decodedMetadata.mimeType, 'image/png')
+    assert.equal(decodedMetadata.filesize, 3)
+    assert.match(decodedMetadata.contentHash, /^[0-9a-f]{64}$/)
+    assert.deepEqual(decodedMetadata.crop, crop)
+    assert.deepEqual(decodedMetadata.focalPoint, focalPoint)
+    return Response.json(response())
+  })
   assert.deepEqual(
     await uploadImage(file, {
       uploadId,
@@ -95,8 +90,8 @@ test('sends the original File with Idempotency-Key, draft_id, URI-encoded Unicod
   )
 })
 
-test('creates a UUID when none is supplied and allows explicit transport idempotency retry identity', async (t) => {
-  const ids: string[] = []
+test('creates an Idempotency-Key UUID when none is supplied, computes SHA-256 contentHash, and allows explicit retry identity', async (t) => {
+  const sentMetadatas: Array<Record<string, unknown>> = []
   const idempotencyKeys: string[] = []
   t.mock.method(
     globalThis,
@@ -106,18 +101,23 @@ test('creates a UUID when none is supplied and allows explicit transport idempot
       const metadata = JSON.parse(
         decodeURIComponent(headers.get('x-image-metadata')!),
       )
-      ids.push(metadata.uploadId)
+      sentMetadatas.push(metadata)
       idempotencyKeys.push(headers.get('Idempotency-Key')!)
-      return Response.json(response(metadata.uploadId))
+      return Response.json(response(uploadId))
     },
   )
   const file = new File(['png'], 'photo.png', { type: 'image/png' })
   const first = await uploadImage(file)
-  await uploadImage(file, { uploadId: first.uploadId })
-  assert.match(first.uploadId, /^[0-9a-f-]{36}$/)
-  assert.equal(ids[0], ids[1])
-  assert.equal(idempotencyKeys[0], first.uploadId)
-  assert.equal(idempotencyKeys[1], first.uploadId)
+  assert.equal(first.uploadId, uploadId)
+  assert.match(idempotencyKeys[0], /^[0-9a-f-]{36}$/)
+  assert.equal(sentMetadatas[0].uploadId, undefined)
+  assert.equal(sentMetadatas[0].draft_id, undefined)
+  assert.match(sentMetadatas[0].contentHash as string, /^[0-9a-f]{64}$/)
+
+  // Explicit retry with specific idempotencyKey reuses the Idempotency-Key header
+  const explicitKey = 'explicit-client-key-1'
+  await uploadImage(file, { idempotencyKey: explicitKey })
+  assert.equal(idempotencyKeys[1], explicitKey)
 })
 
 test('exposes validated server errors including retryability and status', async (t) => {
@@ -145,7 +145,7 @@ test('exposes validated server errors including retryability and status', async 
   )
 })
 
-test('rejects malformed success, error, non-JSON, and mismatched upload identity', async (t) => {
+test('rejects malformed success, error, and non-JSON, but accepts server-assigned uploadId on dedup', async (t) => {
   const replies = [
     Response.json({ url: 'bad' }),
     Response.json({ error: 'bad' }, { status: 500 }),
@@ -154,8 +154,11 @@ test('rejects malformed success, error, non-JSON, and mismatched upload identity
   ]
   t.mock.method(globalThis, 'fetch', async () => replies.shift()!)
   const file = new File(['png'], 'photo.png', { type: 'image/png' })
-  for (let index = 0; index < 4; index++)
+  for (let index = 0; index < 3; index++) {
     await assert.rejects(uploadImage(file, { uploadId }))
+  }
+  const dedupResult = await uploadImage(file, { uploadId })
+  assert.equal(dedupResult.uploadId, 'b8a73f4f-8d65-4b3a-a456-426614174000')
 })
 
 test('rejects unsupported or empty files before fetching and propagates network failure', async (t) => {

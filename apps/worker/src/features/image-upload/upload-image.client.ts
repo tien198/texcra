@@ -4,50 +4,32 @@ import {
   parseUploadImageResponse,
   parseUploadErrorResponse,
 } from 'shared/image-processing'
-import type {
-  CropData,
-  FocalPoint,
-  UploadErrorResponse,
-  UploadImageResponse,
-} from 'shared/image-processing'
+import type { UploadImageResponse } from 'shared/image-processing'
+import { ImageUploadError } from './image-upload.error'
+import type { UploadImageOptions } from './image-upload.types'
+import { computeFileHash } from './utils'
 
-export interface UploadImageOptions {
-  /** Transport-level idempotency key generated on CSR; defaults to uploadId. */
-  idempotencyKey?: string
-  /** Reuse only when retrying the same file and processing options. */
-  uploadId?: string
-  /** Domain-level draft identifier for RFC 8785 semantic idempotency; defaults to uploadId. */
-  draft_id?: string
-  crop?: CropData
-  focalPoint?: FocalPoint
-  signal?: AbortSignal
-}
-
-export class ImageUploadError extends Error {
-  constructor(
-    public readonly response: UploadErrorResponse,
-    public readonly status: number,
-  ) {
-    super(response.error.message)
-    this.name = 'ImageUploadError'
-  }
-}
+export { computeFileHash }
+export { ImageUploadError }
+export type { UploadImageOptions }
 
 /** Called from browser events; the File is the raw request body. */
 export async function uploadImage(
   file: File,
   options: UploadImageOptions = {},
 ): Promise<UploadImageResponse> {
+  const contentHash = options.contentHash ?? (await computeFileHash(file))
   const metadata = parseUploadMetadata({
-    uploadId: options.uploadId ?? crypto.randomUUID(),
+    ...(options.uploadId !== undefined ? { uploadId: options.uploadId } : {}),
     filename: file.name,
     mimeType: file.type,
     filesize: file.size,
+    contentHash,
     ...(options.crop ? { crop: options.crop } : {}),
     ...(options.focalPoint ? { focalPoint: options.focalPoint } : {}),
   })
-  const idempotencyKey = options.idempotencyKey ?? metadata.uploadId
-  const draft_id = options.draft_id ?? metadata.uploadId
+  const idempotencyKey =
+    options.idempotencyKey ?? options.uploadId ?? crypto.randomUUID()
 
   const response = await fetch('/api/upload', {
     method: 'POST',
@@ -57,7 +39,9 @@ export async function uploadImage(
       'Idempotency-Key': idempotencyKey,
       'x-image-metadata': encodeImageMetadata({
         ...metadata,
-        draft_id,
+        ...(options.draft_id !== undefined
+          ? { draft_id: options.draft_id }
+          : {}),
       }),
     },
     body: file,
@@ -75,9 +59,5 @@ export async function uploadImage(
       response.status,
     )
   }
-  const result = parseUploadImageResponse(payload)
-  if (result.uploadId !== metadata.uploadId) {
-    throw new Error('The upload response does not match this upload.')
-  }
-  return result
+  return parseUploadImageResponse(payload)
 }

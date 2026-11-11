@@ -6,6 +6,7 @@ import {
   hasField,
   invalid,
   readByteCount,
+  readContentHash,
   readDimensions,
   readFilename,
   readFinite,
@@ -33,8 +34,15 @@ import type {
 } from './types'
 import { DEFAULT_VARIANTS, VARIANT_IDS } from './variants'
 
-const UPLOAD_FIELDS = ['uploadId', 'filename', 'mimeType', 'filesize'] as const
-const UPLOAD_OPTIONS = ['crop', 'focalPoint'] as const
+const UPLOAD_FIELDS = ['filename', 'mimeType', 'filesize'] as const
+const UPLOAD_OPTIONS = [
+  'uploadId',
+  'contentHash',
+  'crop',
+  'focalPoint',
+] as const
+const PROCESS_FIELDS = ['uploadId', ...UPLOAD_FIELDS, 'objectKeys'] as const
+const PROCESS_OPTIONS = ['contentHash', 'crop', 'focalPoint'] as const
 const IMAGE_FIELDS = [
   'filename',
   'mimeType',
@@ -82,7 +90,6 @@ function parseFocalPoint(input: unknown): FocalPoint {
 
 function readUploadFields(object: Record<string, unknown>): UploadMetadata {
   const result: UploadMetadata = {
-    uploadId: readUuid(object.uploadId, 'uploadId'),
     filename: readFilename(object.filename, 'filename'),
     mimeType: readMimeType(object.mimeType, 'mimeType'),
     filesize: readByteCount(
@@ -90,6 +97,12 @@ function readUploadFields(object: Record<string, unknown>): UploadMetadata {
       'filesize',
       IMAGE_PROCESSING_LIMITS.maxInputBytes,
     ),
+  }
+  if (hasField(object, 'uploadId')) {
+    result.uploadId = readUuid(object.uploadId, 'uploadId')
+  }
+  if (hasField(object, 'contentHash')) {
+    result.contentHash = readContentHash(object.contentHash, 'contentHash')
   }
   if (hasField(object, 'crop')) {
     result.crop = parseCrop(object.crop)
@@ -129,17 +142,15 @@ function parseObjectKeys(
 export function parseProcessImageMetadata(
   input: unknown,
 ): ProcessImageMetadata {
-  const object = exactObject(
-    input,
-    [...UPLOAD_FIELDS, 'objectKeys'],
-    UPLOAD_OPTIONS,
-  )
+  const object = exactObject(input, PROCESS_FIELDS, PROCESS_OPTIONS)
   const metadata = readUploadFields(object)
+  const uploadId = readUuid(object.uploadId, 'uploadId')
   return {
     ...metadata,
+    uploadId,
     objectKeys: parseObjectKeys(
       object.objectKeys,
-      createObjectKeyPlan(metadata.uploadId, metadata.mimeType),
+      createObjectKeyPlan(uploadId, metadata.mimeType),
     ),
   }
 }

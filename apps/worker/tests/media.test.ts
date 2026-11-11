@@ -2,8 +2,16 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { getTableColumns } from 'drizzle-orm'
 import { media } from 'shared'
-import { createObjectKeyPlan, DEFAULT_VARIANTS, VARIANT_IDS } from 'shared/image-processing'
-import type { ProcessImageResult, ProcessedVariants, VariantId } from 'shared/image-processing'
+import {
+  createObjectKeyPlan,
+  DEFAULT_VARIANTS,
+  VARIANT_IDS,
+} from 'shared/image-processing'
+import type {
+  ProcessImageResult,
+  ProcessedVariants,
+  VariantId,
+} from 'shared/image-processing'
 import {
   D1MediaRepository,
   MediaRecordMapper,
@@ -17,28 +25,51 @@ function fixture(): ProcessImageResult {
   const keys = createObjectKeyPlan(uploadId, 'image/jpeg')
   function variant<TVariant extends VariantId>(id: TVariant) {
     return {
-      id, format: 'webp' as const, mimeType: 'image/webp' as const,
-      filename: keys.variants[id].split('/').at(-1)!, r2Key: keys.variants[id],
-      width: DEFAULT_VARIANTS[id].width, height: DEFAULT_VARIANTS[id].height,
+      id,
+      format: 'webp' as const,
+      mimeType: 'image/webp' as const,
+      filename: keys.variants[id].split('/').at(-1)!,
+      r2Key: keys.variants[id],
+      width: DEFAULT_VARIANTS[id].width,
+      height: DEFAULT_VARIANTS[id].height,
       filesize: 100 + VARIANT_IDS.indexOf(id),
     }
   }
   const variants: ProcessedVariants = {
-    thumbnail: variant('thumbnail'), square: variant('square'), small: variant('small'),
-    medium: variant('medium'), large: variant('large'), xlarge: variant('xlarge'), og: variant('og'),
+    thumbnail: variant('thumbnail'),
+    square: variant('square'),
+    small: variant('small'),
+    medium: variant('medium'),
+    large: variant('large'),
+    xlarge: variant('xlarge'),
+    og: variant('og'),
   }
   return {
-    uploadId, focalX: 12.5, focalY: 0,
-    original: { filename: keys.original.split('/').at(-1)!, r2Key: keys.original,
-      mimeType: 'image/jpeg', width: 2400, height: 1600, filesize: 123456 }, variants,
+    uploadId,
+    focalX: 12.5,
+    focalY: 0,
+    original: {
+      filename: keys.original.split('/').at(-1)!,
+      r2Key: keys.original,
+      mimeType: 'image/jpeg',
+      width: 2400,
+      height: 1600,
+      filesize: 123456,
+    },
+    variants,
   }
 }
 
 function row(): typeof media.$inferSelect {
   const mapper = new MediaRecordMapper(publicBase)
   return {
-    ...mapper.toInsertValues(fixture()), id: 42,
-    alt: null, caption: null, folderId: null, createdAt: new Date(0), updatedAt: new Date(0),
+    ...mapper.toInsertValues(fixture()),
+    id: 42,
+    alt: null,
+    caption: null,
+    folderId: null,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
   } as typeof media.$inferSelect
 }
 
@@ -53,16 +84,25 @@ test('maps all seven variants into all 42 flattened columns using numeric string
   assert.equal(values.filesize, '123456')
   assert.equal(values.focalX, '12.5')
   assert.equal(values.focalY, '0')
-  assert.equal(Object.keys(values).filter((key) => key.startsWith('sizes')).length, 42)
+  assert.equal(
+    Object.keys(values).filter((key) => key.startsWith('sizes')).length,
+    42,
+  )
   for (const id of VARIANT_IDS) {
     const prefix = `sizes${id[0].toUpperCase()}${id.slice(1)}`
     const fields = values as Record<string, string>
-    assert.equal(fields[`${prefix}Url`], `${publicBase}/${input.variants[id].r2Key}`)
+    assert.equal(
+      fields[`${prefix}Url`],
+      `${publicBase}/${input.variants[id].r2Key}`,
+    )
     assert.equal(fields[`${prefix}Filename`], input.variants[id].filename)
     assert.equal(fields[`${prefix}MimeType`], 'image/webp')
     assert.equal(fields[`${prefix}Width`], String(input.variants[id].width))
     assert.equal(fields[`${prefix}Height`], String(input.variants[id].height))
-    assert.equal(fields[`${prefix}Filesize`], String(input.variants[id].filesize))
+    assert.equal(
+      fields[`${prefix}Filesize`],
+      String(input.variants[id].filesize),
+    )
   }
 })
 
@@ -84,20 +124,47 @@ test('rejects incomplete, mismatched and unsafe metadata before persistence', ()
   result.original.r2Key = '../outside.jpg'
   assert.throws(() => mapper.toInsertValues(result))
   assert.throws(() => new MediaRecordMapper('https://user:pass@example.com'))
-  assert.throws(() => mapper.fromRowToUploadResponse({ ...row(), sizesOgFilesize: null }, uploadId))
-  assert.throws(() => new MediaRecordMapper('https://other.example.com').fromRowToUploadResponse(row(), uploadId))
-  assert.throws(() => mapper.fromRowToUploadResponse(row(), 'b8a73f4f-8d65-4b3a-a456-426614174000'))
+  assert.throws(() =>
+    mapper.fromRowToUploadResponse(
+      { ...row(), sizesOgFilesize: null },
+      uploadId,
+    ),
+  )
+  assert.throws(() =>
+    new MediaRecordMapper('https://other.example.com').fromRowToUploadResponse(
+      row(),
+      uploadId,
+    ),
+  )
+  assert.throws(() =>
+    mapper.fromRowToUploadResponse(
+      row(),
+      'b8a73f4f-8d65-4b3a-a456-426614174000',
+    ),
+  )
 })
 
 test('MediaUrlResolver validates and resolves clean URLs', () => {
   const resolver = new MediaUrlResolver(publicBase)
-  assert.equal(resolver.resolveObjectUrl('media/photo.jpg'), `${publicBase}/media/photo.jpg`)
-  assert.throws(() => resolver.resolveObjectUrl('media/../hack.jpg'), /Invalid media object key/)
-  assert.throws(() => resolver.assertOwnedUrl('https://evil.com/media/photo.jpg'), /does not belong/)
+  assert.equal(
+    resolver.resolveObjectUrl('media/photo.jpg'),
+    `${publicBase}/media/photo.jpg`,
+  )
+  assert.throws(
+    () => resolver.resolveObjectUrl('media/../hack.jpg'),
+    /Invalid media object key/,
+  )
+  assert.throws(
+    () => resolver.assertOwnedUrl('https://evil.com/media/photo.jpg'),
+    /does not belong/,
+  )
 })
 
 /** D1 protocol stub: exercises Drizzle SQL/binding and result mapping without a Worker runtime. */
-function database(insertId: number | null, stored: ReturnType<typeof row> | null) {
+function database(
+  insertId: number | null,
+  stored: ReturnType<typeof row> | null,
+) {
   const calls: Array<{ sql: string; params: unknown[] }> = []
   const binding = {
     prepare(sql: string) {
@@ -109,12 +176,15 @@ function database(insertId: number | null, stored: ReturnType<typeof row> | null
           return this
         },
         async raw() {
-          if (sql.startsWith('insert')) return insertId === null ? [] : [[insertId]]
+          if (sql.startsWith('insert'))
+            return insertId === null ? [] : [[insertId]]
           if (!stored) return []
-          return [Object.keys(getTableColumns(media)).map((key) => {
-            const value = stored[key as keyof typeof stored]
-            return value instanceof Date ? value.getTime() : value
-          })]
+          return [
+            Object.keys(getTableColumns(media)).map((key) => {
+              const value = stored[key as keyof typeof stored]
+              return value instanceof Date ? value.getTime() : value
+            }),
+          ]
         },
       }
     },
@@ -126,8 +196,14 @@ test('persists and returns the inserted ID using a unique-filename conflict guar
   const db = database(42, null)
   const repo = new D1MediaRepository(db.binding, publicBase)
   const mapper = new MediaRecordMapper(publicBase)
-  assert.deepEqual(await repo.persist(fixture()), mapper.toUploadResponse(fixture(), 42))
-  assert.match(db.calls[0].sql, /on conflict \("media"\."filename"\) do nothing/)
+  assert.deepEqual(
+    await repo.persist(fixture()),
+    mapper.toUploadResponse(fixture(), 42),
+  )
+  assert.match(
+    db.calls[0].sql,
+    /on conflict \("media"\."filename"\) do nothing/,
+  )
   assert.ok(db.calls[0].params.includes(fixture().original.filename))
 })
 
@@ -138,13 +214,19 @@ test('duplicate insert recovers a committed row by unique original filename', as
   assert.equal(response.mediaId, 42)
   assert.match(db.calls[1].sql, /where "media"\."filename" = \?/)
   assert.deepEqual(db.calls[1].params, [fixture().original.filename])
-  assert.deepEqual(await repo.findByOriginalFilename(fixture().original.filename, uploadId), response)
+  assert.deepEqual(
+    await repo.findByOriginalFilename(fixture().original.filename, uploadId),
+    response,
+  )
 })
 
 test('missing filename returns null and unresolved conflicts fail', async () => {
   const db = database(null, null)
   const repo = new D1MediaRepository(db.binding, publicBase)
-  assert.equal(await repo.findByOriginalFilename(fixture().original.filename, uploadId), null)
+  assert.equal(
+    await repo.findByOriginalFilename(fixture().original.filename, uploadId),
+    null,
+  )
   await assert.rejects(repo.persist(fixture()), /could not be recovered/)
 })
 

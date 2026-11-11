@@ -5,10 +5,11 @@ import type {
 } from 'shared/image-processing'
 
 export interface SemanticUploadPayload {
-  readonly draft_id: string
+  readonly draft_id?: string
   readonly filename: string
   readonly mimeType: ImageMimeType
   readonly filesize: number
+  readonly contentHash?: string
   readonly crop?: CropData
   readonly focalPoint?: FocalPoint
 }
@@ -63,10 +64,13 @@ export class Rfc8785Canonicalizer {
     payload: SemanticUploadPayload,
   ): Promise<string> {
     const normalizedPayload: Record<string, unknown> = {
-      draft_id: payload.draft_id,
+      ...(payload.draft_id !== undefined ? { draft_id: payload.draft_id } : {}),
       filename: payload.filename,
       mimeType: payload.mimeType,
       filesize: payload.filesize,
+      ...(payload.contentHash !== undefined
+        ? { contentHash: payload.contentHash }
+        : {}),
       ...(payload.crop !== undefined ? { crop: payload.crop } : {}),
       ...(payload.focalPoint !== undefined
         ? { focalPoint: payload.focalPoint }

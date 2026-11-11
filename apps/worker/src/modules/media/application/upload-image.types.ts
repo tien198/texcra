@@ -28,7 +28,7 @@ export interface WorkflowInstanceStub {
 
 export interface IncomingUploadMetadata {
   readonly metadata: UploadMetadata
-  readonly draft_id: string
+  readonly draft_id?: string
 }
 
 export interface HandleImageUploadDependencies {

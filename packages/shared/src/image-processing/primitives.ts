@@ -4,7 +4,18 @@ import type { ImageMimeType } from './types'
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const CONTENT_HASH_PATTERN = /^[0-9a-f]{64}$/
 const UNSAFE_FILENAME_PATTERN = /[/\\<>:"|?*]/u
+const MAX_FILENAME_BYTES = 255
+const UTF8_ENCODER = new TextEncoder()
+
+function exceedsUtf8Bytes(value: string, maxBytes: number): boolean {
+  // Fast-fail O(1) guard: every UTF-16 code unit encodes to at least 1 UTF-8 byte.
+  if (value.length > maxBytes) {
+    return true
+  }
+  return UTF8_ENCODER.encode(value).byteLength > maxBytes
+}
 
 export function containsControlCharacters(
   value: string,
@@ -70,12 +81,20 @@ export function readUuid(input: unknown, label: string): string {
   return input
 }
 
+export function readContentHash(input: unknown, label: string): string {
+  if (typeof input !== 'string' || !CONTENT_HASH_PATTERN.test(input)) {
+    return invalid(
+      `${label} must be a 64-character lowercase SHA-256 hex digest.`,
+    )
+  }
+  return input
+}
+
 export function readFilename(input: unknown, label: string): string {
   if (
     typeof input !== 'string' ||
     input.length === 0 ||
-    input.length > 255 ||
-    new TextEncoder().encode(input).byteLength > 255 ||
+    exceedsUtf8Bytes(input, MAX_FILENAME_BYTES) ||
     input.trim() !== input ||
     input === '.' ||
     input === '..' ||

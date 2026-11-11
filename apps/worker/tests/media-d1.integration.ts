@@ -101,25 +101,16 @@ test('persists and recovers all image metadata through a real local D1 binding',
       mapper.toUploadResponse(result, inserted.mediaId),
     )
     assert.deepEqual(
-      await repo.findByOriginalFilename(
-        result.original.filename,
-        uploadId,
-      ),
+      await repo.findByOriginalFilename(result.original.filename, uploadId),
       inserted,
     )
-    assert.deepEqual(
-      await repo.persist(result),
-      inserted,
-    )
+    assert.deepEqual(await repo.persist(result), inserted)
     const count = await proxy.env.DB.prepare(
       'SELECT COUNT(*) AS count FROM media',
     ).first<number>('count')
     assert.equal(count, 1)
     assert.equal(
-      await repo.findByOriginalFilename(
-        'missing.jpg',
-        uploadId,
-      ),
+      await repo.findByOriginalFilename('missing.jpg', uploadId),
       null,
     )
   } finally {

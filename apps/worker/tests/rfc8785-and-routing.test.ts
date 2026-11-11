@@ -51,6 +51,14 @@ test('Rfc8785Canonicalizer produces identical SHA-256 semantic hashes regardless
     crop: { unit: '%', width: 50, height: 50, y: 20, x: 10, rotation: 0 },
   })
 
+  const hashNoDraft = await canonicalizer.computeSemanticHash({
+    filename: 'hero.png',
+    mimeType: 'image/png',
+    filesize: 4096,
+    crop: { x: 10, y: 20, width: 50, height: 50, unit: '%', rotation: 0 },
+    focalPoint: { x: 50, y: 50 },
+  })
+
   const hashDifferentDraft = await canonicalizer.computeSemanticHash({
     draft_id: 'draft-200',
     filename: 'hero.png',
@@ -63,6 +71,36 @@ test('Rfc8785Canonicalizer produces identical SHA-256 semantic hashes regardless
   assert.match(hashA, /^[0-9a-f]{64}$/)
   assert.equal(hashA, hashB)
   assert.notEqual(hashA, hashDifferentDraft)
+  assert.notEqual(hashA, hashNoDraft)
+})
+
+test('Rfc8785Canonicalizer produces distinct hashes for different contentHash values even with identical filename, mimeType, and filesize', async () => {
+  const canonicalizer = new Rfc8785Canonicalizer()
+
+  const hashA = await canonicalizer.computeSemanticHash({
+    filename: 'identical.png',
+    mimeType: 'image/png',
+    filesize: 1024,
+    contentHash: '11'.repeat(32),
+  })
+
+  const hashB = await canonicalizer.computeSemanticHash({
+    filename: 'identical.png',
+    mimeType: 'image/png',
+    filesize: 1024,
+    contentHash: '22'.repeat(32),
+  })
+
+  const hashNoContentHash = await canonicalizer.computeSemanticHash({
+    filename: 'identical.png',
+    mimeType: 'image/png',
+    filesize: 1024,
+  })
+
+  assert.match(hashA, /^[0-9a-f]{64}$/)
+  assert.match(hashB, /^[0-9a-f]{64}$/)
+  assert.notEqual(hashA, hashB)
+  assert.notEqual(hashA, hashNoContentHash)
 })
 
 test('SemanticShardRouterAdapter deterministically routes SHA-256 hashes across coordinator shards', () => {

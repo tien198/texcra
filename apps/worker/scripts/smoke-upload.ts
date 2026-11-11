@@ -50,11 +50,13 @@ async function main() {
     '.avif': 'image/avif',
   }
   const input = await readFile(path)
+  const contentHash = createHash('sha256').update(input).digest('hex')
+  const idempotencyKey = randomUUID()
   const metadata = parseUploadMetadata({
-    uploadId: randomUUID(),
     filename: basename(path),
     filesize: input.byteLength,
     mimeType: mimeTypes[extname(path).toLowerCase() as keyof typeof mimeTypes],
+    contentHash,
   })
   const url = new URL(values.url)
   assert.ok(
@@ -64,17 +66,14 @@ async function main() {
   const state = values['persist-to']
     ? resolve(callerDirectory, values['persist-to'])
     : join(workerDirectory, '.wrangler/state')
-  console.log(`POST ${url.href}\nuploadId: ${metadata.uploadId}`)
+  console.log(`POST ${url.href}\nidempotencyKey: ${idempotencyKey}`)
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       Origin: url.origin,
       'Content-Type': metadata.mimeType,
-      'Idempotency-Key': metadata.uploadId,
-      'x-image-metadata': encodeImageMetadata({
-        ...metadata,
-        draft_id: metadata.uploadId,
-      }),
+      'Idempotency-Key': idempotencyKey,
+      'x-image-metadata': encodeImageMetadata(metadata),
     },
     body: input,
     signal: AbortSignal.timeout(180_000),
@@ -83,11 +82,11 @@ async function main() {
   const text = await response.text()
   assert.equal(response.status, 200, `Upload HTTP ${response.status}: ${text}`)
   const result = parseUploadImageResponse(JSON.parse(text))
-  assert.equal(result.uploadId, metadata.uploadId)
+  assert.ok(result.uploadId, 'Expected server-assigned uploadId')
   assert.equal(result.filesize, input.byteLength)
   assert.equal(result.mimeType, metadata.mimeType)
   console.log(
-    `[OK] HTTP 200: processed a new upload; mediaId=${result.mediaId}`,
+    `[OK] HTTP 200: processed a new upload; uploadId=${result.uploadId} mediaId=${result.mediaId}`,
   )
 
   async function wrangler(args: string[]) {
@@ -111,7 +110,7 @@ async function main() {
 
   const directory = await mkdtemp(join(tmpdir(), 'texcra-smoke-upload-'))
   try {
-    const keys = createObjectKeyPlan(metadata.uploadId, metadata.mimeType)
+    const keys = createObjectKeyPlan(result.uploadId, metadata.mimeType)
     // Read persisted objects through Wrangler; the running Worker/container stays untouched.
     for (const [key, image] of [
       [keys.original, result],

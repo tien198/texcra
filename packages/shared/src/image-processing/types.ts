@@ -36,10 +36,11 @@ export type VariantDefinitions = {
 
 /** Client-declared metadata; the container must verify the actual image. */
 export interface UploadMetadata {
-  uploadId: string
+  uploadId?: string
   filename: string
   mimeType: ImageMimeType
   filesize: number
+  contentHash?: string
   crop?: CropData
   focalPoint?: FocalPoint
 }
@@ -51,6 +52,7 @@ export interface ObjectKeyPlan {
 }
 
 export interface ProcessImageMetadata extends UploadMetadata {
+  uploadId: string
   objectKeys: ObjectKeyPlan
 }
 

@@ -2,12 +2,8 @@ import { Button } from '#/components/ui/button'
 import { LoaderCircle, UploadCloud } from 'lucide-react'
 import { useId } from 'react'
 import { cn } from '#/lib/utils'
-import { useImageUpload } from './use-image-upload'
-import type { UseImageUploadOptions } from './use-image-upload'
-
-export interface ImageUploadProps extends UseImageUploadOptions {
-  label?: string
-}
+import { useImageUpload } from '../hooks'
+import type { ImageUploadProps } from '../image-upload.types'
 
 export function ImageUpload({
   label = 'Hero Image',
@@ -31,7 +27,14 @@ export function ImageUpload({
     handleDragLeave,
     handleDrop,
     handleFileChange,
-  } = useImageUpload({ value, onChange, onUpload, onComplete, crop, focalPoint })
+  } = useImageUpload({
+    value,
+    onChange,
+    onUpload,
+    onComplete,
+    crop,
+    focalPoint,
+  })
 
   return (
     <div className="grid gap-[8px] mb-[26px]">
@@ -50,8 +53,15 @@ export function ImageUpload({
       />
 
       {isUploading ? (
-        <div role="status" aria-live="polite" className="flex min-h-[120px] items-center justify-center gap-2 rounded-md border border-border text-sm text-muted-foreground">
-          <LoaderCircle aria-hidden="true" className="size-5 animate-spin motion-reduce:animate-none" />
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex min-h-[120px] items-center justify-center gap-2 rounded-md border border-border text-sm text-muted-foreground"
+        >
+          <LoaderCircle
+            aria-hidden="true"
+            className="size-5 animate-spin motion-reduce:animate-none"
+          />
           Uploading and processing image…
         </div>
       ) : previewUrl ? (
@@ -87,36 +97,43 @@ export function ImageUpload({
           role="button"
           tabIndex={0}
           onKeyDown={(event) => {
-            if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+            if (
+              event.target === event.currentTarget &&
+              (event.key === 'Enter' || event.key === ' ')
+            ) {
               event.preventDefault()
               openFileDialog()
             }
           }}
           aria-labelledby={labelId}
         >
-            <>
-              <UploadCloud className="w-8 h-8 text-muted-foreground mb-2" />
-              <div className="flex items-center gap-2 text-sm">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="xs"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    openFileDialog()
-                  }}
-                >
-                  Choose a file
-                </Button>
-                <span className="text-muted-foreground">or drag and drop</span>
-              </div>
-              <span className="text-xs text-muted-foreground mt-1">
-                Single image supported (JPEG, PNG, WebP, AVIF)
-              </span>
-            </>
+          <>
+            <UploadCloud className="w-8 h-8 text-muted-foreground mb-2" />
+            <div className="flex items-center gap-2 text-sm">
+              <Button
+                type="button"
+                variant="secondary"
+                size="xs"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openFileDialog()
+                }}
+              >
+                Choose a file
+              </Button>
+              <span className="text-muted-foreground">or drag and drop</span>
+            </div>
+            <span className="text-xs text-muted-foreground mt-1">
+              Single image supported (JPEG, PNG, WebP, AVIF)
+            </span>
+          </>
         </div>
       )}
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

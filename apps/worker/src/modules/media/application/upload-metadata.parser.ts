@@ -51,7 +51,7 @@ export function parseIncomingUploadMetadata(
   const draft_id =
     rawDraftId !== undefined
       ? validateIdentifier(rawDraftId, 'draft_id')
-      : metadata.uploadId
+      : undefined
 
   return { metadata, draft_id }
 }

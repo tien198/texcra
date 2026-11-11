@@ -45,9 +45,11 @@ function processing(
   overrides: Partial<UploadMetadata> = {},
 ): ProcessImageMetadata {
   const metadata = upload(overrides)
+  const id = metadata.uploadId ?? UPLOAD_ID
   return {
     ...metadata,
-    objectKeys: createObjectKeyPlan(metadata.uploadId, metadata.mimeType),
+    uploadId: id,
+    objectKeys: createObjectKeyPlan(id, metadata.mimeType),
   }
 }
 
@@ -191,11 +193,20 @@ describe('upload metadata boundary', () => {
   })
 
   it('requires every declared field and rejects non-JSON objects', () => {
-    for (const field of ['uploadId', 'filename', 'mimeType', 'filesize']) {
+    for (const field of ['filename', 'mimeType', 'filesize']) {
       const value: Record<string, unknown> = { ...upload() }
       delete value[field]
       rejects(() => parseUploadMetadata(value))
     }
+    const withoutUploadId = upload()
+    delete withoutUploadId.uploadId
+    assert.deepEqual(parseUploadMetadata(withoutUploadId), withoutUploadId)
+
+    const withContentHash = upload({
+      contentHash: 'a'.repeat(64),
+    })
+    assert.deepEqual(parseUploadMetadata(withContentHash), withContentHash)
+
     for (const value of [null, [], '', true, new Date(), new Map()]) {
       rejects(() => parseUploadMetadata(value))
     }
@@ -221,6 +232,16 @@ describe('upload metadata boundary', () => {
     ]) {
       rejects(() => parseUploadMetadata({ ...upload(), uploadId }))
     }
+    for (const contentHash of [
+      '',
+      'A'.repeat(64),
+      'a'.repeat(63),
+      'a'.repeat(65),
+      'g'.repeat(64),
+      'not-a-hash',
+    ]) {
+      rejects(() => parseUploadMetadata({ ...upload(), contentHash }))
+    }
     for (const name of [
       '',
       '.',
@@ -232,6 +253,7 @@ describe('upload metadata boundary', () => {
       ' image.png',
       'x'.repeat(256),
       'ảnh'.repeat(86),
+      'ả'.repeat(86),
     ]) {
       rejects(() => parseUploadMetadata({ ...upload(), filename: name }))
     }
@@ -746,6 +768,7 @@ describe('bounded metadata transport', () => {
     rejects(() => decodeImageMetadata('x'.repeat(4097)))
     rejects(() => encodeImageMetadata('🌅'.repeat(342)))
     rejects(() => decodeImageMetadata('é'.repeat(2049)))
+    rejects(() => decodeImageMetadata('%22é%22'))
   })
 
   it('rejects missing, malformed, unserializable, and invalid Unicode headers', () => {
